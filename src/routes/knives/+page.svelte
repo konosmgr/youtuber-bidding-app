@@ -154,11 +154,8 @@
     pastError = null;
     
     try {
-      console.log('Loading past knives...');
-      
       // Use the working endpoint with the correct parameters
       const data = await fetchApi('items/?category=KNIFE&active=false');
-      console.log('Loaded past knives:', data);
       
       // This endpoint returns a paginated response object with a 'results' property
       const results = data.results || [];
@@ -184,7 +181,6 @@
           };
         });
       
-      console.log('Loaded past items:', pastItems);
     } catch (err) {
       console.error('Error fetching past auctions:', err);
       pastError = err.message || "Failed to load past auctions";
@@ -263,8 +259,6 @@
 
   // Handle bid events
   function handleBid(event) {
-    console.log('Bid placed on item:', event.detail.itemId);
-    
     // Find the item and navigate to its page
     const item = filteredItems.find(i => 
       i.id === event.detail.itemId || 
@@ -279,16 +273,27 @@
   
   // Handle watchlist events
   function handleWatchlist(event) {
-    console.log('Item added to watchlist:', event.detail.itemId);
     // Here you would add the item to the user's watchlist
   }
 
   // Handle image click events - navigates to the specific auction
   function handleImageClick(event) {
-    console.log('Image clicked for item:', event.detail.itemId);
-    
     // Find the item and navigate to its page
     const item = filteredItems.find(i => 
+      i.id === event.detail.itemId || 
+      (i.id && i.id.toString() === event.detail.itemId)
+    );
+    
+    if (item) {
+      const categoryPath = 'knives'; // We're on the knives page
+      window.location.href = `/${categoryPath}/${item.id}`;
+    }
+  }
+
+  // Handle image click events for past auctions
+  function handlePastImageClick(event) {
+    // Find the item in pastItems and navigate to its page
+    const item = pastItems.find(i => 
       i.id === event.detail.itemId || 
       (i.id && i.id.toString() === event.detail.itemId)
     );
@@ -485,7 +490,7 @@
                      animation: fadein 500ms calc(100ms * var(--index)) both;
                      transform-origin: center;"
             >
-              <PastAuctionCard {item} cardHeight="h-[480px]" hoverScale={1.08} />
+              <PastAuctionCard {item} cardHeight="h-[480px]" hoverScale={1.08} on:imageClick={handlePastImageClick} />
             </div>
           {/each}
         </div>

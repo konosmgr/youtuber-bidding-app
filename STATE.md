@@ -47,6 +47,8 @@ The project follows a typical SvelteKit structure:
 - Properly scrollable pages with fixed animated background
 
 ## Recent Changes
+- Implemented image proxy server to solve CORS issues and ensure consistent image loading
+- Cleaned up console.log statements from production code while maintaining error logging
 - Fixed past auction cards showing "$NaN" prices by adding proper validation for price values
 - Fixed missing animations on past auction cards by adding proper CSS keyframes and transform styles
 - Added proper validation and type checking for past auction items to ensure consistent display

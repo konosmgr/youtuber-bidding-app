@@ -45,11 +45,6 @@
   
   // Format price
   function formatPrice(price) {
-    // Check if price is a valid number to avoid NaN
-    if (typeof price !== 'number' || isNaN(price)) {
-      return "$0.00"; // Return default price if invalid
-    }
-    
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -184,23 +179,26 @@
               width={item.images[0].width || 0}
               height={item.images[0].height || 0}
               alt={item.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover cursor-pointer"
               fallbackSrc="/images/placeholder.jpg"
               fillContainer={true}
+              on:click={() => dispatch('imageClick', { itemId: item.id })}
             />
           {:else if item.thumbnail}
             <ResponsiveImage
               src={item.thumbnail}
               alt={item.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover cursor-pointer"
               fallbackSrc="/images/placeholder.jpg"
               fillContainer={true}
+              on:click={() => dispatch('imageClick', { itemId: item.id })}
             />
           {:else}
             <img 
               src="/images/placeholder.jpg" 
               alt={item.title}
-              class="w-full h-full object-cover"
+              class="w-full h-full object-cover cursor-pointer"
+              on:click={() => dispatch('imageClick', { itemId: item.id })}
             />
           {/if}
         </div>
@@ -321,7 +319,7 @@
               <div class="flex items-center gap-2">
                 <div class="text-sm text-white font-medium">Final Price:</div>
                 <div class="text-2xl font-bold text-white" style="text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);">
-                  {formatPrice(typeof item.current_price === 'number' ? item.current_price : 0)}
+                  {formatPrice(item.current_price)}
                 </div>
               </div>
             </div>
