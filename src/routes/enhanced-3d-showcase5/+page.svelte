@@ -339,7 +339,7 @@
                      customEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
                    }).transform}
                    style:transition={getItemStyle(zValues.priceTag).transition}
-                   class="mb-8 flex items-end gap-3">
+                   class="mb-10 flex items-end gap-3">
                 <div class="text-3xl font-bold text-white text-shadow-sharp"
                      style:transform={getItemStyle(zValues.priceText, {
                        scale: isHovering ? 1 + Math.sin(currentTime * 6) * 0.05 : 1
@@ -355,10 +355,10 @@
               </div>
               
               <!-- Button group with complex hover effects -->
-              <div class="flex gap-4">
+              <div class="flex gap-2 mt-2">
                 <!-- Purchase button with animated glow -->
                 <div style:transform={getItemStyle(zValues.button, {
-                       yOffset: isHovering ? 5 : 0,
+                       yOffset: isHovering ? 0 : 0,
                        delay: 0.2,
                        customDuration: 0.6,
                        customEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
@@ -376,42 +376,43 @@
                     </div>
                   {/if}
                   <button class="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 
-                             hover:from-indigo-500 hover:to-indigo-400
-                             text-white px-4 py-3 rounded-lg text-sm font-semibold 
-                             shadow-xl transition-all duration-300 ease-out relative z-10
-                             border border-indigo-400/30"
-                          style:transform={isHovering ? `translateY(${sineWave(currentTime, 2, 3)}px)` : ''}>
-                    <span style:transform={getItemStyle(zValues.buttonText, {
-                          scale: isHovering ? 1 + Math.sin(currentTime * 8) * 0.05 : 1
-                        }).transform}
-                        style:display="inline-block">
-                      Acquire Now
-                    </span>
-                  </button>
+                          hover:from-indigo-500 hover:to-indigo-400
+                          text-white px-4 py-2 rounded-lg text-sm font-semibold 
+                          shadow-xl transition-all duration-300 ease-out relative z-10
+                          border border-indigo-400/30
+                          flex flex-col items-center justify-center h-[44px]">
+                  <span style:transform={getItemStyle(zValues.buttonText, {
+                        scale: isHovering ? 1 + Math.sin(currentTime * 8) * 0.05 : 1
+                      }).transform}
+                      style:display="inline-block"
+                      class="mt-[-25px]">
+                    Acquire Now
+                  </span>
+                </button>
                 </div>
                 
                 <!-- Wishlist button with heart animation -->
                 <div style:transform={getItemStyle(zValues.heartButton, {
-                       yOffset: isHovering ? 5 : 0,
-                       delay: 0.25,
-                       customDuration: 0.7
-                     }).transform}
-                     style:transition={getItemStyle(zValues.heartButton).transition}
-                     class="w-14">
+                        yOffset: isHovering ? -5 : 0,
+                        xOffset: isHovering ? -5 : 0,
+                        delay: 0.25,
+                        customDuration: 0.7
+                      }).transform}
+                      style:transition={getItemStyle(zValues.heartButton).transition}
+                      class="w-12 flex items-center justify-center">
                   <button class="w-full h-full bg-white/10 hover:bg-white/20 
-                           text-white rounded-lg flex items-center justify-center 
-                           border border-white/30 shadow-xl relative
-                           transition-all duration-300 ease-out"
-                          style:transform={isHovering ? `translateY(${sineWave(currentTime, 2, 3) * 1.2}px)` : ''}>
+                            text-white rounded-lg flex items-center justify-center 
+                            border border-white/30 shadow-xl
+                            transition-all duration-300 ease-out">
                     <svg xmlns="http://www.w3.org/2000/svg" 
-                         class="h-5 w-5" 
-                         style:transform={getItemStyle(zValues.heartIcon, {
-                           scale: isHovering ? 1 + Math.sin(currentTime * 15) * 0.2 : 1
-                         }).transform}
-                         style:fill={isHovering ? `rgba(255, ${100 + Math.sin(currentTime * 10) * 50}, ${100 + Math.sin(currentTime * 10) * 50}, 0.8)` : 'none'}
-                         style:transition="fill 0.3s ease, transform 0.3s ease"
-                         viewBox="0 0 24 24" 
-                         stroke="currentColor">
+                          class="h-5 w-5 -mt-[29px] -ml-[22px]" 
+                          style:transform={getItemStyle(zValues.heartIcon, {
+                            scale: isHovering ? 1 + Math.sin(currentTime * 15) * 0.2 : 1
+                          }).transform}
+                          style:fill={isHovering ? `rgba(255, ${100 + Math.sin(currentTime * 10) * 50}, ${100 + Math.sin(currentTime * 10) * 50}, 0.8)` : 'none'}
+                          style:transition="fill 0.3s ease, transform 0.3s ease"
+                          viewBox="0 0 24 24" 
+                          stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                   </button>
