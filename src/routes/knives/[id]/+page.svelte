@@ -96,11 +96,9 @@
     if (event.detail.isHovering) {
       currentHoverCard = 'item-card';
       startTimeAnimation();
-      console.log('Card hover started');
     } else {
       currentHoverCard = null;
       stopTimeAnimation();
-      console.log('Card hover ended');
     }
   }
 
@@ -198,7 +196,7 @@
     popupImageIndex = currentImageIndex;
     showImagePopup = true;
     document.body.classList.add('overflow-hidden');
-    console.log('Opening image popup', currentImageIndex);
+    console.log('Opening image popup', currentImageIndex, 'images:', item.images.length);
   }
 
   function closeImagePopup() {
@@ -312,7 +310,7 @@
         body: JSON.stringify({ amount: bidAmount }),
       });
       
-      await refreshItem(); 
+      await refreshItem();
       showSuccessToast('Bid placed successfully!');
       
     } catch (e) {
@@ -321,6 +319,12 @@
     } finally {
       isSubmittingBid = false;
     }
+  }
+
+  async function handleBidPlaced() {
+    await refreshItem();
+    showSuccessToast('Bid placed successfully!');
+    showBidModal = false;
   }
 </script>
 
@@ -347,7 +351,7 @@
       <div class="text-center text-xl text-red-400">{error}</div>
     {:else if item}
       <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
-        <div class="h-[450px] md:h-[520px] w-full max-w-[95%] lg:max-w-[600px] mx-auto relative card-container">
+        <div class="h-[450px] md:h-[520px] w-full max-w-[95%] lg:max-w-[600px] mx-auto relative">
           <Enhanced3DCard
             hoverZScale={1.4}
             initialScale={1}
@@ -356,13 +360,20 @@
             perspective={2000}
             transitionDuration={0.4}
             transitionEasing="cubic-bezier(0.23, 1, 0.32, 1)"
-            cardStyle="border-radius: 1.25rem; overflow: visible; height: 100%; width: 100%; background-color: rgba(30, 27, 75, 0.3); cursor: pointer;"
+            cardStyle="border-radius: 1.25rem; overflow: visible; height: 100%; width: 100%; background-color: transparent; cursor: pointer;"
             on:hoverchange={handleHoverChange}
-            className="w-full h-full rounded-xl hover-3d"
+            className="w-full h-full rounded-xl"
             on:click={openImagePopup}
           >
             <svelte:fragment slot="default" let:isHovering let:getItemStyle>
-              <div class="absolute inset-0 rounded-xl overflow-hidden"
+              <!-- Transparent overlay for entire card click handling -->
+              <div 
+                class="absolute inset-0 z-[100] cursor-pointer" 
+                on:click={openImagePopup}
+                aria-label="Click to open image gallery"
+              ></div>
+              
+              <div class="absolute inset-0 rounded-xl overflow-hidden pointer-events-none"
                    style:transform={getItemStyle(zValues.farBackground, {
                      xOffset: isHovering ? sineWave(currentTime, 3, 0.5) : 0,
                      yOffset: isHovering ? cosineWave(currentTime, 3, 0.3) : 0,
@@ -373,7 +384,7 @@
                 <div class="w-full h-full bg-gradient-to-br from-indigo-950 to-slate-900 rounded-xl"></div>
               </div>
               
-              <div class="absolute inset-0 rounded-xl overflow-hidden"
+              <div class="absolute inset-0 rounded-xl overflow-hidden pointer-events-none"
                    style:transform={getItemStyle(zValues.backgroundPattern, {
                      xOffset: isHovering ? sineWave(currentTime, 8, 0.3) : 0,
                      yOffset: isHovering ? -5 : 0,
@@ -384,8 +395,9 @@
                    style:transition={getItemStyle(zValues.backgroundPattern).transition}>
                 <div class="w-full h-full pattern-grid opacity-15"></div>
               </div>
-              
-              <div class="absolute inset-0 rounded-xl overflow-hidden"
+
+              <div class="absolute inset-0 rounded-xl overflow-hidden cursor-pointer"
+                   on:click={openImagePopup}
                    style:transform={getItemStyle(zValues.imageBase, {
                      xOffset: isHovering ? sineWave(currentTime, 10, 0.8) * -1 : 0,
                      yOffset: isHovering ? cosineWave(currentTime, 8, 0.5) * -1 : 0,
@@ -401,20 +413,22 @@
                   width={item.images[currentImageIndex].width}
                   height={item.images[currentImageIndex].height}
                   alt={item.title}
-                      className="w-full h-full object-cover absolute inset-0 rounded-xl"
-                      objectFit="cover"
+                  className="w-full h-full object-cover absolute inset-0 rounded-xl cursor-pointer"
+                  objectFit="cover"
+                  on:click={openImagePopup}
                 />
               {:else}
                 <img
                   src="/placeholder.jpg"
                   alt={item.title}
-                      class="w-full h-full object-cover absolute inset-0 rounded-xl"
+                  class="w-full h-full object-cover absolute inset-0 rounded-xl cursor-pointer"
                   on:error={handleImageError}
+                  on:click={openImagePopup}
                 />
               {/if}
                 </div>
                 
-                <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent rounded-xl"
+                <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent rounded-xl pointer-events-none"
                      style:opacity={isHovering ? 0.7 : 0.8}
                      style:transform={getItemStyle(zValues.overlay, {
                        yOffset: isHovering ? 5 : 0,
@@ -425,7 +439,7 @@
               
               {#if item.images?.length > 1}
                 <button
-                  class="absolute left-4 top-1/2 -translate-y-1/2 -transform rounded-full bg-black bg-opacity-50 p-2 text-white z-10"
+                  class="absolute left-4 top-1/2 -translate-y-1/2 -transform rounded-full bg-black bg-opacity-50 p-2 text-white z-[110]"
                   on:click={e => {e.stopPropagation(); previousImage();}}
                   style:transform={getItemStyle(zValues.button - 10, {
                     scale: isHovering ? 1.1 : 1,
@@ -442,7 +456,7 @@
                   </svg>
                 </button>
                 <button
-                  class="absolute right-4 top-1/2 -translate-y-1/2 transform rounded-full bg-black bg-opacity-50 p-2 text-white z-10"
+                  class="absolute right-4 top-1/2 -translate-y-1/2 transform rounded-full bg-black bg-opacity-50 p-2 text-white z-[110]"
                   on:click={e => {e.stopPropagation(); nextImage();}}
                   style:transform={getItemStyle(zValues.button - 10, {
                     scale: isHovering ? 1.1 : 1,
@@ -461,7 +475,7 @@
               {/if}
 
             {#if item.images?.length > 1}
-                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-20"
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-[110] pointer-events-auto"
                     style:transform={getItemStyle(zValues.container - 10, {
                       yOffset: isHovering ? 10 : 0,
                     }).transform}
@@ -512,7 +526,7 @@
                      customEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
                    }).transform}
                    style:transition={getItemStyle(zValues.badge).transition}
-                   class="absolute top-6 left-6 z-30">
+                   class="absolute top-6 left-6 z-[110] pointer-events-none">
                 <span class="px-3 py-1.5 rounded-full text-xs font-bold shadow-lg bg-indigo-600 text-white shadow-indigo-500/30">
                   {item.bids.length > 0
                     ? `${item.bids.length} BID${item.bids.length > 1 ? 'S' : ''}`
@@ -520,7 +534,7 @@
                 </span>
               </div>
 
-              <div class="absolute inset-x-0 bottom-0 flex flex-col justify-end px-6 pb-6 pt-12 z-40"
+              <div class="absolute inset-x-0 bottom-0 flex flex-col justify-end px-6 pb-6 pt-12 z-40 pointer-events-none"
                    style:transform={getItemStyle(zValues.container).transform}
                    style:transition={getItemStyle(zValues.container).transition}>
                 
@@ -583,7 +597,7 @@
                   </div>
                 </div>
                 
-                <div class="relative z-[200] mt-2" on:click={stopPropagation}
+                <div class="relative z-[120] mt-2 pointer-events-none" on:click={stopPropagation}
                      style:transform={getItemStyle(zValues.button, {
                        yOffset: isHovering ? 0 : 0,
                        delay: 0.2,
@@ -605,12 +619,6 @@
               </div>
             </svelte:fragment>
           </Enhanced3DCard>
-          
-          <div 
-            class="absolute inset-0 z-[60] cursor-pointer opacity-0"
-            on:click={openImagePopup}
-            aria-label="Open image gallery"
-          ></div>
         </div>
         
         <div class="flex flex-col">
@@ -717,9 +725,9 @@
                                    transition-transform duration-1000 ease-in-out z-0"></div>
                     </button>
                   </div>
-                  <div class="mt-2 text-xs text-indigo-200">
-                    Minimum bid: {formatPrice(Math.ceil(item.current_price) + 1)}
-                  </div>
+                  <p class="mt-2 text-xs text-indigo-200">
+                    Minimum bid: {formatPrice(item.current_price + 1)}
+                  </p>
                 {:else}
                   <button
                     on:click={handleLoginClick}
@@ -774,7 +782,7 @@
               <div class="mt-6">
                 <h4 class="mb-2 text-lg font-semibold text-indigo-300">Watch Video</h4>
                 <YouTubeEmbed youtubeUrl={item.youtube_url} />
-              </div>
+        </div>
         {/if}
       </div>
 
@@ -850,79 +858,97 @@
 <Toast message={toastMessage} type="success" bind:show={showToast} /> 
 
 {#if showImagePopup && item?.images?.length}
-  <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/90">
-    <button 
-      class="absolute top-4 right-4 z-[1010] text-white bg-black/50 hover:bg-black/80 rounded-full p-2 transition-colors"
-      on:click={closeImagePopup}
-    >
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    </button>
+  <!-- Base backdrop with blur effect -->
+  <div 
+    class="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-xl"
+    on:click={closeImagePopup}
+  ></div>
+  
+  <!-- Main gallery container that doesn't close when clicked -->
+  <div class="fixed inset-0 z-[1001] flex items-center justify-center pointer-events-none">
+    <div class="w-full max-w-5xl max-h-[92vh] pointer-events-auto" on:click|stopPropagation>
+      <!-- Close button -->
+      <button 
+        class="absolute top-4 right-4 z-[1020] text-white bg-black/50 hover:bg-black/80 rounded-full p-2 transition-colors shadow-lg hover:scale-105"
+        on:click={closeImagePopup}
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
 
-    <button 
-      class="absolute left-4 top-1/2 -translate-y-1/2 z-[1010] text-white bg-black/50 hover:bg-black/80 rounded-full p-3 transition-colors"
-      on:click={() => navigatePopupImage('prev')}
-    >
-      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-      </svg>
-    </button>
-    
-    <button 
-      class="absolute right-4 top-1/2 -translate-y-1/2 z-[1010] text-white bg-black/50 hover:bg-black/80 rounded-full p-3 transition-colors"
-      on:click={() => navigatePopupImage('next')}
-    >
-      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-      </svg>
-    </button>
+      <!-- Navigation buttons -->
+      <button 
+        class="absolute left-4 top-1/2 -translate-y-1/2 z-[1020] text-white bg-black/50 hover:bg-black/70 rounded-full p-3 transition-all shadow-lg hover:scale-110 hover:bg-indigo-900/70"
+        on:click={() => navigatePopupImage('prev')}
+      >
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      
+      <button 
+        class="absolute right-4 top-1/2 -translate-y-1/2 z-[1020] text-white bg-black/50 hover:bg-black/70 rounded-full p-3 transition-all shadow-lg hover:scale-110 hover:bg-indigo-900/70"
+        on:click={() => navigatePopupImage('next')}
+      >
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
 
-    <div class="w-full max-w-4xl max-h-[90vh] p-4">
-      <div class="grid grid-cols-1 gap-4">
-        {#each item.images as image, i}
-          <div 
-            class="transition-all duration-300 ease-in-out {i === popupImageIndex ? 'opacity-100 scale-100 z-50' : 'opacity-0 scale-95 absolute inset-0'}"
-          >
-            {#if i === popupImageIndex}
-              <div class="relative w-full h-[70vh] overflow-hidden rounded-lg mx-auto">
-                <ResponsiveImage
-                  src={image.image}
-                  webpSrc={image.webp_url}
-                  width={image.width}
-                  height={image.height}
-                  alt={`${item.title} - Image ${i + 1}`}
-                  className="w-full h-full object-contain rounded-lg"
-                  objectFit="contain"
-                />
-              </div>
-            {/if}
-          </div>
-        {/each}
-      </div>
-      
-      <div class="mt-4 flex justify-center space-x-2 overflow-x-auto py-2">
-        {#each item.images as image, i}
-          <button 
-            class="h-16 w-16 flex-shrink-0 rounded overflow-hidden transition-all duration-200 
-                  {i === popupImageIndex ? 'ring-2 ring-indigo-400 scale-110' : 'opacity-50 hover:opacity-100 scale-100'}"
-            on:click={() => popupImageIndex = i}
-          >
-            <ResponsiveImage
-              src={image.image}
-              webpSrc={image.webp_url}
-              width={100}
-              height={100}
-              alt={`Thumbnail ${i + 1}`}
-              className="w-full h-full object-cover"
-              objectFit="cover"
-            />
-          </button>
-        {/each}
-      </div>
-      
-      <div class="mt-2 text-center text-white/80 text-sm">
-        {popupImageIndex + 1} / {item.images.length}
+      <!-- Image carousel content -->
+      <div class="w-full p-4">
+        <div class="grid grid-cols-1 gap-4">
+          {#each item.images as image, i}
+            <div 
+              class="transition-all duration-300 ease-in-out {i === popupImageIndex ? 'opacity-100 scale-100 z-50' : 'opacity-0 scale-95 absolute inset-0'}"
+            >
+              {#if i === popupImageIndex}
+                <div class="relative w-full h-[70vh] overflow-hidden rounded-lg mx-auto bg-black/20 backdrop-blur-sm">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-full h-full max-w-full max-h-full relative">
+                      <ResponsiveImage
+                        src={image.image}
+                        webpSrc={image.webp_url}
+                        width={image.width}
+                        height={image.height}
+                        alt={`${item.title} - Image ${i + 1}`}
+                        className="w-full h-full object-contain rounded-lg"
+                        objectFit="contain"
+                      />
+                    </div>
+                  </div>
+                </div>
+              {/if}
+            </div>
+          {/each}
+        </div>
+        
+        <!-- Thumbnails -->
+        <div class="mt-4 flex justify-center space-x-3 overflow-x-auto py-2">
+          {#each item.images as image, i}
+            <button 
+              class="h-16 w-16 flex-shrink-0 rounded-md overflow-hidden transition-all duration-200 
+                    {i === popupImageIndex ? 'ring-2 ring-indigo-400 scale-110 shadow-lg shadow-indigo-500/25' : 'opacity-60 hover:opacity-100 scale-100 hover:ring-1 hover:ring-indigo-400/50'}"
+              on:click={() => popupImageIndex = i}
+            >
+              <ResponsiveImage
+                src={image.image}
+                webpSrc={image.webp_url}
+                width={100}
+                height={100}
+                alt={`Thumbnail ${i + 1}`}
+                className="w-full h-full object-cover"
+                objectFit="cover"
+              />
+            </button>
+          {/each}
+        </div>
+        
+        <!-- Image counter -->
+        <div class="mt-2 text-center text-white/90 text-sm font-medium">
+          {popupImageIndex + 1} / {item.images.length}
+        </div>
       </div>
     </div>
   </div>
@@ -949,15 +975,6 @@
     width: 100%;
   }
   
-  :global(.hover-3d) {
-    transform-style: preserve-3d !important;
-  }
-  
-  :global(.hover-3d *) {
-    transform-style: preserve-3d !important;
-    backface-visibility: visible;
-  }
-  
   :global(.enhanced-card),
   :global(.enhanced-card-wrapper) {
     overflow: visible !important;
@@ -965,19 +982,18 @@
     height: 100%;
     width: 100%;
     position: relative;
-    transform-style: preserve-3d !important;
   }
   
   :global(.enhanced-card *),
   :global(.enhanced-card-wrapper *) {
     transform-style: preserve-3d !important;
-    backface-visibility: visible;
   }
-  
-  /* Fix specific content containers that might have overflow:hidden */
-  :global(.enhanced-card .absolute),
-  :global(.enhanced-card-wrapper .absolute) {
-    overflow: visible !important;
+
+  :global(.enhanced-card img),
+  :global(.enhanced-card .responsive-image) {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
   }
   
   .custom-scrollbar::-webkit-scrollbar {
