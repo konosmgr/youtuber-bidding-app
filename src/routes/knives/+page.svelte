@@ -266,8 +266,7 @@
     );
     
     if (item) {
-      const categoryPath = item.category?.code?.toLowerCase() || 'misc';
-      window.location.href = `/${categoryPath}/${item.id}`;
+      window.location.href = `/knife/${item.id}`;
     }
   }
   
@@ -285,8 +284,7 @@
     );
     
     if (item) {
-      const categoryPath = 'knives'; // We're on the knives page
-      window.location.href = `/${categoryPath}/${item.id}`;
+      window.location.href = `/knife/${item.id}`;
     }
   }
 
@@ -299,8 +297,7 @@
     );
     
     if (item) {
-      const categoryPath = 'knives'; // We're on the knives page
-      window.location.href = `/${categoryPath}/${item.id}`;
+      window.location.href = `/knife/${item.id}`;
     }
   }
 

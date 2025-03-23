@@ -14,6 +14,26 @@
     export let minZ = -300; // Minimum z-value constraint
     export let maxZ = 300; // Maximum z-value constraint
     
+    // Display props
+    export let title = "";
+    export let description = "";
+    export let price = 0;
+    export let imageSrc = "";
+    export let altText = "";
+    
+    // Custom slot props for enhanced card
+    export let rotateXAmount = 0;
+    export let rotateYAmount = 0;
+    export let scaleAmount = 1;
+    export let translationZAmount = 0;
+    export let glowColor = "#ffffff";
+    export let glowOpacity = 0.1;
+    export let glowRadius = 40;
+    
+    // Export badge and countdown as props to let them pass through the component
+    export let badge = null;
+    export let countdown = null;
+    
     // State
     let isHovering = false;
     let rotateX = 0;
