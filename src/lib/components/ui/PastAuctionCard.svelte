@@ -346,7 +346,7 @@
                  delay: 0.35
                }).transition}>
             <a 
-              href="/knives/{item.id}"
+              href="/knife/{item.id}"
               class="details-btn w-full bg-gradient-to-r 
                      from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500
                      text-white px-4 py-3 rounded-lg text-sm font-semibold 

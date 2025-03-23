@@ -116,13 +116,37 @@
 
   async function refreshItem() {
     try {
+      loading = true;
       const id = $page.params.id;
-      const data = await fetchApi(`items/${id}/`);
+      console.log('Fetching knife details for ID:', id);
+      
+      // Use a more reliable relative URL format
+      const response = await fetch(`/api/items/${id}/`);
+      
+      if (!response.ok) {
+        throw new Error(`API returned status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Successfully loaded knife data:', data);
+      
       item = data;
-      timeRemaining = getTimeRemaining(item.end_date);
+      
+      if (item && item.end_date) {
+        timeRemaining = getTimeRemaining(item.end_date);
+      }
+      
+      if (item) {
+        bidAmount = Math.ceil(item.current_price) + 1;
+      }
+      
+      error = null;
     } catch (e) {
       console.error('Failed to refresh item:', e);
-      throw new Error('Failed to load item');
+      error = `Failed to load item: ${e.message}`;
+      item = null;
+    } finally {
+      loading = false;
     }
   }
 
@@ -196,7 +220,6 @@
     popupImageIndex = currentImageIndex;
     showImagePopup = true;
     document.body.classList.add('overflow-hidden');
-    console.log('Opening image popup', currentImageIndex, 'images:', item.images.length);
   }
 
   function closeImagePopup() {
@@ -234,27 +257,27 @@
   }
 
   onMount(async () => {
+    console.log('Component mounted, params:', $page.params);
+    
     try {
+      // Directly handle refreshItem errors here without another try/catch
       await refreshItem();
-      loading = false;
-
-      // Set initial bid amount
-      if (item) {
-        bidAmount = Math.ceil(item.current_price) + 1;
-      }
-
+      
       window.addEventListener('keydown', handleKeydown);
-
+      
       timerInterval = setInterval(() => {
-        timeRemaining = getTimeRemaining(item.end_date);
-        
-        if (timeRemaining && timeRemaining.isExpired) {
-          clearInterval(timerInterval);
+        if (item && item.end_date) {
+          timeRemaining = getTimeRemaining(item.end_date);
+          
+          if (timeRemaining && timeRemaining.isExpired) {
+            clearInterval(timerInterval);
+          }
         }
       }, 1000);
     } catch (e) {
-      console.error('Failed to load auction details:', e);
-      error = 'Failed to load auction details';
+      // This should only run if refreshItem throws despite its internal try/catch
+      console.error('Unhandled error during initialization:', e);
+      error = 'An unexpected error occurred';
       loading = false;
     }
     
@@ -305,10 +328,29 @@
     
     try {
       isSubmittingBid = true;
-      const response = await fetchApi(`items/${item.id}/place_bid/`, {
+      console.log('Submitting bid for item:', item.id, 'amount:', bidAmount);
+      
+      // Get CSRF token from cookies
+      const csrfToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+      
+      const response = await fetch(`/api/items/${item.id}/place_bid/`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        credentials: 'include',
         body: JSON.stringify({ amount: bidAmount }),
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `Error: ${response.status}`);
+      }
       
       await refreshItem();
       showSuccessToast('Bid placed successfully!');
@@ -534,88 +576,91 @@
                 </span>
               </div>
 
-              <div class="absolute inset-x-0 bottom-0 flex flex-col justify-end px-6 pb-6 pt-12 z-40 pointer-events-none"
-                   style:transform={getItemStyle(zValues.container).transform}
-                   style:transition={getItemStyle(zValues.container).transition}>
-                
-                <div style:transform={getItemStyle(zValues.title, {
-                       xOffset: isHovering ? 8 + sineWave(currentTime, 5, 1) : 0,
-                       yOffset: isHovering ? -5 + cosineWave(currentTime, 3, 0.7) : 0,
-                       customDuration: 0.5,
-                       customEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
-                     }).transform}
-                     style:transition={getItemStyle(zValues.title).transition}
-                     class="mb-2 relative">
-                  <div class="absolute -left-1 -top-1 opacity-30 blur-sm"
-                       style:transform={getItemStyle(zValues.titleShadow).transform}
-                       style:transition={getItemStyle(zValues.titleShadow).transition}>
-                    <h3 class="text-2xl font-bold text-indigo-300">{item.title}</h3>
-                  </div>
-                  <h3 class="text-2xl font-bold text-white text-shadow-sharp relative">{item.title}</h3>
-                </div>
-                
-                <div style:transform={getItemStyle(zValues.subtitle, {
-                       xOffset: isHovering ? 12 + sineWave(currentTime, 3, 1.5) : 0,
-                       yOffset: isHovering ? -2 + cosineWave(currentTime, 2, 0.5) : 0,
-                       delay: 0.05,
-                       customDuration: 0.6
-                     }).transform}
-                     style:transition={getItemStyle(zValues.subtitle).transition}
-                     class="mb-3">
-                  <p class="text-indigo-300 text-sm font-medium">
-                    {item.category.name}
-                  </p>
-          </div>
+              <!-- Modified layout for the auction item card -->
+              <div class="absolute inset-0 flex flex-col justify-end px-6 pb-6 pt-12 z-40 pointer-events-none"
+              style:transform={getItemStyle(zValues.container).transform}
+              style:transition={getItemStyle(zValues.container).transition}>
 
-                <div style:transform={getItemStyle(zValues.specs, {
-                       yOffset: isHovering ? -3 : 0,
-                       delay: 0.1,
-                       customDuration: 0.7
-                     }).transform}
-                     style:transition={getItemStyle(zValues.specs).transition}
-                     class="mb-3">
-                  <p class="text-white/80 text-xs sm:text-sm line-clamp-2">
-                    {item.description}
-                  </p>
-                </div>
-                
-                <div style:transform={getItemStyle(zValues.priceTag, {
-                       scale: isHovering ? breathingAnimation(currentTime, 1, 1.08) : 1,
-                       xOffset: isHovering ? sineWave(currentTime, 7, 0.7) : 0,
-                       yOffset: isHovering ? -10 : 0,
-                       delay: 0.15,
-                       customDuration: 0.4,
-                       customEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
-                     }).transform}
-                     style:transition={getItemStyle(zValues.priceTag).transition}
-                     class="mb-4">
-                  <div class="text-lg sm:text-xl font-bold text-white text-shadow-sharp"
-                       style:transform={getItemStyle(zValues.priceText, {
-                         scale: isHovering ? 1 + Math.sin(currentTime * 6) * 0.05 : 1
-                       }).transform}>
-                    Current Bid: {formatPrice(item.current_price)}
-                  </div>
-                </div>
-                
-                <div class="relative z-[120] mt-2 pointer-events-none" on:click={stopPropagation}
-                     style:transform={getItemStyle(zValues.button, {
-                       yOffset: isHovering ? 0 : 0,
-                       delay: 0.2,
-                       customDuration: 0.6,
-                       customEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
-                     }).transform}
-                     style:transition={getItemStyle(zValues.button).transition}>
-                  
-                  {#if timeRemaining && !timeRemaining.isExpired}
-                    <p class="text-center text-sm text-white/80">
-                      Click anywhere on card to view all images
-                    </p>
-                  {:else}
-                    <p class="text-center text-sm text-white/80">
-                      Auction Ended
-                    </p>
-                  {/if}
-                </div>
+              <!-- Moved title, category, and description to the top of the card -->
+              <div style:transform={getItemStyle(zValues.title, {
+                  xOffset: isHovering ? 8 + sineWave(currentTime, 5, 1) : 0,
+                  yOffset: isHovering ? -5 + cosineWave(currentTime, 3, 0.7) : 0,
+                  customDuration: 0.5,
+                  customEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
+                }).transform}
+                style:transition={getItemStyle(zValues.title).transition}
+                class="mb-2 relative">
+              <div class="absolute -left-1 -top-1 opacity-30 blur-sm"
+                  style:transform={getItemStyle(zValues.titleShadow).transform}
+                  style:transition={getItemStyle(zValues.titleShadow).transition}>
+              <h3 class="text-2xl font-bold text-indigo-300">{item.title}</h3>
+              </div>
+              <h3 class="text-2xl font-bold text-white text-shadow-sharp relative">{item.title}</h3>
+              </div>
+
+              <div style:transform={getItemStyle(zValues.subtitle, {
+                  xOffset: isHovering ? 12 + sineWave(currentTime, 3, 1.5) : 0,
+                  yOffset: isHovering ? -2 + cosineWave(currentTime, 2, 0.5) : 0,
+                  delay: 0.05,
+                  customDuration: 0.6
+                }).transform}
+                style:transition={getItemStyle(zValues.subtitle).transition}
+                class="mb-3">
+              <p class="text-indigo-300 text-sm font-medium">
+              {item.category.name}
+              </p>
+              </div>
+
+              <div style:transform={getItemStyle(zValues.specs, {
+                  yOffset: isHovering ? -3 : 0,
+                  delay: 0.1,
+                  customDuration: 0.7
+                }).transform}
+                style:transition={getItemStyle(zValues.specs).transition}
+                class="mb-3">
+              <p class="text-white/80 text-xs sm:text-sm line-clamp-2">
+              {item.description}
+              </p>
+              </div>
+
+              <!-- Positioned current bid price more prominently -->
+              <div style:transform={getItemStyle(zValues.priceTag, {
+                  scale: isHovering ? breathingAnimation(currentTime, 1, 1.08) : 1,
+                  xOffset: isHovering ? sineWave(currentTime, 7, 0.7) : 0,
+                  yOffset: isHovering ? -10 : 0,
+                  delay: 0.15,
+                  customDuration: 0.4,
+                  customEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
+                }).transform}
+                style:transition={getItemStyle(zValues.priceTag).transition}
+                class="mb-4">
+              <div class="text-lg sm:text-xl font-bold text-white text-shadow-sharp"
+                  style:transform={getItemStyle(zValues.priceText, {
+                    scale: isHovering ? 1 + Math.sin(currentTime * 6) * 0.05 : 1
+                  }).transform}>
+              Current Bid: {formatPrice(item.current_price)}
+              </div>
+              </div>
+
+              <div class="relative z-[120] mt-2 pointer-events-none" on:click={stopPropagation}
+                style:transform={getItemStyle(zValues.button, {
+                  yOffset: isHovering ? 0 : 0,
+                  delay: 0.2,
+                  customDuration: 0.6,
+                  customEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
+                }).transform}
+                style:transition={getItemStyle(zValues.button).transition}>
+
+              {#if timeRemaining && !timeRemaining.isExpired}
+              <p class="text-center text-sm text-white/80">
+                Click anywhere on card to view all images
+              </p>
+              {:else}
+              <p class="text-center text-sm text-white/80">
+                Auction Ended
+              </p>
+              {/if}
+              </div>
               </div>
             </svelte:fragment>
           </Enhanced3DCard>

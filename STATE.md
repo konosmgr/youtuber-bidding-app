@@ -12,7 +12,7 @@ The project follows a typical SvelteKit structure:
   - `enhanced-3d-showcase5/` - Demo page for the 3D card component
   - `knives/+page.svelte` - Knives page using the AuctionCard component for current auctions and PastAuctionCard for past auctions
   - `knives/[id]/+page.svelte` - Individual knife auction detail page with Enhanced3D card integration for immersive viewing experience
-  - `knife/[id]/+page.svelte` - Redirect page from old route to new route
+  - `knife/[id]/+page.svelte` - Simple page that redirects to knives/[id] using client-side navigation
 - `src/lib/` - Contains reusable components, utilities, and stores
   - `components/` - Reusable UI components
     - `ui/` - Generic UI components 
@@ -48,6 +48,20 @@ The project follows a typical SvelteKit structure:
 - Enhanced 3D detail pages for individual auction items with animated effects
 
 ## Recent Changes
+- Fixed Internal Error (500) on knife detail page refresh by using native fetch instead of fetchApi
+- Added more robust error handling in the knife detail page with better error messages
+- Improved debug logging to trace API request issues
+- Simplified redirect from knife/[id] to knives/[id] using window.location.href for better reliability
+- Simplified knife detail page implementation to use client-side only approach for better reliability
+- Removed server-side components to eliminate 500 errors when directly accessing or refreshing knife detail pages
+- Improved error handling in client-side knife detail loading
+- Applied the same pattern used in other working category pages for consistency
+- Fixed knife detail page to properly handle failed data loading with error messages
+- Reverted to client-side redirects for knife/[id] to knives/[id] URLs
+- Fixed 500 error issue when directly accessing or refreshing knife detail pages
+- Added proper error handling for knife data loading to prevent server errors
+- Improved server-side redirection from /knife/[id] to /knives/[id] for better reliability
+- Modified client-side components to use server-loaded data for improved performance and stability
 - Added image popup carousel for detailed viewing of auction item images
 - Implemented fullscreen image gallery with keyboard navigation (arrow keys and ESC)
 - Added thumbnail navigation and image counter in the popup carousel
@@ -133,6 +147,7 @@ The project follows a typical SvelteKit structure:
 - Added auction-specific terminology (bids placed, time remaining, etc.)
 - Reduced particle count to improve performance when displaying multiple cards
 - Fixed styling issues with button centering and heart icon alignment
+- Reverted from `/knives/[id]` back to the original `/knife/[id]` route, removing the redirect and moving all content back to the original path
 
 ## Core Components
 - `BeamsBackground(Animated).svelte` - An animated background component that creates a dynamic light beam effect using canvas, now with proper scrolling support

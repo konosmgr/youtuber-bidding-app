@@ -1,12 +1,12 @@
 <script>
-  import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
-
-  // Redirect from /knife/[id] to /knives/[id]
+  
+  // Simple redirect using window.location for maximum reliability
   onMount(() => {
-      const id = $page.params.id;
-    goto(`/knives/${id}`, { replaceState: true });
+    const id = $page.params.id;
+    console.log('Redirecting from knife to knives, ID:', id);
+    window.location.href = `/knives/${id}`;
   });
 </script>
 
