@@ -4,6 +4,8 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%sveltekit.assets%/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Block unnecessary tracking pings -->
+    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' localhost:* *.amazonaws.com api.* blob: data:; default-src 'self' 'unsafe-inline' 'unsafe-eval' localhost:* www.youtube.com youtube.com *.amazonaws.com api.* blob: data:;">
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">

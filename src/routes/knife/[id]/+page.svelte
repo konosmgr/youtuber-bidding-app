@@ -423,7 +423,7 @@
 </script>
 
 <div class="min-h-screen bg-gradient-to-br from-slate-900 to-slate-950 p-4 md:p-8">
-  <div class="container mx-auto max-w-6xl">
+  <div class="container mx-auto max-w-7xl">
     <button
       on:click={() => window.history.back()}
       class="mb-6 flex items-center text-white transition-colors hover:text-indigo-300"
@@ -444,8 +444,10 @@
     {:else if error}
       <div class="text-center text-xl text-red-400">{error}</div>
     {:else if item}
-      <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
-        <div class="h-[450px] md:h-[520px] w-full max-w-[95%] lg:max-w-[600px] mx-auto relative">
+      <!-- New 3-column layout for larger screens, 1-column for mobile -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Main image and card - spans 6 columns on large screens -->
+        <div class="lg:col-span-6 h-[450px] sm:h-[520px] w-full max-w-full mx-auto relative">
           <Enhanced3DCard
             hoverZScale={1.4}
             initialScale={1}
@@ -717,136 +719,138 @@
             </svelte:fragment>
           </Enhanced3DCard>
         </div>
-        
-        <div class="flex flex-col">
-          <div class="mb-8 rounded-lg backdrop-blur-md bg-white/5 p-6 border border-indigo-500/20 shadow-lg">
-            <h3 class="mb-4 text-xl font-bold text-white">Auction Details</h3>
-            
-            {#if timeRemaining}
-              <div class="mb-6">
-                <p class="mb-2 text-lg font-semibold text-indigo-300">
-                  {timeRemaining.isExpired ? 'Auction Ended' : 'Time Remaining:'}
-                </p>
-                {#if !timeRemaining.isExpired}
-                  <div class="grid grid-cols-4 gap-4 text-center">
-                    <div class="rounded bg-indigo-900/50 p-3 backdrop-blur-sm border border-indigo-500/20">
-                      <span class="text-2xl font-bold text-white">{timeRemaining.days}</span>
-                      <p class="text-xs text-indigo-200">Days</p>
-                    </div>
-                    <div class="rounded bg-indigo-900/50 p-3 backdrop-blur-sm border border-indigo-500/20">
-                      <span class="text-2xl font-bold text-white">{timeRemaining.hours}</span>
-                      <p class="text-xs text-indigo-200">Hours</p>
-                    </div>
-                    <div class="rounded bg-indigo-900/50 p-3 backdrop-blur-sm border border-indigo-500/20">
-                      <span class="text-2xl font-bold text-white">{timeRemaining.minutes}</span>
-                      <p class="text-xs text-indigo-200">Minutes</p>
-                    </div>
-                    <div class="rounded bg-indigo-900/50 p-3 backdrop-blur-sm border border-indigo-500/20">
-                      <span class="text-2xl font-bold text-white">{timeRemaining.seconds}</span>
-                      <p class="text-xs text-indigo-200">Seconds</p>
-                    </div>
-                  </div>
-                {/if}
-              </div>
-              {/if}
-            
-            <div class="grid grid-cols-2 gap-4 mb-4">
-              <div class="rounded bg-indigo-900/30 p-3 backdrop-blur-sm border border-indigo-500/20">
-                <p class="text-xs text-indigo-200">Starting Price</p>
-                <p class="text-lg font-bold text-white">{formatPrice(item.starting_price)}</p>
-              </div>
-              <div class="rounded bg-indigo-900/30 p-3 backdrop-blur-sm border border-indigo-500/20">
-                <p class="text-xs text-indigo-200">Current Bid</p>
-                <p class="text-lg font-bold text-white">{formatPrice(item.current_price)}</p>
+
+        <!-- Right column for auction info and bid history - spans 6 columns -->
+        <div class="lg:col-span-6 flex flex-col gap-6">
+          <!-- Auction Details Card - More compact -->
+          <div class="rounded-lg backdrop-blur-md bg-white/5 p-5 border border-indigo-500/20 shadow-lg">
+            <div class="flex justify-between items-start mb-3">
+              <h2 class="text-2xl font-bold text-white">{item.title}</h2>
+              <div class="text-sm rounded-full px-3 py-1 bg-indigo-900/50 border border-indigo-500/30 text-indigo-200">
+                {item.category?.name || 'Knife'}
               </div>
             </div>
-
-            {#if timeRemaining && !timeRemaining.isExpired}
-              <div class="mt-6 mb-4">
-                {#if $isAuthenticated}
-                  <div class="flex flex-wrap sm:flex-nowrap gap-3 items-stretch">
-                    <div class="relative w-full bg-indigo-900/30 rounded-lg border border-indigo-500/30 overflow-hidden">
-                      <div class="absolute left-3 top-1/2 -translate-y-1/2 text-white font-bold">$</div>
-                      <input 
-                        type="number" 
-                        bind:value={bidAmount}
-                        min={item.current_price + 1} 
-                        step="1" 
-                        placeholder="Enter bid amount" 
-                        class="w-full h-full pl-8 pr-14 py-3 bg-transparent text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-indigo-500 appearance-none"
-                        on:click={stopPropagation}
-                        on:focus={handleBidInputFocus}
-                      />
-                      <div class="absolute right-0 top-0 h-full flex flex-col border-l border-indigo-500/30">
-                        <button 
-                          class="flex-1 px-2 h-1/2 hover:bg-indigo-700/30 text-white flex items-center justify-center border-b border-indigo-500/30"
-                          on:click={incrementBid}
-                        >
-                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                          </svg>
-                        </button>
-                        <button 
-                          class="flex-1 px-2 h-1/2 hover:bg-indigo-700/30 text-white flex items-center justify-center"
-                          on:click={decrementBid}
-                        >
-                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                    <button
-                      on:click={submitBid}
-                      disabled={isSubmittingBid}
-                      class="flex-shrink-0 bg-gradient-to-br from-indigo-600 to-indigo-800 
-                             hover:from-indigo-500 hover:to-indigo-700 active:from-indigo-700 active:to-indigo-900
-                             text-white px-6 py-3 rounded-lg text-base font-semibold
-                             shadow-xl transition-all duration-300 ease-out
-                             border border-indigo-400/30 cursor-pointer relative overflow-hidden group
-                             disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                      <span class="relative z-10 flex items-center justify-center">
-                        {#if isSubmittingBid}
-                          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Processing...
-                        {:else}
-                          Place Bid
-                        {/if}
-                      </span>
-                      <div class="absolute inset-0 bg-gradient-to-r from-indigo-400/0 via-indigo-400/10 to-indigo-400/0 
-                                   transform translate-x-[-100%] group-hover:translate-x-[100%] 
-                                   transition-transform duration-1000 ease-in-out z-0"></div>
-                    </button>
-                  </div>
-                  <p class="mt-2 text-xs text-indigo-200">
-                    Minimum bid: {formatPrice(item.current_price + 1)}
-                  </p>
-                {:else}
-                  <button
-                    on:click={handleLoginClick}
-                    class="w-full bg-gradient-to-br from-indigo-600 to-indigo-800 
-                           hover:from-indigo-500 hover:to-indigo-700 active:from-indigo-700 active:to-indigo-900
-                           text-white px-4 py-3 rounded-lg text-sm font-semibold 
-                           shadow-xl transition-all duration-300 ease-out relative overflow-hidden
-                           border border-indigo-400/30 group"
-                  >
-                    <span class="relative z-10">Log In to Bid</span>
-                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-400/0 via-indigo-400/10 to-indigo-400/0 
-                                 transform translate-x-[-100%] group-hover:translate-x-[100%] 
-                                 transition-transform duration-1000 ease-in-out z-0"></div>
-                  </button>
-                  <p class="mt-2 text-center text-xs text-white/70">
-                    You must be logged in to place a bid
-                  </p>
-                {/if}
-              </div>
-            {/if}
             
-            <div class="flex items-center justify-between">
+            <!-- Time remaining countdown -->
+            <div class="mb-4">
+              <p class="text-sm text-indigo-300 mb-2">Time Remaining:</p>
+              <div class="grid grid-cols-4 gap-2 w-full">
+                <div class="bg-indigo-900/30 border border-indigo-500/20 rounded-lg p-2 text-center">
+                  <div class="text-xl font-bold text-white">{timeRemaining?.days || 0}</div>
+                  <div class="text-xs text-indigo-300">Days</div>
+                </div>
+                <div class="bg-indigo-900/30 border border-indigo-500/20 rounded-lg p-2 text-center">
+                  <div class="text-xl font-bold text-white">{timeRemaining?.hours || 0}</div>
+                  <div class="text-xs text-indigo-300">Hours</div>
+                </div>
+                <div class="bg-indigo-900/30 border border-indigo-500/20 rounded-lg p-2 text-center">
+                  <div class="text-xl font-bold text-white">{timeRemaining?.minutes || 0}</div>
+                  <div class="text-xs text-indigo-300">Minutes</div>
+                </div>
+                <div class="bg-indigo-900/30 border border-indigo-500/20 rounded-lg p-2 text-center">
+                  <div class="text-xl font-bold text-white">{timeRemaining?.seconds || 0}</div>
+                  <div class="text-xs text-indigo-300">Seconds</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Price information -->
+            <div class="flex justify-between items-center mb-4">
+              <div>
+                <p class="text-sm text-indigo-300">Starting Price:</p>
+                <p class="text-lg text-white">{formatPrice(item.starting_price)}</p>
+              </div>
+              <div>
+                <p class="text-sm text-indigo-300">Current Bid:</p>
+                <p class="text-2xl font-bold text-white">{formatPrice(item.current_price)}</p>
+              </div>
+            </div>
+            
+            <!-- Description - Moved from bottom to here for better visibility -->
+            <div class="mb-4">
+              <h3 class="text-lg font-bold text-white mb-2">Description</h3>
+              <p class="text-white/80 text-sm whitespace-pre-line">{item.description}</p>
+            </div>
+            
+            <!-- Bid input and button -->
+            {#if !timeRemaining?.isExpired}
+              {#if $isAuthenticated}
+                <div class="flex space-x-2 mb-4">
+                  <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-white">$</span>
+                    <input
+                      type="number"
+                      bind:value={bidAmount}
+                      min={Math.ceil(item.current_price) + 1}
+                      step="1"
+                      on:focus={handleBidInputFocus}
+                      class="w-full bg-indigo-900/30 border border-indigo-500/30 rounded-lg pl-8 pr-12 py-3 text-white placeholder-indigo-300/50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      placeholder="Enter bid amount"
+                    />
+                    <div class="absolute inset-y-0 right-0 flex">
+                      <button
+                        on:click={decrementBid}
+                        class="px-2 text-white hover:text-indigo-300 transition-colors"
+                      >
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                        </svg>
+                      </button>
+                      <button
+                        on:click={incrementBid}
+                        class="px-2 text-white hover:text-indigo-300 transition-colors"
+                      >
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    on:click={submitBid}
+                    disabled={isSubmittingBid}
+                    class="bg-gradient-to-br from-indigo-600 to-indigo-800 
+                           hover:from-indigo-500 hover:to-indigo-700 active:from-indigo-700 active:to-indigo-900
+                           text-white px-6 py-3 rounded-lg text-base font-semibold
+                           shadow-xl transition-all duration-300 ease-out
+                           border border-indigo-400/30 cursor-pointer relative overflow-hidden group
+                           disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    <span class="relative z-10 flex items-center justify-center">
+                      {#if isSubmittingBid}
+                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing...
+                      {:else}
+                        Place Bid
+                      {/if}
+                    </span>
+                  </button>
+                </div>
+                <p class="text-xs text-indigo-200 mb-3">
+                  Minimum bid: {formatPrice(Math.ceil(item.current_price) + 1)}
+                </p>
+              {:else}
+                <button
+                  on:click={handleLoginClick}
+                  class="w-full bg-gradient-to-br from-indigo-600 to-indigo-800 
+                         hover:from-indigo-500 hover:to-indigo-700 active:from-indigo-700 active:to-indigo-900
+                         text-white px-4 py-3 rounded-lg text-sm font-semibold 
+                         shadow-xl transition-all duration-300 ease-out relative overflow-hidden
+                         border border-indigo-400/30 group mb-2"
+                >
+                  <span class="relative z-10">Log In to Bid</span>
+                </button>
+                <p class="text-xs text-white/70 mb-3 text-center">
+                  You must be logged in to place a bid
+                </p>
+              {/if}
+            {/if}
+
+            <!-- Share button -->
+            <div class="flex justify-between items-center">
               <div class="text-sm text-white/80">
                 <div>Total Bids: {item.bids.length}</div>
                 <div>Unique Bidders: {new Set(item.bids.map(bid => bid.user_email)).size}</div>
@@ -869,77 +873,74 @@
                 Share
               </button>
             </div>
-            </div>
+          </div>
 
-          <div class="mb-8 rounded-lg backdrop-blur-md bg-white/5 p-6 border border-indigo-500/20 shadow-lg">
-            <h3 class="mb-4 text-xl font-bold text-white">Description</h3>
-            <p class="text-white/80 whitespace-pre-line">{item.description}</p>
-            
-            {#if item.youtube_url}
-              <div class="mt-6">
-                <h4 class="mb-2 text-lg font-semibold text-indigo-300">Watch Video</h4>
-                <YouTubeEmbed youtubeUrl={item.youtube_url} />
-        </div>
-        {/if}
-      </div>
-
-      {#if item.bids?.length > 0}
-            <div class="rounded-lg backdrop-blur-md bg-white/5 p-6 border border-indigo-500/20 shadow-lg overflow-hidden">
-              <h3 class="mb-4 text-xl font-bold text-white">Bid History</h3>
+          <!-- Bid History - Now at the top of the right column -->
+          {#if item.bids?.length > 0}
+            <div class="rounded-lg backdrop-blur-md bg-white/5 p-5 border border-indigo-500/20 shadow-lg">
+              <h3 class="text-xl font-bold text-white mb-3">Bid History</h3>
               
-              <div class="max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+              <div class="max-h-[280px] overflow-y-auto pr-2 custom-scrollbar">
                 <div class="space-y-2 divide-y divide-indigo-500/10">
-              {#each item.bids as bid, i}
-                {@const isRepeatBidder = item.bids
-                  .slice(0, i)
-                  .some(prevBid => prevBid.user_email === bid.user_email)}
-                
+                  {#each item.bids as bid, i}
+                    {@const isRepeatBidder = item.bids
+                      .slice(0, i)
+                      .some(prevBid => prevBid.user_email === bid.user_email)}
+                    
                     <div class="flex items-center py-3 transition-colors {i === 0 ? 'bg-indigo-900/20 rounded-md px-2' : ''}">
-                  <div class="flex-grow">
-                    <div class="flex items-center gap-2">
+                      <div class="flex-grow">
+                        <div class="flex items-center gap-2">
                           <p class="font-medium text-white {userColors[bid.user_email] || 'text-indigo-300'}">
-                        {bid.user_nickname || 'User'}
+                            {bid.user_nickname || 'User'}
                             <span class="ml-2 text-xs text-white/50">
-                          ({maskEmail(bid.user_email)})
-                        </span>
-                      </p>
-                      
-                      {#if i === 0}
+                              ({maskEmail(bid.user_email)})
+                            </span>
+                          </p>
+                          
+                          {#if i === 0}
                             <span class="rounded bg-green-900/30 border border-green-500/30 px-2 py-0.5 text-xs text-green-400">
                               Highest
-                        </span>
-                      {/if}
-                      
-                      {#if isRepeatBidder}
+                            </span>
+                          {/if}
+                          
+                          {#if isRepeatBidder}
                             <span class="rounded bg-indigo-900/30 border border-indigo-500/30 px-2 py-0.5 text-xs text-indigo-400">
                               Returning
-                        </span>
-                      {/if}
-                    </div>
+                            </span>
+                          {/if}
+                        </div>
                         <p class="text-xs text-white/50">
-                      {new Date(bid.created_at).toLocaleString()}
-                    </p>
-                  </div>
-                  
-                  <div class="text-right">
-                        <span class="text-lg font-bold text-white">
-                      {formatPrice(bid.amount)}
-                    </span>
-                    {#if i < item.bids.length - 1}
-                          <div class="text-xs text-green-400">
-                        +${(bid.amount - item.bids[i + 1].amount).toFixed(2)}
+                          {new Date(bid.created_at).toLocaleString()}
+                        </p>
                       </div>
-                    {/if}
-                  </div>
+                      
+                      <div class="text-right">
+                        <span class="text-lg font-bold text-white">
+                          {formatPrice(bid.amount)}
+                        </span>
+                        {#if i < item.bids.length - 1}
+                          <div class="text-xs text-green-400">
+                            +${(bid.amount - item.bids[i + 1].amount).toFixed(2)}
+                          </div>
+                        {/if}
+                      </div>
+                    </div>
+                  {/each}
                 </div>
-              {/each}
+              </div>
             </div>
-          </div>
-        </div>
-      {:else}
-            <div class="rounded-lg backdrop-blur-md bg-white/5 p-6 border border-indigo-500/20 shadow-lg">
-              <h3 class="mb-4 text-xl font-bold text-white">Bid History</h3>
-              <p class="text-center text-white/70">No bids yet. Be the first to bid!</p>
+          {:else}
+            <div class="rounded-lg backdrop-blur-md bg-white/5 p-5 border border-indigo-500/20 shadow-lg">
+              <h3 class="text-xl font-bold text-white mb-3">Bid History</h3>
+              <p class="text-center text-white/70 py-4">No bids yet. Be the first to bid!</p>
+            </div>
+          {/if}
+
+          <!-- Video section - Positioned below bid history -->
+          {#if item.youtube_url}
+            <div class="rounded-lg backdrop-blur-md bg-white/5 p-5 border border-indigo-500/20 shadow-lg">
+              <h3 class="text-xl font-bold text-white mb-3">Watch Video</h3>
+              <YouTubeEmbed youtubeUrl={item.youtube_url} />
             </div>
           {/if}
         </div>
