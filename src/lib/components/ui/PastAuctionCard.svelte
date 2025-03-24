@@ -172,12 +172,12 @@
              class:brightness-100={isHovering}
              class:brightness-90={!isHovering}
              style="transition: filter 0.5s ease-out;">
-          {#if item.images && item.images.length > 0}
+          {#if item.images?.[0]?.image || item.images?.[0]?.url}
             <ResponsiveImage
-              src={item.images[0].image}
+              src={item.images[0].image || item.images[0].url}
               webpSrc={item.images[0].webp_url || ''}
-              width={item.images[0].width || 0}
-              height={item.images[0].height || 0}
+              width={item.images[0].width || 800}
+              height={item.images[0].height || 600}
               alt={item.title}
               className="w-full h-full object-cover cursor-pointer"
               fallbackSrc="/images/placeholder.jpg"

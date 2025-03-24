@@ -98,48 +98,57 @@
     // Create proper images array with all required properties
     let images = [];
     
-    if (item.images && item.images.length > 0) {
-      images = item.images.map(img => ({
-        image: img.image || img.url || '',
-        webp_url: img.webp_url || '',
-        width: img.width || 800,
-        height: img.height || 600
-      }));
-    } else if (item.image) {
-      // Single image string
-      images = [{
-        image: item.image,
-        webp_url: '',
-        width: 800,
-        height: 600
-      }];
-    } else if (item.thumbnail) {
-      // Fallback to thumbnail
-      images = [{
-        image: item.thumbnail,
+    try {
+      if (item.images && item.images.length > 0) {
+        images = item.images.map(img => ({
+          image: img.image || img.url || '',
+          url: img.image || img.url || '',
+          webp_url: img.webp_url || '',
+          width: img.width || 800,
+          height: img.height || 600
+        }));
+      } else if (item.image) {
+        // Single image string
+        images = [{
+          image: item.image,
+          url: item.image,
+          webp_url: '',
+          width: 800,
+          height: 600
+        }];
+      } else if (item.thumbnail) {
+        // Fallback to thumbnail
+        images = [{
+          image: item.thumbnail,
+          url: item.thumbnail,
+          webp_url: '',
+          width: 800,
+          height: 600
+        }];
+      }
+    } catch (e) {
+      console.error('Error processing images:', e);
+      // Use a placeholder if there's an error
+      images = [{ 
+        image: '/images/placeholder.jpg',
+        url: '/images/placeholder.jpg',
         webp_url: '',
         width: 800,
         height: 600
       }];
     }
     
-    // FIXED: Return a properly formatted object for the AuctionCard component
-    // The AuctionCard expects properties like 'currentBid', 'name', etc.
+    // Return a properly formatted object for the AuctionCard component
     return {
       id: item.id,
       name: item.title,
       youtuber: item.youtuber?.name || '',
       specs: extractSpecs(item),
-      currentBid: item.current_price, // Map current_price to currentBid
+      currentBid: item.current_price,
       startingPrice: item.starting_price || 0,
       label: item.is_featured ? 'FEATURED' : '',
       image: '',
-      images: images.length > 0 ? images : [{ 
-        image: '/images/placeholder.jpg',
-        webp_url: '',
-        width: 800,
-        height: 600
-      }],
+      images: images,
       color: getItemColor(item).color,
       glowColor: getItemColor(item).glow,
       bids: item.bids?.length || 0,
@@ -194,34 +203,42 @@
   function prepareItemImages(item) {
     let images = [];
     
-    if (item.images && item.images.length > 0) {
-      images = item.images.map(img => ({
-        image: img.image || img.url || '',
-        webp_url: img.webp_url || '',
-        width: img.width || 800,
-        height: img.height || 600
-      }));
-    } else if (item.image) {
-      // Single image string
-      images = [{
-        image: item.image,
-        webp_url: '',
-        width: 800,
-        height: 600
-      }];
-    } else if (item.thumbnail) {
-      // Fallback to thumbnail
-      images = [{
-        image: item.thumbnail,
-        webp_url: '',
-        width: 800,
-        height: 600
-      }];
+    try {
+      if (item.images && item.images.length > 0) {
+        images = item.images.map(img => ({
+          image: img.image || img.url || '',
+          url: img.image || img.url || '',
+          webp_url: img.webp_url || '',
+          width: img.width || 800,
+          height: img.height || 600
+        }));
+      } else if (item.image) {
+        // Single image string
+        images = [{
+          image: item.image,
+          url: item.image,
+          webp_url: '',
+          width: 800,
+          height: 600
+        }];
+      } else if (item.thumbnail) {
+        // Fallback to thumbnail
+        images = [{
+          image: item.thumbnail,
+          url: item.thumbnail,
+          webp_url: '',
+          width: 800,
+          height: 600
+        }];
+      }
+    } catch (e) {
+      console.error('Error processing images for past item:', e);
     }
     
     // Return a valid images array or a placeholder
     return images.length > 0 ? images : [{ 
       image: '/images/placeholder.jpg',
+      url: '/images/placeholder.jpg',
       webp_url: '',
       width: 800,
       height: 600

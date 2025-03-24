@@ -21,6 +21,11 @@
     export let imageSrc = "";
     export let altText = "";
     
+    // For webp support
+    export let webpSrc = "";
+    export let imageWidth = 0;
+    export let imageHeight = 0;
+    
     // Custom slot props for enhanced card
     export let rotateXAmount = 0;
     export let rotateYAmount = 0;
@@ -111,7 +116,19 @@
          class="enhanced-card"
          style="transform: perspective({perspective}px) rotateX({rotateX}deg) rotateY({rotateY}deg) scale({scale});"
     >
+      <!-- Default slot for custom content -->
       <slot {isHovering} {getItemStyle}></slot>
+      
+      <!-- Default image backdrop -->
+      <div class="absolute inset-0 z-10 overflow-hidden rounded-xl">
+        <slot name="image"></slot>
+      </div>
+      
+      <!-- Badge slot: positioned content at top-right -->
+      <slot name="badge"></slot>
+      
+      <!-- Countdown slot: positioned content at bottom-right -->
+      <slot name="countdown"></slot>
     </div>
   </div>
   

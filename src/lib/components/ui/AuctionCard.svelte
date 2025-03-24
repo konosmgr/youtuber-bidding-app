@@ -153,6 +153,19 @@
     cardStyle="border-radius: 1.25rem; overflow: visible;"
     on:hoverchange={handleHoverChange}
   >
+    <svelte:fragment slot="image">
+      <ResponsiveImage
+        src={item.images[0].image || item.images[0].url}
+        webpSrc={item.images[0].webp_url || ''}
+        width={item.images[0].width || 800}
+        height={item.images[0].height || 600}
+        alt={item.name}
+        className="w-full h-full object-cover rounded-xl"
+        fallbackSrc="/placeholder.jpg"
+        fillContainer={true}
+      />
+    </svelte:fragment>
+    
     <svelte:fragment slot="default" let:isHovering let:getItemStyle>
       <!-- Far background with subtle movement -->
       <div class="absolute inset-0 rounded-xl overflow-hidden"
@@ -203,12 +216,12 @@
            }).transform}
            style:transition={getItemStyle(zValues.imageBase).transition}>
         
-        {#if item.images?.length > 0 && item.images[0]?.image}
+        {#if item.images?.[0]?.image || item.images?.[0]?.url}
           <ResponsiveImage
-            src={item.images[0].image}
+            src={item.images[0].image || item.images[0].url}
             webpSrc={item.images[0].webp_url || ''}
-            width={item.images[0].width || 0}
-            height={item.images[0].height || 0}
+            width={item.images[0].width || 800}
+            height={item.images[0].height || 600}
             alt={item.name}
             className="w-full h-full object-cover rounded-xl"
             fallbackSrc="/placeholder.jpg"
@@ -220,7 +233,6 @@
             alt={item.name}
             class="w-full h-full object-cover rounded-xl"
             on:error={(e) => {
-              console.error("Image failed to load:", item.image);
               e.currentTarget.src = '/placeholder.jpg';
             }}
           />

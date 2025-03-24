@@ -4,6 +4,14 @@
 The project is a SvelteKit application for "Betting on Alaska Auctions" - a youtuber bidding platform. The application provides an interface for users to participate in auctions related to various categories including general auctions, knives, art, and miscellaneous items.
 
 ### Recent Changes
+- Fixed empty image URL handling in ResponsiveImage component to prevent errors
+- Simplified image checks in AuctionCard and PastAuctionCard components for better reliability
+- Fixed image loading issues from S3 in AuctionCard.svelte and PastAuctionCard.svelte components
+- Enhanced ResponsiveImage component to better handle different image URL formats from the API
+- Updated image processing in knife/[id] page to ensure proper display of S3-hosted images
+- Improved error handling in image loading across the application
+- Added URL field alternative to image objects to handle different API response formats
+- Standardized image dimensions and fallbacks across components
 - Converted knife/[id] route from a simple redirect to a fully functional page with its own implementation
 - Updated links on the knives/+page.svelte to point to the new knife/[id] route instead of knives/[id]
 - Implemented Enhanced3DCard component in the knife/[id] page with animations and hover effects

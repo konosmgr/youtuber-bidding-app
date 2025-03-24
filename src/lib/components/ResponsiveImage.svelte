@@ -13,8 +13,15 @@
   // Calculate aspect ratio
   const aspectRatio = width && height ? `${width} / ${height}` : undefined;
   
+  // Process the source URL - use fallback if source is empty
+  $: processedSrc = src || fallbackSrc;
+  
   function handleError(e) {
+    if (src && src !== fallbackSrc) {
+      console.error(`Image failed to load: ${src}`);
+    }
     e.currentTarget.src = fallbackSrc;
+    e.currentTarget.onerror = null; // Prevent infinite loop if fallback also fails
   }
 </script>
 
@@ -23,7 +30,7 @@
     <source srcset={webpSrc} type="image/webp" />
   {/if}
   <img
-    src={src}
+    src={processedSrc}
     {alt}
     class={`${className} ${fillContainer ? "w-full h-full" : ""}`}
     loading="lazy"
