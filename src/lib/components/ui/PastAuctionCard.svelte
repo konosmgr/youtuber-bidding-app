@@ -1,5 +1,5 @@
 <script>
-  import { onMount, createEventDispatcher } from 'svelte';
+  import { onMount, createEventDispatcher, onDestroy } from 'svelte';
   import Enhanced3DCard from '$lib/components/ui/3d-card/hybridcards/Enhanced3DCard.svelte';
   import ResponsiveImage from '$lib/components/ResponsiveImage.svelte';
   
@@ -19,10 +19,10 @@
   };
   
   // Default card dimensions and appearance
-  export let cardHeight = "h-[480px]";
-  export let hoverScale = 1.08;
-  export let maxRotation = 12;
-  export let perspective = 1800;
+  export let cardHeight = "h-[450px]"; // Adjusted to better fit content
+  export let hoverScale = 1.08;  // Adjusted to match PastAuctionsCard2
+  export let maxRotation = 12;   // Adjusted to match PastAuctionsCard2
+  export let perspective = 1800; // Adjusted to match PastAuctionsCard2
   
   // Optional additional class for container
   export let containerClass = "";
@@ -30,17 +30,55 @@
   // Event dispatcher for handling clicks and interactions
   const dispatch = createEventDispatcher();
   
+  // Animation state
+  let currentTime = 0;
+  let animationFrame;
+  let isAnimating = false;
+  
   // Handle hover state changes
   let currentHoverCard = null;
   
   function handleHoverChange(event) {
     if (event.detail.isHovering) {
       currentHoverCard = item.id;
+      startTimeAnimation();
     } else if (currentHoverCard === item.id) {
       currentHoverCard = null;
+      stopTimeAnimation();
     }
     
     dispatch('hoverchange', event.detail);
+  }
+  
+  // Time-based animation
+  function startTimeAnimation() {
+    isAnimating = true;
+    const animate = () => {
+      currentTime += 0.01;
+      animationFrame = requestAnimationFrame(animate);
+    };
+    animate();
+  }
+  
+  // Stop animation when component unmounts
+  function stopTimeAnimation() {
+    isAnimating = false;
+    if (animationFrame) {
+      cancelAnimationFrame(animationFrame);
+    }
+  }
+  
+  // Animation helper functions
+  function sineWave(time, amplitude = 10, frequency = 2) {
+    return Math.sin(time * frequency) * amplitude;
+  }
+  
+  function cosineWave(time, amplitude = 10, frequency = 2) {
+    return Math.cos(time * frequency) * amplitude;
+  }
+  
+  function breathingAnimation(time, min = 0.95, max = 1.05) {
+    return min + ((Math.sin(time) + 1) / 2) * (max - min);
   }
   
   // Format price
@@ -106,25 +144,38 @@
     return colors[colorIndex];
   }
   
-  // Z-values for 3D card layers
+  // Ultra-detailed Z layers for maximum depth perception
   const zValues = {
-    background: -200,
-    backgroundPattern: -170,
-    cardBackground: -150,
-    image: -50,
-    glow: -45,
+    farBackground: -250,
+    backgroundPattern: -200,
+    backgroundGlow: -170,
+    midBackground: -150,
+    closeBackground: -120,
+    imageBase: -90,
+    imageForeground: -70,
+    overlay: -50,
+    glow: -40,
     badge: 40,
+    badgeText: 45,
     container: 30,
-    title: 80,
-    subtitle: 60,
-    specs: 70,
-    price: 100,
+    priceTag: 120,
+    priceText: 130,
+    title: 90,
+    titleShadow: 85,
+    subtitle: 70,
+    specs: 60,
+    specIcon: 65,
     button: 50,
-    buttonIcon: 65
+    floatingElements: 80
   };
+  
+  // Cleanup on unmount
+  onDestroy(() => {
+    stopTimeAnimation();
+  });
 </script>
 
-<div class={`card-container ${cardHeight} ${containerClass}`}>
+<div class={`card-container ${cardHeight} ${containerClass} w-full relative`}>
   <Enhanced3DCard
     hoverZScale={1.3}
     initialScale={1}
@@ -133,15 +184,15 @@
     perspective={perspective}
     transitionDuration={0.3}
     transitionEasing="cubic-bezier(0.23, 1, 0.32, 1)"
-    cardStyle="border-radius: 1rem;"
+    cardStyle="border-radius: 1rem; overflow: visible;"
     className="past-auction-card"
     on:hoverchange={handleHoverChange}
   >
     <svelte:fragment slot="default" let:isHovering let:getItemStyle>
       <!-- Base card with color gradients -->
       <div class="absolute inset-0 card-base"
-           style:transform={getItemStyle(zValues.cardBackground).transform}
-           style:transition={getItemStyle(zValues.cardBackground).transition}>
+           style:transform={getItemStyle(zValues.farBackground).transform}
+           style:transition={getItemStyle(zValues.farBackground).transition}>
         <div class="w-full h-full bg-gradient-to-br from-gray-900 to-gray-800"></div>
       </div>
       
@@ -154,13 +205,13 @@
       
       <!-- Product image layer with grayscale filter -->
       <div class="absolute inset-0 card-image"
-           style:transform={getItemStyle(zValues.image, {
+           style:transform={getItemStyle(zValues.imageBase, {
              xOffset: isHovering ? -5 : 0,
              yOffset: isHovering ? -5 : 0,
              customDuration: 0.6,
              delay: 0.1
            }).transform}
-           style:transition={getItemStyle(zValues.image, {
+           style:transition={getItemStyle(zValues.imageBase, {
              customDuration: 0.6,
              delay: 0.1
            }).transition}>
@@ -216,79 +267,81 @@
                customEasing: 'cubic-bezier(0.19, 1, 0.22, 1)'
              }).transition}>
           <div class="w-full h-full" 
-               style="background: radial-gradient(circle at center, {getItemColor(item).glow} 0%, transparent 70%); 
+               style="background: radial-gradient(circle at center, #14b8a6 0%, transparent 70%); 
                       opacity: 0.05; 
                       mix-blend-mode: screen;">
           </div>
         </div>
       {/if}
       
-      <!-- SOLD Badge -->
-      <div style:transform={getItemStyle(zValues.badge, {
-             scale: isHovering ? 1.1 : 1,
-             customDuration: 0.4,
-             delay: 0.2
-           }).transform}
-           style:transition={getItemStyle(zValues.badge, {
-             customDuration: 0.4,
-             delay: 0.2
-           }).transition}
-           class="absolute top-6 right-6">
-        <span class="bg-red-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg shadow-red-500/30">
-          SOLD
-        </span>
+      <!-- Badge Container to ensure proper positioning -->
+      <div class="absolute top-0 left-0 w-full p-4 flex justify-between z-40">
+        <!-- PAST AUCTION Badge on left -->
+        <div style:transform={getItemStyle(zValues.badge, {
+                 scale: isHovering ? 1.05 : 1,
+                 customDuration: 0.4,
+                 delay: 0.15
+               }).transform}
+               style:transition={getItemStyle(zValues.badge, {
+                 customDuration: 0.4,
+                 delay: 0.15
+               }).transition}>
+          <span class="bg-gray-700/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
+            PAST AUCTION
+          </span>
+        </div>
+        
+        <!-- SOLD Badge on right -->
+        <div style:transform={getItemStyle(zValues.badge, {
+                 scale: isHovering ? 1.05 : 1,
+                 customDuration: 0.4,
+                 delay: 0.2
+               }).transform}
+               style:transition={getItemStyle(zValues.badge, {
+                 customDuration: 0.4,
+                 delay: 0.2
+               }).transition}>
+          <span class="bg-red-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg shadow-red-500/30">
+            SOLD
+          </span>
+        </div>
       </div>
       
       <!-- Content container -->
-      <div class="absolute inset-0 flex flex-col p-8"
+      <div class="absolute inset-0 flex flex-col p-6"
            style:transform={getItemStyle(zValues.container).transform}
            style:transition={getItemStyle(zValues.container).transition}>
         
         <!-- Dark gradient overlay for better text readability -->
         <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pointer-events-none"></div>
         
-        <!-- Title and subtitle at top -->
-        <div class="relative z-10">
+        <!-- Title and subtitle pushed to the middle -->
+        <div class="flex-1 flex flex-col justify-center relative z-10 mt-12">
           <!-- Title -->
           <div style:transform={getItemStyle(zValues.title, {
-                 xOffset: isHovering ? 5 : 0,
-                 delay: 0.1
-               }).transform}
-               style:transition={getItemStyle(zValues.title, {
-                 delay: 0.1
-               }).transition}
-               class="mb-1">
-            <h3 class="text-2xl font-bold text-white" style="text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);">{item.title}</h3>
+                   xOffset: isHovering ? 5 : 0,
+                   delay: 0.1
+                 }).transform}
+                 style:transition={getItemStyle(zValues.title, {
+                   delay: 0.1
+                 }).transition}
+                 class="mb-1">
+            <h3 class="text-xl font-bold text-white truncate" style="text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);">
+              {item.title}
+            </h3>
           </div>
           
-          <!-- Subtitle -->
-          <div style:transform={getItemStyle(zValues.subtitle, {
-                 xOffset: isHovering ? 8 : 0, 
-                 delay: 0.15
-               }).transform}
-               style:transition={getItemStyle(zValues.subtitle, {
-                 delay: 0.15
-               }).transition}
-               class="mb-4">
-            <p class="text-white text-sm font-medium" style="text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);">
-              {item.youtuber?.name || 'Collection Item'}
-            </p>
-          </div>
-        </div>
-        
-        <!-- Specs and other elements pushed to bottom -->
-        <div class="mt-auto relative z-10">
-          <!-- Specs list with better clarity -->
+          <!-- Specs list with better clarity - limit to one item if not hovering -->
           <div style:transform={getItemStyle(zValues.specs, {
-                 yOffset: isHovering ? -3 : 0, 
-                 delay: 0.2
-               }).transform}
-               style:transition={getItemStyle(zValues.specs, {
-                 delay: 0.2
-               }).transition}
-               class="mb-5">
+                   yOffset: isHovering ? -3 : 0, 
+                   delay: 0.2
+                 }).transform}
+                 style:transition={getItemStyle(zValues.specs, {
+                   delay: 0.2
+                 }).transition}
+                 class="mt-2">
             <ul class="space-y-2">
-              {#each extractSpecs(item) as spec, i}
+              {#each extractSpecs(item).slice(0, isHovering ? 2 : 1) as spec, i}
                 <li class="flex items-center gap-2" 
                     style="transition-delay: {0.2 + (i * 0.05)}s; 
                            opacity: {isHovering ? '1' : '0.9'}; 
@@ -298,58 +351,48 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-teal-400 flex-shrink-0 mr-2" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
-                    <span class="text-white text-sm">{spec}</span>
+                    <span class="text-white text-sm truncate">{spec}</span>
                   </div>
                 </li>
               {/each}
             </ul>
           </div>
-          
+        </div>
+        
+        <!-- Bottom section with price and button -->
+        <div class="mt-auto relative z-10">
           <!-- Final price with enhanced clarity -->
-          <div style:transform={getItemStyle(zValues.price, {
-                 scale: isHovering ? 1.1 : 1, 
-                 delay: 0.25
-               }).transform}
-               style:transition={getItemStyle(zValues.price, {
-                 delay: 0.25,
-                 customDuration: 0.4,
-               }).transition}
-               class="mb-3">
+          <div style:transform={getItemStyle(zValues.priceTag, {
+                   scale: isHovering ? 1.05 : 1, 
+                   delay: 0.25
+                 }).transform}
+                 style:transition={getItemStyle(zValues.priceTag, {
+                   delay: 0.25,
+                   customDuration: 0.4,
+                 }).transition}
+                 class="mb-5">
             <div class="bg-black/10 backdrop-blur-sm px-4 py-2 rounded-sm">
               <div class="flex items-center gap-2">
                 <div class="text-sm text-white font-medium">Final Price:</div>
-                <div class="text-2xl font-bold text-white" style="text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);">
+                <div class="text-xl font-bold text-white" style="text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);">
                   {formatPrice(item.current_price)}
                 </div>
               </div>
             </div>
           </div>
           
-          <!-- Auction ended notice with better visibility -->
-          <div style:transform={getItemStyle(zValues.specs - 10, {
-                 delay: 0.3
-               }).transform}
-               style:transition={getItemStyle(zValues.specs - 10, {
-                 delay: 0.3
-               }).transition}
-               class="mb-5">
-            <div class="bg-black/70 backdrop-blur-sm rounded-lg p-3 text-center">
-              <p class="font-semibold text-red-300">Auction Ended</p>
-            </div>
-          </div>
-          
           <!-- View Details button at bottom -->
           <div style:transform={getItemStyle(zValues.button, {
-                 delay: 0.35
-               }).transform}
-               style:transition={getItemStyle(zValues.button, {
-                 delay: 0.35
-               }).transition}>
+                   delay: 0.35
+                 }).transform}
+                 style:transition={getItemStyle(zValues.button, {
+                   delay: 0.35
+                 }).transition}>
             <a 
               href="/knife/{item.id}"
               class="details-btn w-full bg-gradient-to-r 
                      from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500
-                     text-white px-4 py-3 rounded-lg text-sm font-semibold 
+                     text-white px-4 py-2.5 rounded-lg text-sm font-semibold 
                      shadow-xl hover:shadow-gray-500/40 
                      transition-all duration-300 ease-out text-center block">
               View Details
@@ -433,4 +476,11 @@
   .brightness-90 {
     filter: brightness(90%);
   }
-</style> 
+  
+  /* Prevent text overflow */
+  .truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>

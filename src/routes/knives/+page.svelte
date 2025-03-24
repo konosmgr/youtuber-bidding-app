@@ -460,13 +460,13 @@
     </div>
 
     <!-- Real auctions grid with AuctionCard -->
-    <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+    <div class="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-3">
       {#each filteredItems as item}
-        <div class="card-wrapper">
+        <div class="card-wrapper perspective-container">
           <AuctionCard 
             item={mapItemToAuctionCard(item)}
             cardHeight="h-[500px]"
-            hoverScale={1.2}
+            hoverScale={1.1}
             on:bid={handleBid}
             on:watchlist={handleWatchlist}
             on:imageClick={handleImageClick}
@@ -482,51 +482,76 @@
       <h2 class="text-3xl font-bold text-white mb-2 tracking-tight">Past Auctions</h2>
       <p class="text-gray-400 mb-10">Check out previously sold items.</p>
       
-      {#if loadingPast}
-        <div class="text-center py-10">
-          <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
-          <p class="mt-2 text-gray-400">Loading past auctions...</p>
-        </div>
-      {:else if pastError}
-        <div class="bg-red-500/10 backdrop-blur-sm rounded-lg p-4 text-center">
-          <p class="text-red-400">{pastError}</p>
-        </div>
-      {:else if pastItems.length === 0}
-        <div class="bg-gray-800/30 backdrop-blur-sm rounded-lg p-8 text-center">
-          <p class="text-gray-400">No past auctions available.</p>
-        </div>
-      {:else}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10" transition:fade={{ duration: 800 }}>
-          {#each pastItems as item, i (item.id)}
-            <div 
-              class="auction-card-wrapper transform transition-all duration-[800ms]"
-              style="--index: {i}; 
-                     animation: fadein 500ms calc(100ms * var(--index)) both;
-                     transform-origin: center;"
-            >
-              <PastAuctionCard {item} cardHeight="h-[480px]" hoverScale={1.08} on:imageClick={handlePastImageClick} />
-            </div>
-          {/each}
-        </div>
-      {/if}
+      <!-- Subtle background for past auctions section -->
+      <div class="bg-black/30 backdrop-blur-lg rounded-xl p-6 sm:p-8 border border-teal-900/20 shadow-xl relative overflow-hidden">
+        <!-- Decorative teal accent elements -->
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-teal-500/5 rounded-full blur-2xl"></div>
+        <div class="absolute -bottom-20 -left-20 w-60 h-60 bg-teal-500/5 rounded-full blur-3xl"></div>
+        
+        {#if loadingPast}
+          <div class="text-center py-10">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-400"></div>
+            <p class="mt-2 text-gray-400">Loading past auctions...</p>
+          </div>
+        {:else if pastError}
+          <div class="bg-red-500/10 backdrop-blur-sm rounded-lg p-4 text-center">
+            <p class="text-red-400">{pastError}</p>
+          </div>
+        {:else if pastItems.length === 0}
+          <div class="bg-gray-800/30 backdrop-blur-sm rounded-lg p-8 text-center">
+            <p class="text-gray-400">No past auctions available.</p>
+          </div>
+        {:else}
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 px-2 py-4" transition:fade={{ duration: 800 }}>
+            {#each pastItems as item, i (item.id)}
+              <div 
+                class="auction-card-wrapper transform transition-all"
+                style="--index: {i}; 
+                       animation: staggerFadeIn 800ms calc(150ms * var(--index)) both;
+                       transform-origin: center;"
+              >
+                <PastAuctionCard {item} cardHeight="h-[450px]" hoverScale={1.08} containerClass="z-10" on:imageClick={handlePastImageClick} />
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
     </div>
   </div>
 </div>
 
 <style>
-  .card-wrapper {
-    /* Create space for 3D effects */
+  /* Update card styling to ensure proper 3D rendering */
+  .perspective-container {
+    perspective: 2000px;
+    margin: 2rem 0;
     transform-style: preserve-3d;
-    perspective: 1000px;
-    /* Ensure there's enough space around cards */
-    margin: 1.5rem;
-    /* Prevent cards from being clipped */
-    overflow: visible;
+    overflow: visible !important;
+  }
+  
+  .card-wrapper {
+    transform-style: preserve-3d;
+    overflow: visible !important; 
+    margin: 0 1rem;
+    /* Add vertical margin to give room for expansion on hover */
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 10;
   }
 
   /* Make sure this also applies to child elements */
   :global(.card-wrapper > *) {
     overflow: visible !important;
+  }
+  
+  /* Ensure grid has enough space for 3D effects */
+  .grid {
+    overflow: visible !important;
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
   }
   
   /* Card styling for past auctions */
@@ -537,11 +562,11 @@
     /* Critical: Ensure 3D effects aren't clipped */
     overflow: visible !important;
     /* Add margin to create space between cards */
-    margin: 0.5rem;
+    margin: 1rem;
     /* Ensure z-index works properly */
     isolation: isolate;
     position: relative;
-    z-index: 1;
+    z-index: 10;
   }
   
   /* Target child elements to ensure they don't clip */
@@ -578,6 +603,8 @@
   :global(.enhanced-card) {
     border-radius: 1rem;
     overflow: visible !important;
+    position: relative;
+    z-index: 5;
   }
   
   :global(.past-auction-card *),
@@ -591,21 +618,22 @@
     overflow: visible !important;
   }
   
-  /* Ensure grid items have enough margin and no overflow restrictions */
-  .grid {
-    margin: 1rem 0;
-    overflow: visible !important;
-  }
-  
-  /* Add keyframes animation for fading in cards */
-  @keyframes fadein {
-    from {
+  /* Enhanced staggered animation for past auction cards */
+  @keyframes staggerFadeIn {
+    0% {
       opacity: 0;
-      transform: translateY(20px) scale(0.95);
+      transform: translateY(30px) scale(0.9);
+      filter: blur(5px);
     }
-    to {
+    60% {
+      opacity: 0.8;
+      transform: translateY(-10px) scale(1.01);
+      filter: blur(0);
+    }
+    100% {
       opacity: 1;
       transform: translateY(0) scale(1);
+      filter: blur(0);
     }
   }
   
