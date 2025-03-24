@@ -132,6 +132,14 @@
           cardStyle="border-radius: 1.25rem; overflow: visible;"
           on:hoverchange={handleHoverChange}
         >
+          <svelte:fragment slot="image">
+            <img 
+              src={product.image} 
+              alt={product.name}
+              class="w-full h-full object-cover rounded-xl brightness-90 contrast-110 filter-hue-rotate-15"
+            />
+          </svelte:fragment>
+          
           <svelte:fragment slot="default" let:isHovering let:getItemStyle>
             <!-- Far background with subtle movement -->
             <div class="absolute inset-0 rounded-xl overflow-hidden"
@@ -171,30 +179,14 @@
               </div>
             </div>
             
-            <!-- Product image with complex movements -->
-            <div class="absolute inset-0 rounded-xl overflow-hidden"
-                 style:transform={getItemStyle(zValues.imageBase, {
-                   xOffset: isHovering ? sineWave(currentTime, 10, 0.8) * -1 : 0,
-                   yOffset: isHovering ? cosineWave(currentTime, 8, 0.5) * -1 : 0,
-                   customDuration: 2,
-                   customEasing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+            <!-- Gradient overlay with subtle animation -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent rounded-xl"
+                 style:opacity={isHovering ? 0.7 : 0.8}
+                 style:transform={getItemStyle(zValues.overlay, {
+                   yOffset: isHovering ? 5 : 0,
+                   customDuration: 0.6
                  }).transform}
-                 style:transition={getItemStyle(zValues.imageBase).transition}>
-              <img 
-                src={product.image} 
-                alt={product.name}
-                class="w-full h-full object-cover rounded-xl brightness-90 contrast-110 filter-hue-rotate-15"
-              />
-              
-              <!-- Gradient overlay with subtle animation -->
-              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent rounded-xl"
-                   style:opacity={isHovering ? 0.7 : 0.8}
-                   style:transform={getItemStyle(zValues.overlay, {
-                     yOffset: isHovering ? 5 : 0,
-                     customDuration: 0.6
-                   }).transform}
-                   style:transition="all 0.6s cubic-bezier(0.23, 1, 0.32, 1)"></div>
-            </div>
+                 style:transition="all 0.6s cubic-bezier(0.23, 1, 0.32, 1)"></div>
             
             <!-- Floating particles that move independently -->
             {#if isHovering}
