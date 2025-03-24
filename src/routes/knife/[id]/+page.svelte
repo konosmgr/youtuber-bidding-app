@@ -464,7 +464,7 @@
             <svelte:fragment slot="default" let:isHovering let:getItemStyle>
               <!-- Transparent overlay for entire card click handling -->
               <div 
-                class="absolute inset-0 z-[100] cursor-pointer" 
+                class="absolute inset-0 z-[90] cursor-pointer" 
                 on:click={openImagePopup}
                 aria-label="Click to open image gallery"
               ></div>
@@ -502,26 +502,26 @@
                    }).transform}
                    style:transition={getItemStyle(zValues.imageBase).transition}>
                 <div class="relative h-full w-full overflow-hidden rounded-xl bg-gradient-to-b from-indigo-900/20 to-black/50">
-              {#if item.images?.length > 0}
-                <ResponsiveImage
-                  src={item.images[currentImageIndex].image}
-                  webpSrc={item.images[currentImageIndex].webp_url}
-                  width={item.images[currentImageIndex].width}
-                  height={item.images[currentImageIndex].height}
-                  alt={item.title}
-                  className="w-full h-full object-cover absolute inset-0 rounded-xl cursor-pointer"
-                  objectFit="cover"
-                  on:click={openImagePopup}
-                />
-              {:else}
-                <img
-                  src="/placeholder.jpg"
-                  alt={item.title}
-                  class="w-full h-full object-cover absolute inset-0 rounded-xl cursor-pointer"
-                  on:error={handleImageError}
-                  on:click={openImagePopup}
-                />
-              {/if}
+                {#if item.images?.length > 0}
+                  <ResponsiveImage
+                    src={item.images[currentImageIndex].image}
+                    webpSrc={item.images[currentImageIndex].webp_url}
+                    width={item.images[currentImageIndex].width}
+                    height={item.images[currentImageIndex].height}
+                    alt={item.title}
+                    className="w-full h-full object-cover absolute inset-0 rounded-xl cursor-pointer"
+                    objectFit="cover"
+                    on:click={openImagePopup}
+                  />
+                {:else}
+                  <img
+                    src="/placeholder.jpg"
+                    alt={item.title}
+                    class="w-full h-full object-cover absolute inset-0 rounded-xl cursor-pointer"
+                    on:error={handleImageError}
+                    on:click={openImagePopup}
+                  />
+                {/if}
                 </div>
                 
                 <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent rounded-xl pointer-events-none"
@@ -534,52 +534,15 @@
               </div>
               
               {#if item.images?.length > 1}
-                <button
-                  class="absolute left-4 top-1/2 -translate-y-1/2 -transform rounded-full bg-black bg-opacity-50 p-2 text-white z-[110]"
-                  on:click={e => {e.stopPropagation(); previousImage();}}
-                  style:transform={getItemStyle(zValues.button - 10, {
-                    scale: isHovering ? 1.1 : 1,
-                    xOffset: isHovering ? -5 : 0
-                  }).transform}
-                >
-                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                </button>
-                <button
-                  class="absolute right-4 top-1/2 -translate-y-1/2 transform rounded-full bg-black bg-opacity-50 p-2 text-white z-[110]"
-                  on:click={e => {e.stopPropagation(); nextImage();}}
-                  style:transform={getItemStyle(zValues.button - 10, {
-                    scale: isHovering ? 1.1 : 1,
-                    xOffset: isHovering ? 5 : 0
-                  }).transform}
-                >
-                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              {/if}
-
-            {#if item.images?.length > 1}
-                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-[110] pointer-events-auto"
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-[150] pointer-events-auto"
                     style:transform={getItemStyle(zValues.container - 10, {
                       yOffset: isHovering ? 10 : 0,
                     }).transform}
                     style:transition={getItemStyle(zValues.container - 10).transition}>
                 {#each item.images as image, i}
                     <div 
-                      class="h-10 w-10 rounded cursor-pointer transition-all duration-200 overflow-hidden {i === currentImageIndex ? 'ring-2 ring-indigo-400 scale-110' : 'opacity-70 hover:opacity-100'}"
-                      on:click={e => {e.stopPropagation(); selectImage(i);}}
+                      class="h-12 w-12 rounded-md cursor-pointer transition-all duration-200 overflow-hidden {i === currentImageIndex ? 'ring-2 ring-indigo-400 scale-110 shadow-lg' : 'opacity-70 hover:opacity-100 hover:ring-1 hover:ring-indigo-300/50'}"
+                      on:click|stopPropagation={() => selectImage(i)}
                     >
                       <div class="relative h-full w-full bg-indigo-900/20">
                     <ResponsiveImage
@@ -964,10 +927,11 @@
   
   <!-- Main gallery container that doesn't close when clicked -->
   <div class="fixed inset-0 z-[1001] flex items-center justify-center pointer-events-none">
-    <div class="w-full max-w-5xl max-h-[92vh] pointer-events-auto" on:click|stopPropagation>
+    <!-- Image content container - only this area will stop click propagation -->
+    <div class="w-full max-w-5xl max-h-[92vh] pointer-events-none">
       <!-- Close button -->
       <button 
-        class="absolute top-4 right-4 z-[1020] text-white bg-black/50 hover:bg-black/80 rounded-full p-2 transition-colors shadow-lg hover:scale-105"
+        class="absolute top-4 right-4 z-[1020] text-white bg-black/50 hover:bg-black/80 rounded-full p-2 transition-colors shadow-lg hover:scale-105 pointer-events-auto"
         on:click={closeImagePopup}
       >
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -977,8 +941,8 @@
 
       <!-- Navigation buttons -->
       <button 
-        class="absolute left-4 top-1/2 -translate-y-1/2 z-[1020] text-white bg-black/50 hover:bg-black/70 rounded-full p-3 transition-all shadow-lg hover:scale-110 hover:bg-indigo-900/70"
-        on:click={() => navigatePopupImage('prev')}
+        class="absolute left-4 top-1/2 -translate-y-1/2 z-[1020] text-white bg-black/50 hover:bg-black/70 rounded-full p-3 transition-all shadow-lg hover:scale-110 hover:bg-indigo-900/70 pointer-events-auto"
+        on:click={e => {e.stopPropagation(); navigatePopupImage('prev');}}
       >
         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -986,8 +950,8 @@
       </button>
       
       <button 
-        class="absolute right-4 top-1/2 -translate-y-1/2 z-[1020] text-white bg-black/50 hover:bg-black/70 rounded-full p-3 transition-all shadow-lg hover:scale-110 hover:bg-indigo-900/70"
-        on:click={() => navigatePopupImage('next')}
+        class="absolute right-4 top-1/2 -translate-y-1/2 z-[1020] text-white bg-black/50 hover:bg-black/70 rounded-full p-3 transition-all shadow-lg hover:scale-110 hover:bg-indigo-900/70 pointer-events-auto"
+        on:click={e => {e.stopPropagation(); navigatePopupImage('next');}}
       >
         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -995,14 +959,14 @@
       </button>
 
       <!-- Image carousel content -->
-      <div class="w-full p-4">
+      <div class="w-full p-4 pointer-events-none">
         <div class="grid grid-cols-1 gap-4">
           {#each item.images as image, i}
             <div 
-              class="transition-all duration-300 ease-in-out {i === popupImageIndex ? 'opacity-100 scale-100 z-50' : 'opacity-0 scale-95 absolute inset-0'}"
+              class="transition-all duration-300 ease-in-out pointer-events-none {i === popupImageIndex ? 'opacity-100 scale-100 z-50' : 'opacity-0 scale-95 absolute inset-0'}"
             >
               {#if i === popupImageIndex}
-                <div class="relative w-full h-[70vh] overflow-hidden rounded-lg mx-auto bg-black/20 backdrop-blur-sm">
+                <div class="relative w-full h-[70vh] overflow-hidden rounded-lg mx-auto bg-black/20 backdrop-blur-sm pointer-events-auto">
                   <div class="absolute inset-0 flex items-center justify-center">
                     <div class="w-full h-full max-w-full max-h-full relative">
                       <ResponsiveImage
@@ -1023,12 +987,12 @@
         </div>
         
         <!-- Thumbnails -->
-        <div class="mt-4 flex justify-center space-x-3 overflow-x-auto py-2">
+        <div class="mt-4 flex justify-center space-x-3 overflow-x-auto py-2 pointer-events-auto">
           {#each item.images as image, i}
             <button 
               class="h-16 w-16 flex-shrink-0 rounded-md overflow-hidden transition-all duration-200 
                     {i === popupImageIndex ? 'ring-2 ring-indigo-400 scale-110 shadow-lg shadow-indigo-500/25' : 'opacity-60 hover:opacity-100 scale-100 hover:ring-1 hover:ring-indigo-400/50'}"
-              on:click={() => popupImageIndex = i}
+              on:click|stopPropagation={() => popupImageIndex = i}
             >
               <ResponsiveImage
                 src={image.image}
@@ -1044,7 +1008,7 @@
         </div>
         
         <!-- Image counter -->
-        <div class="mt-2 text-center text-white/90 text-sm font-medium">
+        <div class="mt-2 text-center text-white/90 text-sm font-medium pointer-events-auto">
           {popupImageIndex + 1} / {item.images.length}
         </div>
       </div>
