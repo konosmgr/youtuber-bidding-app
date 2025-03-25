@@ -97,18 +97,29 @@
   }
   
   // Handle click on the bid button
-  function handleBidClick() {
-    dispatch('bid', { itemId: item.id });
+  function handleBidClick(event) {
+    event.stopPropagation(); // Prevent card click
+    window.location.href = `/knife/${item.id}`;
   }
   
   // Handle click on the watchlist button
-  function handleWatchlistClick() {
-    dispatch('watchlist', { itemId: item.id });
+  function handleWatchlistClick(event) {
+    event.stopPropagation(); // Prevent card click
+    // Just add to watchlist (future feature)
+    console.log('Added to watchlist:', item.id);
   }
   
-  // Handle click on the image
-  function handleImageClick() {
-    dispatch('imageClick', { itemId: item.id });
+  // Handle click on the entire card - no need for separate image handler
+  function handleCardClick() {
+    console.log('Card clicked!', item.id);
+    window.location.href = `/knife/${item.id}`;
+  }
+  
+  // Handle image click - forward to the right URL
+  function handleImageClick(event) {
+    // Stop propagation to prevent double navigation
+    event.stopPropagation();
+    window.location.href = `/knife/${item.id}`;
   }
   
   // Custom animation functions
@@ -142,7 +153,7 @@
   });
 </script>
 
-<div class={`card-container ${cardWidth} ${cardHeight} ${containerClass}`}>
+<div class={`card-container ${cardWidth} ${cardHeight} ${containerClass}`} on:click={handleCardClick}>
   <Enhanced3DCard
     hoverZScale={1.4}
     initialScale={1}
@@ -151,20 +162,23 @@
     perspective={2000}
     transitionDuration={0.4}
     transitionEasing="cubic-bezier(0.23, 1, 0.32, 1)"
-    cardStyle="border-radius: 1.25rem; overflow: visible;"
+    cardStyle="border-radius: 1.25rem; overflow: visible; cursor: pointer;"
+    className="auction-card"
     on:hoverchange={handleHoverChange}
   >
     <svelte:fragment slot="image">
-      <ResponsiveImage
-        src={item.images[0].image || item.images[0].url}
-        webpSrc={item.images[0].webp_url || ''}
-        width={item.images[0].width || 800}
-        height={item.images[0].height || 600}
-        alt={item.name}
-        className="w-full h-full object-cover rounded-xl"
-        fallbackSrc="/placeholder.jpg"
-        fillContainer={true}
-      />
+      <div class="w-full h-full rounded-xl overflow-hidden relative">
+        <ResponsiveImage
+          src={item.images[0].image || item.images[0].url}
+          webpSrc={item.images[0].webp_url || ''}
+          width={item.images[0].width || 800}
+          height={item.images[0].height || 600}
+          alt={item.name}
+          className="w-full h-full object-cover"
+          fallbackSrc="/placeholder.jpg"
+          fillContainer={true}
+        />
+      </div>
     </svelte:fragment>
     
     <svelte:fragment slot="default" let:isHovering let:getItemStyle>
@@ -207,15 +221,15 @@
       </div>
       
       <!-- Product image with complex movements -->
-      <div class="absolute inset-0 rounded-xl overflow-hidden cursor-pointer"
-           on:click={handleImageClick}
+      <div class="absolute inset-0 rounded-xl overflow-hidden"
            style:transform={getItemStyle(zValues.imageBase, {
              xOffset: isHovering ? sineWave(currentTime, 10, 0.8) * -1 : 0,
              yOffset: isHovering ? cosineWave(currentTime, 8, 0.5) * -1 : 0,
              customDuration: 2,
              customEasing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
            }).transform}
-           style:transition={getItemStyle(zValues.imageBase).transition}>
+           style:transition={getItemStyle(zValues.imageBase).transition}
+           style:z-index="5">
         
         {#if item.images?.[0]?.image || item.images?.[0]?.url}
           <ResponsiveImage
@@ -252,6 +266,7 @@
                yOffset: isHovering ? 5 : 0,
                customDuration: 0.6
              }).transform}
+             style:pointer-events="none"
              style:transition="all 0.6s cubic-bezier(0.23, 1, 0.32, 1)"></div>
       </div>
       
@@ -261,6 +276,7 @@
           <div class="absolute w-2 h-2 rounded-full bg-white/30"
                style:left={`${20 + i * 10}%`}
                style:top={`${20 + (i % 5) * 10}%`}
+               style:pointer-events="none"
                style:transform={getItemStyle(zValues.floatingElements, {
                  xOffset: sineWave(currentTime + i * 0.5, 20, 0.5),
                  yOffset: cosineWave(currentTime + i * 0.3, 20, 0.7),
@@ -276,6 +292,7 @@
       <!-- Animated glow effect -->
       {#if isHovering}
         <div class="absolute inset-0 rounded-xl overflow-hidden" 
+             style:pointer-events="none"
              style:transform={getItemStyle(zValues.glow, {
                scale: breathingAnimation(currentTime, 0.8, 1.2),
                customDuration: 2.5
@@ -299,6 +316,7 @@
                customEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
              }).transform}
              style:transition={getItemStyle(zValues.badge).transition}
+             style:pointer-events="none"
              class="absolute top-5 left-5">
           <span class="px-3 py-1.5 rounded-full text-xs font-bold shadow-lg bg-red-500 text-white shadow-red-500/30"
                 style:transform={getItemStyle(zValues.badgeText, {
@@ -318,6 +336,7 @@
                customEasing: "cubic-bezier(0.5, 2, 0.75, 1)"
              }).transform}
              style:transition={getItemStyle(zValues.badge + 5).transition}
+             style:pointer-events="none"
              class="absolute top-5 right-5">
           <span class="bg-indigo-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg shadow-indigo-600/30"
                 style:transform={isHovering ? `rotate(${sineWave(currentTime, 5, 5)}deg) scale(${1 + Math.sin(currentTime * 5) * 0.1})` : ''}>
@@ -332,7 +351,7 @@
            style:transition={getItemStyle(zValues.container).transition}>
         
         <!-- Main content area with flex spacing -->
-        <div class="flex-1 flex flex-col">
+        <div class="flex-1 flex flex-col pointer-events-none">
           <!-- Top section: Title - moved lower by increasing margin-top -->
           <div class="mt-20" 
                style:transform={getItemStyle(zValues.title, {
@@ -406,7 +425,7 @@
                  customEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
                }).transform}
                style:transition={getItemStyle(zValues.startingBid).transition}
-               class="text-sm text-white/90 mb-1 mx-2">
+               class="text-sm text-white/90 mb-1 mx-2 pointer-events-none">
             <span class="inline-block" style:opacity={isHovering ? 0.95 : 0.8}>
               Starting bid: {formatCurrency(item.startingPrice)}
             </span>
@@ -422,7 +441,7 @@
                  customEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
                }).transform}
                style:transition={getItemStyle(zValues.priceTag).transition}
-               class="mb-12">
+               class="mb-12 pointer-events-none">
             <div class="text-3xl font-extrabold text-white text-shadow-sharp"
                  style:transform={getItemStyle(zValues.priceText, {
                    scale: isHovering ? 1 + Math.sin(currentTime * 6) * 0.05 : 1
@@ -432,7 +451,7 @@
           </div>
           
           <!-- Button group with complex hover effects -->
-          <div class="flex gap-4">
+          <div class="flex gap-4 pointer-events-auto relative" style:z-index="200">
             <!-- Bid button with animated glow -->
             <div style:transform={getItemStyle(zValues.button, {
                    yOffset: isHovering ? 5 : 0,
@@ -452,7 +471,10 @@
                      style:opacity={0.4 + Math.sin(currentTime * 3) * 0.2}>
                 </div>
               {/if}
-              <button on:click={handleBidClick} 
+              <button on:click={(e) => {
+                      e.stopPropagation();
+                      handleBidClick(e);
+                    }} 
                     class="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 
                          hover:from-indigo-500 hover:to-indigo-400
                          text-white px-4 py-2 rounded-lg text-sm font-semibold 
@@ -478,7 +500,10 @@
                  }).transform}
                  style:transition={getItemStyle(zValues.heartButton).transition}
                  class="w-14">
-              <button on:click={handleWatchlistClick}
+              <button on:click={(e) => {
+                      e.stopPropagation();
+                      handleWatchlistClick(e);
+                    }}
                     class="w-full h-full bg-white/10 hover:bg-white/20 
                          text-white rounded-lg flex items-center justify-center 
                          border border-white/30 shadow-xl relative
@@ -517,6 +542,8 @@
   .card-container {
     perspective: 2000px;
     transform-style: preserve-3d;
+    cursor: pointer;
+    position: relative;
   }
   
   /* Pattern grid background */
@@ -541,6 +568,11 @@
   :global(.enhanced-card-wrapper *),
   :global(.enhanced-card *) {
     transform-style: preserve-3d !important;
+  }
+  
+  /* Make auction-card class have a cursor pointer */
+  :global(.auction-card) {
+    cursor: pointer;
   }
   
   /* Add these new utility classes */

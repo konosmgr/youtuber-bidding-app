@@ -361,43 +361,48 @@
         
         <!-- Bottom section with price and button -->
         <div class="mt-auto relative z-10">
-          <!-- Final price with enhanced clarity -->
-          <div style:transform={getItemStyle(zValues.priceTag, {
-                   scale: isHovering ? 1.05 : 1, 
-                   delay: 0.25
-                 }).transform}
-                 style:transition={getItemStyle(zValues.priceTag, {
-                   delay: 0.25,
-                   customDuration: 0.4,
-                 }).transition}
-                 class="mb-5">
-            <div class="bg-black/10 backdrop-blur-sm px-4 py-2 rounded-sm">
-              <div class="flex items-center gap-2">
-                <div class="text-sm text-white font-medium">Final Price:</div>
-                <div class="text-xl font-bold text-white" style="text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);">
-                  {formatPrice(item.current_price)}
+          <!-- Wrap both price and button in a single link -->
+          <a 
+            href="/knife/{item.id}"
+            class="block no-underline relative z-50"
+          >
+            <!-- Final price with enhanced clarity -->
+            <div style:transform={getItemStyle(zValues.priceTag, {
+                     scale: isHovering ? 1.05 : 1, 
+                     delay: 0.25
+                   }).transform}
+                   style:transition={getItemStyle(zValues.priceTag, {
+                     delay: 0.25,
+                     customDuration: 0.4,
+                   }).transition}
+                   class="mb-4">
+              <div class="bg-black/10 backdrop-blur-sm px-4 py-2 rounded-sm">
+                <div class="flex items-center gap-2">
+                  <div class="text-sm text-white font-medium">Final Price:</div>
+                  <div class="text-xl font-bold text-white" style="text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);">
+                    {formatPrice(item.current_price)}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          
-          <!-- View Details button at bottom -->
-          <div style:transform={getItemStyle(zValues.button, {
-                   delay: 0.35
-                 }).transform}
-                 style:transition={getItemStyle(zValues.button, {
-                   delay: 0.35
-                 }).transition}>
-            <a 
-              href="/knife/{item.id}"
-              class="details-btn w-full bg-gradient-to-r 
-                     from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500
-                     text-white px-4 py-2.5 rounded-lg text-sm font-semibold 
-                     shadow-xl hover:shadow-gray-500/40 
-                     transition-all duration-300 ease-out text-center block">
-              View Details
-            </a>
-          </div>
+            
+            <!-- View Details button at bottom -->
+            <div style:transform={getItemStyle(zValues.button, {
+                     delay: 0.35
+                   }).transform}
+                   style:transition={getItemStyle(zValues.button, {
+                     delay: 0.35
+                   }).transition}>
+              <div 
+                class="details-btn w-full bg-gradient-to-r 
+                       from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500
+                       text-white px-4 py-2.5 rounded-lg text-sm font-semibold 
+                       shadow-xl hover:shadow-gray-500/40 
+                       transition-all duration-300 ease-out text-center block">
+                View Details
+              </div>
+            </div>
+          </a>
         </div>
       </div>
     </svelte:fragment>

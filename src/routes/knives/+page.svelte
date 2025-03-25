@@ -294,6 +294,22 @@
 
   // Handle image click events - navigates to the specific auction
   function handleImageClick(event) {
+    console.log('Page: Image Click Event', event.detail.itemId);
+    // Find the item and navigate to its page
+    const item = filteredItems.find(i => 
+      i.id === event.detail.itemId || 
+      (i.id && i.id.toString() === event.detail.itemId)
+    );
+    
+    if (item) {
+      window.location.href = `/knife/${item.id}`;
+    } else {
+      console.error('Item not found for ID:', event.detail.itemId);
+    }
+  }
+
+  // Handle card click events - same behavior as image click
+  function handleCardClick(event) {
     // Find the item and navigate to its page
     const item = filteredItems.find(i => 
       i.id === event.detail.itemId || 
@@ -470,6 +486,7 @@
             on:bid={handleBid}
             on:watchlist={handleWatchlist}
             on:imageClick={handleImageClick}
+            on:cardClick={handleCardClick}
           />
         </div>
       {/each}
