@@ -441,7 +441,7 @@
                    customEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
                  }).transform}
                  style:transition={getItemStyle(zValues.button).transition}
-                 class="flex-1 relative group">
+                 class="flex-1 relative group ">
               <!-- Button glow effect that animates -->
               {#if isHovering}
                 <div class="absolute inset-0 rounded-lg blur-md group-hover:blur-xl -z-10"
@@ -455,14 +455,16 @@
               <button on:click={handleBidClick} 
                     class="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 
                          hover:from-indigo-500 hover:to-indigo-400
-                         text-white px-4 py-3 rounded-lg text-sm font-semibold 
+                         text-white px-4 py-2 rounded-lg text-sm font-semibold 
                          shadow-xl transition-all duration-300 ease-out relative z-10
-                         border border-indigo-400/30 flex items-center justify-center"
+                         border border-indigo-400/30 flex items-center justify-center h-[44px]"
                     style:transform={isHovering ? `translateY(${sineWave(currentTime, 2, 3)}px)` : ''}>
                 <span style:transform={getItemStyle(zValues.buttonText, {
                       scale: isHovering ? 1 + Math.sin(currentTime * 8) * 0.05 : 1
                     }).transform}
-                    style:display="inline-block">
+                    style:display="inline-block"
+                    style:margin-top="-25px"
+                    >
                   Place Bid
                 </span>
               </button>
@@ -484,7 +486,7 @@
                     style:transform={isHovering ? `translateY(${sineWave(currentTime, 2, 3) * 1.2}px)` : ''}>
                 <div class="flex items-center justify-center">
                   <svg xmlns="http://www.w3.org/2000/svg" 
-                       class="h-5 w-5" 
+                       class="h-5 w-5 -mt-[29px] -ml-[22px]" 
                        style:transform={getItemStyle(zValues.heartIcon, {
                          scale: isHovering ? 1 + Math.sin(currentTime * 15) * 0.2 : 1
                        }).transform}
