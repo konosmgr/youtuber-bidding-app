@@ -4,12 +4,6 @@
 The project is a SvelteKit application for "Betting on Alaska Auctions" - a youtuber bidding platform. The application provides an interface for users to participate in auctions related to various categories including general auctions, knives, art, and miscellaneous items.
 
 ### Recent Changes
-- Replaced the generic specs on knife auction cards with complete item descriptions for better information
-- Added proper description formatting with full text instead of extracted bullet points
-- Implemented truncation of long descriptions (>200 characters) to maintain readability
-- Preserved condition information as a priority in the displayed information
-- Added fallback to highlights when full description is not available
-- Implemented intelligent defaults when neither description nor highlights are present
 - Fixed cropping issues in PastAuctionCard component by reorganizing the badge layout and content placement
 - Added proper PAST AUCTION and SOLD badges on the same level to prevent overlap
 - Reduced title font size and added text truncation to prevent text overflow

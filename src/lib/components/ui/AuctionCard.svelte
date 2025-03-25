@@ -333,7 +333,7 @@
         <!-- Main content area with flex spacing -->
         <div class="flex-1 flex flex-col">
           <!-- Top section: Title (where "Quantum Reality Renderer" is) -->
-          <div class="mt-16" 
+          <div class="mt-12" 
                style:transform={getItemStyle(zValues.title, {
                  xOffset: isHovering ? 8 + sineWave(currentTime, 5, 1) : 0,
                  yOffset: isHovering ? -5 + cosineWave(currentTime, 3, 0.7) : 0,
@@ -396,7 +396,7 @@
         <!-- Bottom section: Price and buttons -->
         <div class="mt-auto">
           <!-- Starting bid (smaller text above main price) -->
-          <div class="text-sm text-white/60 mb-1">
+          <div class="text-sm text-white/90 mb-1 mx-2">
             Starting bid: {formatCurrency(item.startingPrice)}
           </div>
           
@@ -410,7 +410,7 @@
                  customEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
                }).transform}
                style:transition={getItemStyle(zValues.priceTag).transition}
-               class="mb-4">
+               class="mb-12">
             <div class="text-3xl font-extrabold text-white text-shadow-sharp"
                  style:transform={getItemStyle(zValues.priceText, {
                    scale: isHovering ? 1 + Math.sin(currentTime * 6) * 0.05 : 1
