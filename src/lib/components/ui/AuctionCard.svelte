@@ -50,6 +50,7 @@
     container: 30,
     priceTag: 120,
     priceText: 130,
+    startingBid: 110,
     title: 90,
     titleShadow: 85,
     subtitle: 70,
@@ -332,8 +333,8 @@
         
         <!-- Main content area with flex spacing -->
         <div class="flex-1 flex flex-col">
-          <!-- Top section: Title (where "Quantum Reality Renderer" is) -->
-          <div class="mt-12" 
+          <!-- Top section: Title - moved lower by increasing margin-top -->
+          <div class="mt-20" 
                style:transform={getItemStyle(zValues.title, {
                  xOffset: isHovering ? 8 + sineWave(currentTime, 5, 1) : 0,
                  yOffset: isHovering ? -5 + cosineWave(currentTime, 3, 0.7) : 0,
@@ -344,8 +345,8 @@
             <h3 class="text-2xl font-bold text-white text-shadow-sharp line-clamp-2">{item.name}</h3>
           </div>
           
-          <!-- Middle section: Youtuber and specs (where "Limited Reality Processor" is) -->
-          <div class="mt-2">
+          <!-- Middle section: Youtuber and specs - made more compact -->
+          <div class="mt-2 mb-20">
             {#if item.youtuber}
               <div style:transform={getItemStyle(zValues.subtitle, {
                     xOffset: isHovering ? 12 + sineWave(currentTime, 3, 1.5) : 0,
@@ -354,14 +355,14 @@
                     customDuration: 0.6
                   }).transform}
                   style:transition={getItemStyle(zValues.subtitle).transition}
-                  class="mb-2">
+                  class="mb-1">
                 <p class="text-gray-300 text-sm font-medium">
                   By {item.youtuber}
                 </p>
               </div>
             {/if}
             
-            <!-- Specs list with wave-like sequential animation -->
+            <!-- Specs list with wave-like sequential animation - more compact spacing -->
             {#if item.specs && item.specs.length > 0}
               <div style:transform={getItemStyle(zValues.specs, {
                      yOffset: isHovering ? -3 : 0,
@@ -369,11 +370,11 @@
                      customDuration: 0.7
                    }).transform}
                    style:transition={getItemStyle(zValues.specs).transition}>
-                <ul class="space-y-1">
+                <ul class="space-y-0.5">
                   {#each item.specs as spec, i}
-                    <li class="text-white/70 text-sm flex items-start gap-1.5" 
+                    <li class="text-white/90 text-sm flex items-start gap-1.5" 
                         style="transition-delay: {0.15 + (i * 0.07)}s; 
-                               opacity: {isHovering ? '1' : '0.7'}; 
+                               opacity: {isHovering ? '0.9' : '1'}; 
                                transform: translateX({isHovering ? sineWave(currentTime + i * 0.5, 5, 1) : -5}px) 
                                           translateY({isHovering ? cosineWave(currentTime + i * 0.3, 3, 0.7) : 0}px); 
                                transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);">
@@ -395,9 +396,20 @@
         
         <!-- Bottom section: Price and buttons -->
         <div class="mt-auto">
-          <!-- Starting bid (smaller text above main price) -->
-          <div class="text-sm text-white/90 mb-1 mx-2">
-            Starting bid: {formatCurrency(item.startingPrice)}
+          <!-- Starting bid (smaller text above main price) - now with animation -->
+          <div style:transform={getItemStyle(zValues.startingBid, {
+                 scale: isHovering ? breathingAnimation(currentTime, 1, 1.02) : 1,
+                 xOffset: isHovering ? sineWave(currentTime, 4, 0.5) : 0,
+                 yOffset: isHovering ? -5 : 0,
+                 delay: 0.1,
+                 customDuration: 0.5,
+                 customEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
+               }).transform}
+               style:transition={getItemStyle(zValues.startingBid).transition}
+               class="text-sm text-white/90 mb-1 mx-2">
+            <span class="inline-block" style:opacity={isHovering ? 0.95 : 0.8}>
+              Starting bid: {formatCurrency(item.startingPrice)}
+            </span>
           </div>
           
           <!-- Main price (where "$2,499.99" is) -->

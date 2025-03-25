@@ -655,7 +655,7 @@
                   style:transform={getItemStyle(zValues.priceText, {
                     scale: isHovering ? 1 + Math.sin(currentTime * 6) * 0.05 : 1
                   }).transform}>
-              Current Bid: {formatPrice(item.current_price)}
+              {timeRemaining?.isExpired ? "Final Bid: " : "Current Bid: "}{formatPrice(item.current_price)}
               </div>
               </div>
 
@@ -699,19 +699,19 @@
               <p class="text-sm text-indigo-300 mb-2">Time Remaining:</p>
               <div class="grid grid-cols-4 gap-2 w-full">
                 <div class="bg-indigo-900/30 border border-indigo-500/20 rounded-lg p-2 text-center">
-                  <div class="text-xl font-bold text-white">{timeRemaining?.days || 0}</div>
+                  <div class="text-xl font-bold text-white">{timeRemaining?.isExpired ? 0 : timeRemaining?.days || 0}</div>
                   <div class="text-xs text-indigo-300">Days</div>
                 </div>
                 <div class="bg-indigo-900/30 border border-indigo-500/20 rounded-lg p-2 text-center">
-                  <div class="text-xl font-bold text-white">{timeRemaining?.hours || 0}</div>
+                  <div class="text-xl font-bold text-white">{timeRemaining?.isExpired ? 0 : timeRemaining?.hours || 0}</div>
                   <div class="text-xs text-indigo-300">Hours</div>
                 </div>
                 <div class="bg-indigo-900/30 border border-indigo-500/20 rounded-lg p-2 text-center">
-                  <div class="text-xl font-bold text-white">{timeRemaining?.minutes || 0}</div>
+                  <div class="text-xl font-bold text-white">{timeRemaining?.isExpired ? 0 : timeRemaining?.minutes || 0}</div>
                   <div class="text-xs text-indigo-300">Minutes</div>
                 </div>
                 <div class="bg-indigo-900/30 border border-indigo-500/20 rounded-lg p-2 text-center">
-                  <div class="text-xl font-bold text-white">{timeRemaining?.seconds || 0}</div>
+                  <div class="text-xl font-bold text-white">{timeRemaining?.isExpired ? 0 : timeRemaining?.seconds || 0}</div>
                   <div class="text-xs text-indigo-300">Seconds</div>
                 </div>
               </div>
@@ -724,7 +724,7 @@
                 <p class="text-lg text-white">{formatPrice(item.starting_price)}</p>
               </div>
               <div>
-                <p class="text-sm text-indigo-300">Current Bid:</p>
+                <p class="text-sm text-indigo-300">{timeRemaining?.isExpired ? "Final Bid:" : "Current Bid:"}</p>
                 <p class="text-2xl font-bold text-white">{formatPrice(item.current_price)}</p>
               </div>
             </div>
