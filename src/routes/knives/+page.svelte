@@ -143,7 +143,7 @@
       id: item.id,
       name: item.title,
       youtuber: item.youtuber?.name || '',
-      specs: extractSpecs(item),
+      specs: getDescriptionDetails(item),
       currentBid: item.current_price,
       startingPrice: item.starting_price || 0,
       label: item.is_featured ? 'FEATURED' : '',
@@ -331,6 +331,13 @@
   function extractSpecs(item) {
     let specs = [];
     
+    // Specific knife-related keywords to look for in descriptions
+    const knifeKeywords = [
+      'blade', 'steel', 'handle', 'edge', 'sheath', 'damascus', 
+      'folding', 'fixed', 'tactical', 'hunting', 'chef', 'kitchen',
+      'carbon', 'stainless', 'custom', 'handmade', 'vintage', 'collector'
+    ];
+    
     if (item.highlights) {
       // Use highlights if available, but limit to 3 meaningful points
       specs = item.highlights.split(',')
@@ -339,6 +346,7 @@
         .slice(0, 3);
     } else if (item.description) {
       // Extract more meaningful information from description
+      // First, look for sentences containing knife-related keywords
       const descLines = item.description
         .replace(/•/g, '.')  // Convert bullets to periods
         .replace(/- /g, '. ') // Convert dashes to periods
@@ -346,7 +354,14 @@
         .map(s => s.trim())
         .filter(s => s.length > 5 && s.length < 60);
       
-      specs = descLines.slice(0, 3);
+      // Prioritize sentences containing knife keywords
+      const keywordLines = descLines.filter(line => 
+        knifeKeywords.some(keyword => 
+          line.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+      
+      specs = (keywordLines.length > 0 ? keywordLines : descLines).slice(0, 3);
     }
     
     // Get knife condition if available
@@ -355,7 +370,93 @@
       specs = specs.slice(0, 3);
     }
     
-    return specs.length > 0 ? specs : ['Knife auction', 'Final sale', 'No returns'];
+    // If we still don't have meaningful specs, create knife-specific descriptions
+    if (specs.length === 0) {
+      // Try to extract knife type from title
+      let knifeType = 'Collectible';
+      
+      if (item.title) {
+        const titleWords = item.title.split(' ');
+        // Check if first word is a known knife type
+        const knownTypes = ['hunting', 'tactical', 'folding', 'fixed', 'chef', 'pocket', 'survival', 'combat', 'utility', 'custom'];
+        
+        for (const word of titleWords) {
+          if (knownTypes.some(type => word.toLowerCase().includes(type.toLowerCase()))) {
+            knifeType = word;
+            break;
+          }
+        }
+        
+        // If no known type was found, use the first word if it's relevant
+        if (knifeType === 'Collectible' && titleWords.length > 0) {
+          knifeType = titleWords[0];
+        }
+      }
+      
+      specs = [
+        `${knifeType} design`,
+        item.is_verified ? 'Verified authentic' : 'Unique collectible',
+        item.brand ? `Made by ${item.brand}` : 'One of a kind'
+      ];
+      
+      // Add materials info if available
+      if (item.materials) {
+        specs[1] = `${item.materials} construction`;
+      }
+    }
+    
+    return specs;
+  }
+  
+  // Get full description for the auction card
+  function getDescriptionDetails(item) {
+    // If there's a condition, include it as the first bullet point
+    let details = [];
+    
+    if (item.condition) {
+      details.push(`Condition: ${item.condition}`);
+    }
+
+    // If we have highlights, use them
+    if (item.highlights && item.highlights.trim()) {
+      const highlightPoints = item.highlights
+        .split(',')
+        .map(h => h.trim())
+        .filter(h => h.length > 0);
+      
+      details = [...details, ...highlightPoints];
+    }
+    // If we have a description, use it instead
+    else if (item.description && item.description.trim()) {
+      // Clean up the description
+      let description = item.description
+        .replace(/\r\n/g, ' ')  // Replace line breaks with spaces
+        .replace(/\s{2,}/g, ' ') // Replace multiple spaces with a single space
+        .trim();
+      
+      // If the description is too long, truncate it
+      if (description.length > 200) {
+        description = description.substring(0, 200) + '...';
+      }
+      
+      details.push(description);
+    } 
+    // If we have nothing, use a simple default
+    else {
+      if (item.brand) {
+        details.push(`Made by ${item.brand}`);
+      }
+      
+      if (item.materials) {
+        details.push(`${item.materials} construction`);
+      }
+      
+      if (details.length === 0) {
+        details.push('Unique collectible knife');
+      }
+    }
+    
+    return details;
   }
   
   // Get main image from item
@@ -405,6 +506,17 @@
           items = updateTimeRemaining(items);
         }
       }, 60000); // Update every minute
+
+      // Global style override for price positioning
+      const styleTag = document.createElement('style');
+      styleTag.textContent = `
+        /* Target the price container in AuctionCard */
+        .auction-card-price-container {
+          transform: translateY(-15px) !important;
+          margin-bottom: -10px !important;
+        }
+      `;
+      document.head.appendChild(styleTag);
     } catch (error) {
       console.error("Error during initialization:", error);
     }
@@ -412,6 +524,9 @@
 
   onDestroy(() => {
     if (timerInterval) clearInterval(timerInterval);
+    if (document && document.head.contains(styleTag)) {
+      document.head.removeChild(styleTag);
+    }
   });
 </script>
 
@@ -635,6 +750,7 @@
       transform: translateY(0) scale(1);
       filter: blur(0);
     }
+
   }
   
   /* Adjust wrapper for better animation display */
