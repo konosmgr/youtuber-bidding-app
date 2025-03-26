@@ -4,6 +4,14 @@
 The project is a SvelteKit application for "Betting on Alaska Auctions" - a youtuber bidding platform. The application provides an interface for users to participate in auctions related to various categories including general auctions, knives, art, and miscellaneous items.
 
 ### Recent Changes
+- Redesigned the navigation bar with a modern glass-morphic design that integrates seamlessly with the site aesthetic
+- Added dynamic backdrop blur effects that change on scroll for improved visual hierarchy
+- Implemented subtle animation effects including hover states with animated glows
+- Created a unified color scheme with amber/gold accents and dark backgrounds
+- Enhanced the mobile menu with improved icons, animations, and visual organization
+- Added subtle grid patterns and glow effects to improve depth perception
+- Redesigned the user profile dropdown with clearer visual hierarchy and more intuitive layout
+- Improved accessibility with better contrast and focus states
 - Fixed cropping issues in PastAuctionCard component by reorganizing the badge layout and content placement
 - Added proper PAST AUCTION and SOLD badges on the same level to prevent overlap
 - Reduced title font size and added text truncation to prevent text overflow
@@ -26,7 +34,7 @@ The project is a SvelteKit application for "Betting on Alaska Auctions" - a yout
 - Added smooth 3-stage animations to Past Auction cards with delayed entrances based on card position
 - Implemented proper cleanup in animation code with onDestroy hooks
 - Enhanced AuctionCard and PastAuctionCard components with advanced 3D effects from the showcase implementation
-- Added time-based animations with sine and cosine wave effects to create more dynamic card interactions
+- Added time-based animations with sine and cosine wave functions to create more dynamic card interactions
 - Improved floating particle animations with larger, more visible particles
 - Added subtle breathing animations to various card elements for a more polished look
 - Enhanced badges with dynamic rotation and scaling effects based on hover state
@@ -74,7 +82,7 @@ The project follows a typical SvelteKit structure:
       - `3d-card/hybridcards/Enhanced3DCard.svelte` - Advanced 3D card transformation component
       - `AuctionCard.svelte` - Reusable auction card component with 3D effects and auction-specific UI
       - `PastAuctionCard.svelte` - Specialized card component with dual badges, text truncation, and optimized layout to prevent content cropping
-    - `Navbar.svelte` - Main navigation component
+    - `Navbar.svelte` - Redesigned navigation component with glass-morphic design, animated effects, and improved mobile experience
     - `ResponsiveImage.svelte` - Component for responsive image handling with webp support and fallback options
   - `utils/` - Utility functions and helpers
     - `utils.js` - Common utility functions including the `cn` function for class composition
@@ -90,7 +98,7 @@ The project follows a typical SvelteKit structure:
 - Authentication system with user login/registration
 - Nickname checking functionality with profanity filter
 - User profile management with email notification preferences
-- Navigation with sections for Auctions, Knives, Art, and Misc
+- Modern glass-morphic navigation with smooth animations and responsive design
 - Support chat system
 - YouTube integration
 - Enhanced UI components with animated effects
@@ -105,7 +113,7 @@ The project follows a typical SvelteKit structure:
 
 ## Core Components
 - `BeamsBackground(Animated).svelte` - An animated background component that creates a dynamic light beam effect using canvas, now with proper scrolling support
-- `Navbar.svelte` - The main navigation component with links to different sections
+- `Navbar.svelte` - Redesigned navigation component with glass-morphic effects, scroll animations, and improved mobile experience
 - `NicknameCheckWrapper.svelte` - A wrapper component that checks for user nicknames
 - `Enhanced3DCard.svelte` - A component for creating interactive 3D card effects with layering capabilities
 - `AuctionCard.svelte` - A reusable auction-specific card component with advanced 3D effects, time-based animations, and realistic depth perception using sine/cosine wave functions and floating particles
@@ -132,12 +140,15 @@ The project follows a typical SvelteKit structure:
 - Custom pattern backgrounds and animated gradient overlays for item detail pages
 - Backdrop-blur containers for spec lists and price displays in past auction cards
 - Text truncation and responsive spacing to prevent content overflow on smaller screens
+- Glass-morphic navbar design with dynamic blur effects that change on scroll position
+- Amber/gold accent palette with subtle purple and indigo secondary accents
 
 ## Authentication
 - Authentication status is checked when the application loads
 - Using a store called `isAuthenticated` to manage authentication state
 - User data is displayed in the UI once authenticated
 - Profile management with fields for display name and notification preferences
+- Redesigned user dropdown with improved clarity and visual hierarchy
 
 ## Development Environment
 - The application runs on port 5175 in development mode
