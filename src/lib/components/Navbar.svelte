@@ -4,6 +4,10 @@
   import { fetchApi } from '$lib/utils/api';
   import { onMount, onDestroy } from 'svelte';
   import { unreadCount, loadConversations } from '$lib/stores/messaging';
+  import { browser } from '$app/environment';
+
+  // Make the component client-side only
+  export const csr = true;
 
   $: activeRoute = $page.url.pathname;
   $: isAdmin = false;
@@ -29,12 +33,16 @@
   // Animate background effects
   function animate() {
     currentTime += 0.01;
-    animationFrame = requestAnimationFrame(animate);
+    if (browser) {
+      animationFrame = requestAnimationFrame(animate);
+    }
   }
 
   function handleScroll() {
-    scrollPosition = window.scrollY;
-    isScrolled = scrollPosition > 10;
+    if (browser) {
+      scrollPosition = window.scrollY;
+      isScrolled = scrollPosition > 10;
+    }
   }
 
   onMount(async () => {
@@ -56,24 +64,33 @@
     }
 
     // Add scroll event listener
-    window.addEventListener('scroll', handleScroll);
-    
-    // Start animation
-    animate();
+    if (browser) {
+      window.addEventListener('scroll', handleScroll);
+      
+      // Run once to initialize scroll position
+      handleScroll();
+      
+      // Start animation
+      animate();
+    }
   });
 
   onDestroy(() => {
     // Clean up event listeners and animations
-    window.removeEventListener('scroll', handleScroll);
-    if (animationFrame) {
-      cancelAnimationFrame(animationFrame);
+    if (browser) {
+      window.removeEventListener('scroll', handleScroll);
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
     }
   });
 
   async function handleLogout() {
     try {
       await isAuthenticated.logout();
-      window.location.href = '/';
+      if (browser) {
+        window.location.href = '/';
+      }
     } catch (e) {
       console.error('Logout failed:', e);
     }
