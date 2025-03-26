@@ -295,7 +295,7 @@
 <div class="p-8">
   <div class="mx-auto max-w-7xl">
     <div class="mb-6 flex justify-between">
-      <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+      <h1 class="text-2xl font-bold text-white">Admin Dashboard</h1>
       <div class="flex gap-4">
         <button
           class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
@@ -333,7 +333,7 @@
     <!-- Status filter and winner management controls -->
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <div>
-        <label for="statusFilter" class="mr-2 font-medium">Filter:</label>
+        <label for="statusFilter" class="mr-2 font-medium text-white">Filter:</label>
         <select 
           id="statusFilter" 
           bind:value={statusFilter}
@@ -400,14 +400,14 @@
               <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Winner</th>
               <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Bids</th>
               <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">YouTube</th>
-              <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Actions</th>
+              <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 min-w-[120px]">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
             {#each sortedItems as item (item.id)}
               {@const winnerStatus = getWinnerStatus(item)}
               <tr class={item.isEnded ? 'bg-gray-50' : 'bg-white'}>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                <td class="px-3 py-4 text-sm text-gray-500">
                   <input 
                     type="checkbox" 
                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
@@ -415,24 +415,24 @@
                     on:change={() => toggleSelectItem(item.id)}
                   />
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                <td class="px-3 py-4 text-sm">
                   <span class={`inline-flex rounded-full px-2 text-xs font-medium ${winnerStatus.color}`}>
                     {winnerStatus.label}
                   </span>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm">
-                  <a href="/admin/edit/{item.id}" class="text-blue-600 hover:text-blue-800 font-medium">
+                <td class="px-3 py-4 text-sm max-w-[180px]">
+                  <a href="/admin/edit/{item.id}" class="text-blue-600 hover:text-blue-800 font-medium line-clamp-1">
                     {item.title}
                   </a>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{item.category.name}</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm font-medium">${item.current_price}</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                <td class="px-3 py-4 text-sm text-gray-500">{item.category.name}</td>
+                <td class="px-3 py-4 text-sm font-medium">${item.current_price}</td>
+                <td class="px-3 py-4 text-sm text-gray-500">
                   <span class={item.isEnded ? 'text-red-600' : 'text-green-600'}>
                     {formatDate(item.end_date)}
                   </span>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                <td class="px-3 py-4 text-sm text-gray-500">
                   {#if item.winner && item.isEnded}
                     <div class="flex items-center gap-2">
                       <span class="text-green-600">{item.winner.email}</span>
@@ -475,7 +475,7 @@
                     <span class="text-gray-500">No bids</span>
                   {/if}
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                <td class="px-3 py-4 text-sm text-gray-500">
                   {#if item.bids && item.bids.length > 0}
                     <button 
                       class="rounded bg-blue-100 px-2 py-1 text-blue-800 hover:bg-blue-200"
@@ -487,7 +487,7 @@
                     <span class="text-gray-500">No bids</span>
                   {/if}
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                <td class="px-3 py-4 text-sm text-gray-500">
                   {#if item.youtube_url}
                     <a href={item.youtube_url} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800">
                       View
@@ -496,8 +496,8 @@
                     -
                   {/if}
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm">
-                  <div class="flex space-x-2">
+                <td class="px-3 py-4 text-sm min-w-[120px]">
+                  <div class="flex space-x-3">
                     <a href="/admin/edit/{item.id}" class="text-blue-600 hover:text-blue-800">
                       Edit
                     </a>

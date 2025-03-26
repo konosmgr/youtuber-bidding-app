@@ -4,6 +4,17 @@
 The project is a SvelteKit application for "Betting on Alaska Auctions" - a youtuber bidding platform. The application provides an interface for users to participate in auctions related to various categories including general auctions, knives, art, and miscellaneous items.
 
 ### Recent Changes
+- Enhanced admin dashboard table layout to prevent button cropping and improve readability
+- Removed whitespace-nowrap constraints on table cells to allow proper text wrapping
+- Added min-width to the action columns to ensure edit/delete buttons display properly
+- Improved admin item edit page with a modern, responsive design 
+- Added a "Back to Admin" button in the edit item header for easier navigation
+- Enhanced form controls with better focus states and consistent styling
+- Improved image management UI with better grid layout and larger delete buttons
+- Added subtle animations and transitions to admin interfaces for better user experience
+- Used consistent amber accent colors across admin interfaces to match the site's theme
+- Added proper loading state visualization with spinner animation
+- Improved error message display with proper formatting and visual cues
 - Redesigned the navigation bar with a modern glass-morphic design that integrates seamlessly with the site aesthetic
 - Added dynamic backdrop blur effects that change on scroll for improved visual hierarchy
 - Implemented subtle animation effects including hover states with animated glows

@@ -231,60 +231,70 @@
 </script>
 
 <div class="container mx-auto p-8">
-  <div class="mx-auto max-w-2xl">
-    <h1 class="mb-6 text-2xl font-bold">Edit Item</h1>
+  <div class="mx-auto max-w-3xl">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Edit Item</h1>
+      <a href="/admin" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded shadow transition-colors">
+        Back to Admin
+      </a>
+    </div>
 
     {#if loading}
-      <p>Loading...</p>
+      <div class="flex justify-center p-6">
+        <div class="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="ml-2">Loading item data...</p>
+      </div>
     {:else if error}
-      <p class="text-red-500">{error}</p>
+      <div class="p-4 bg-red-100 text-red-700 rounded-md border border-red-300">
+        <p>{error}</p>
+      </div>
     {:else if item}
-      <form on:submit|preventDefault={handleSubmit} class="space-y-4">
+      <form on:submit|preventDefault={handleSubmit} class="space-y-6 bg-white/90 backdrop-blur-sm shadow-lg rounded-xl p-6 border border-gray-200/30">
         <div>
-          <label for="title" class="mb-1 block text-sm font-medium">Title</label>
+          <label for="title" class="block text-sm font-medium mb-1 text-gray-700">Title</label>
           <input
             id="title"
             type="text"
             bind:value={item.title}
-            class="w-full rounded border p-2"
+            class="w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-amber-500 focus:ring focus:ring-amber-200"
             required
           />
         </div>
 
         <div>
-          <label for="description" class="mb-1 block text-sm font-medium">Description</label>
+          <label for="description" class="block text-sm font-medium mb-1 text-gray-700">Description</label>
           <textarea
             id="description"
             bind:value={item.description}
-            class="w-full rounded border p-2"
+            class="w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-amber-500 focus:ring focus:ring-amber-200"
             rows="4"
             required
           ></textarea>
         </div>
 
         <div>
-          <label for="youtube_url" class="mb-1 block text-sm font-medium">
+          <label for="youtube_url" class="block text-sm font-medium mb-1 text-gray-700">
             YouTube URL (Optional)
           </label>
           <input
             id="youtube_url"
             type="url"
             bind:value={item.youtube_url}
-            class="w-full rounded border p-2"
+            class="w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-amber-500 focus:ring focus:ring-amber-200"
             placeholder="https://www.youtube.com/watch?v=..."
           />
         </div>
 
         <!-- End date section with toggle -->
-        <div class="border p-4 rounded bg-gray-50">
+        <div class="border border-gray-200 p-4 rounded-md bg-gray-50/80">
           <div class="flex items-center mb-2">
             <input
               type="checkbox"
               id="changeEndDate"
               bind:checked={changeEndDate}
-              class="mr-2 rounded border-gray-300"
+              class="mr-2 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
             />
-            <label for="changeEndDate" class="text-sm font-medium">
+            <label for="changeEndDate" class="text-sm font-medium text-gray-700">
               Change End Date and Time
             </label>
           </div>
@@ -294,7 +304,7 @@
               id="end_date"
               type="datetime-local"
               bind:value={item.end_date}
-              class="w-full rounded border p-2"
+              class="w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-amber-500 focus:ring focus:ring-amber-200"
               required
             />
             <p class="text-xs text-gray-500 mt-1">
@@ -312,30 +322,30 @@
             <input
               type="checkbox"
               bind:checked={item.is_active}
-              class="mr-2 rounded border-gray-300"
+              class="mr-2 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
             />
-            <span class="text-sm font-medium">Active</span>
+            <span class="text-sm font-medium text-gray-700">Active</span>
           </label>
         </div>
         
         <!-- Current Images -->
         {#if item.images && item.images.length > 0}
-          <div>
-            <h3 class="mb-2 text-sm font-medium">Current Images</h3>
-            <div class="grid grid-cols-3 gap-2">
+          <div class="border border-gray-200/30 rounded-md p-4 bg-gray-50/50">
+            <h3 class="text-sm font-medium mb-3 text-gray-700">Current Images</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {#each item.images as image, i}
-                <div class="relative rounded border">
+                <div class="relative rounded-md border border-gray-200 overflow-hidden shadow-sm hover:shadow transition">
                   <ResponsiveImage
                     src={image.image}
                     webpSrc={image.webp_url}
                     width={image.width}
                     height={image.height}
                     alt="Item"
-                    className="h-24 w-full object-cover rounded"
+                    className="h-28 w-full object-cover"
                   />
                   <button 
                     type="button" 
-                    class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                    class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow hover:bg-red-600 transition"
                     on:click={() => deleteExistingImage(image.id, i)}
                   >
                     ×
@@ -348,7 +358,7 @@
         
         <!-- Add new images -->
         <div>
-          <label for="images" class="mb-1 block text-sm font-medium">Add New Images</label>
+          <label for="images" class="block text-sm font-medium mb-2 text-gray-700">Add New Images</label>
           <input
             id="images"
             type="file"
@@ -356,23 +366,23 @@
             bind:this={fileInput}
             multiple
             accept="image/*"
-            class="w-full rounded border p-2"
+            class="w-full rounded-md border border-gray-300 p-2 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-amber-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-amber-700 hover:file:bg-amber-100"
           />
           
           {#if selectedFiles.length > 0}
-            <div class="mt-3">
-              <p class="text-sm text-gray-500 mb-2">{selectedFiles.length} new image(s) selected</p>
-              <div class="grid grid-cols-3 gap-2">
+            <div class="mt-4">
+              <p class="text-sm text-gray-600 mb-2">{selectedFiles.length} new image(s) selected</p>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {#each selectedFiles as _, i}
-                  <div class="relative rounded border">
+                  <div class="relative rounded-md border border-gray-200 overflow-hidden shadow-sm hover:shadow transition">
                     <img 
                       src={imagePreviewUrls[(item.images ? item.images.length : 0) + i]} 
                       alt="Preview" 
-                      class="h-24 w-full object-cover rounded" 
+                      class="h-28 w-full object-cover" 
                     />
                     <button 
                       type="button" 
-                      class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                      class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow hover:bg-red-600 transition"
                       on:click={() => removeNewImage(i)}
                     >
                       ×
@@ -384,17 +394,17 @@
           {/if}
         </div>
 
-        <div class="flex justify-end gap-4">
+        <div class="flex justify-end gap-4 pt-2">
           <button
             type="button"
             on:click={() => goto('/admin')}
-            class="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+            class="px-4 py-2 rounded-md bg-gray-500 text-white hover:bg-gray-600 shadow transition-colors"
           >
             Cancel
           </button>
           <button 
             type="submit" 
-            class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+            class="px-4 py-2 rounded-md bg-amber-600 text-white hover:bg-amber-700 shadow transition-colors"
             disabled={loading}
           >
             {loading ? 'Saving...' : 'Save Changes'}
