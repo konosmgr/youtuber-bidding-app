@@ -1,166 +1,170 @@
 <script>
-    // Props for customization
-    export let text = "EXPLORE"; // The text to display with the effect
-    export let bgColor = "#0f172a"; // Dark background color
-    export let textColor = "#f8fafc"; // Light text color
-    export let hoverTextColor = "#60a5fa"; // Text color on hover
-    export let href = "#"; // Optional link destination
-    export let spacing = 0.05; // Initial letter spacing (in em)
-    export let hoverSpacing = 0.2; // Letter spacing on hover (in em)
-    export let size = "md"; // Button size: sm, md, lg
+  // Text for the button
+  export let text = "CONTACT";
+  // Optional props for customization
+  export let bgColor = "transparent";
+  export let textColor = "#ffffff";
+  export let borderColor = "rgba(255, 255, 255, 0.2)";
+  export let hoverBgColor = "rgba(255, 255, 255, 0.1)";
+  
+  // State for tracking hover
+  let hovered = false;
+  
+  // Characters to use for text scrambling
+  const chars = '!<>-_\\/[]{}—=+*^?#________';
+  
+  // Create an array of letter objects
+  $: letters = text.split('').map((char) => ({
+    original: char,
+    current: char,
+    scrambled: false,
+    settled: false
+  }));
+  
+  // Animation frame reference
+  let animationFrame;
+  let complete = false;
+  
+  // Function to handle scramble animation
+  function scrambleText() {
+    if (!hovered || complete) return;
     
-    // Size presets
-    const sizes = {
-      sm: { padding: "12px 24px", fontSize: "14px" },
-      md: { padding: "18px 36px", fontSize: "18px" },
-      lg: { padding: "22px 44px", fontSize: "22px" }
-    };
+    let allSettled = true;
     
-    // Internal state
-    let hovered = false;
-    
-    // Create an array of letters for individual animation
-    $: letters = text.split('');
-    
-    // Get appropriate size values
-    $: padding = sizes[size]?.padding || sizes.md.padding;
-    $: fontSize = sizes[size]?.fontSize || sizes.md.fontSize;
-    
-    // Handle click event
-    function handleClick(e) {
-      // Add ripple effect logic if needed
-      if (href === "#") {
-        e.preventDefault();
+    letters = letters.map((letter, i) => {
+      // Skip spaces
+      if (letter.original === ' ') {
+        return { ...letter, settled: true };
       }
+      
+      // If already settled, keep it that way
+      if (letter.settled) {
+        return letter;
+      }
+      
+      // Determine if this letter should settle (staggered based on position)
+      const shouldSettle = Math.random() < 0.15 + (i / letters.length) * 0.3;
+      
+      if (shouldSettle) {
+        return {
+          ...letter,
+          current: letter.original,
+          settled: true,
+          scrambled: false
+        };
+      } else {
+        // Otherwise show a random character
+        allSettled = false;
+        return {
+          ...letter,
+          current: chars[Math.floor(Math.random() * chars.length)],
+          scrambled: true
+        };
+      }
+    });
+    
+    if (!allSettled) {
+      // Continue animation if not all letters are settled
+      animationFrame = requestAnimationFrame(scrambleText);
+    } else {
+      complete = true;
     }
-  </script>
+  }
   
-  <a 
-    {href}
-    class="fancy-button"
-    style="
-      --bg-color: {bgColor}; 
-      --text-color: {textColor}; 
-      --hover-text-color: {hoverTextColor};
-      --padding: {padding};
-      --font-size: {fontSize};
-      --letter-spacing: {spacing}em;
-      --hover-letter-spacing: {hoverSpacing}em;
-    "
-    on:mouseenter={() => hovered = true}
-    on:mouseleave={() => hovered = false}
-    on:click={handleClick}
-    class:hovered
-  >
-    <div class="button-background"></div>
-    <div class="button-glow"></div>
+  // Handle mouse enter
+  function handleMouseEnter() {
+    hovered = true;
+    complete = false;
     
-    <div class="letter-container">
-      {#each letters as letter, i}
-        <span 
-          class="letter"
-          style="--index: {i}; --total: {letters.length};"
-        >
-          {letter}
-        </span>
-      {/each}
-    </div>
-  </a>
+    // Reset letters to scrambled state
+    letters = letters.map(letter => ({
+      ...letter,
+      settled: letter.original === ' ', // Only spaces start settled
+      scrambled: letter.original !== ' ' // Everything else starts scrambled
+    }));
+    
+    // Start animation
+    cancelAnimationFrame(animationFrame);
+    animationFrame = requestAnimationFrame(scrambleText);
+  }
   
-  <style>
-    .fancy-button {
-      display: inline-block;
-      position: relative;
-      padding: var(--padding);
-      border-radius: 12px;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      font-family: 'Inter', 'Helvetica Neue', sans-serif;
-      font-weight: 700;
-      font-size: var(--font-size);
-      text-decoration: none;
-      cursor: pointer;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
+  // Handle mouse leave
+  function handleMouseLeave() {
+    hovered = false;
+    complete = false;
+    cancelAnimationFrame(animationFrame);
+    
+    // Reset all letters to original
+    letters = letters.map(letter => ({
+      ...letter,
+      current: letter.original,
+      scrambled: false,
+      settled: false
+    }));
+  }
   
-    .fancy-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    }
-    
-    .button-background {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: var(--bg-color);
-      border-radius: 12px;
-      z-index: -2;
-      transition: background-color 0.3s ease;
-    }
-    
-    .button-glow {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle at center, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
-      opacity: 0;
-      z-index: -1;
-      border-radius: 12px;
-      transition: opacity 0.5s ease;
-    }
-    
-    .hovered .button-glow {
-      opacity: 1;
-    }
-    
-    .letter-container {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1;
-    }
+  // Clean up animation frame on component destruction
+  import { onDestroy } from 'svelte';
+  onDestroy(() => {
+    cancelAnimationFrame(animationFrame);
+  });
+</script>
+
+<button
+  class="utsubo-button"
+  on:mouseenter={handleMouseEnter}
+  on:mouseleave={handleMouseLeave}
+  style="
+    --bg-color: {bgColor};
+    --text-color: {textColor};
+    --border-color: {borderColor};
+    --hover-bg-color: {hoverBgColor};
+  "
+  class:hovered
+>
+  <div class="button-text">
+    {#each letters as letter}
+      <span class="letter" class:scrambled={letter.scrambled}>
+        {letter.current}
+      </span>
+    {/each}
+  </div>
+</button>
+
+<style>
+  .utsubo-button {
+    position: relative;
+    padding: 0.5rem 1rem;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    font-family: 'Inter', 'Helvetica Neue', sans-serif;
+    font-weight: 300;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    overflow: hidden;
+  }
   
-    .letter {
-      display: inline-block;
-      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-                  color 0.3s ease,
-                  margin 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      margin: 0 var(--letter-spacing);
-    }
+  .utsubo-button:hover {
+    background-color: var(--hover-bg-color);
+    transform: translateY(-1px);
+  }
   
-    .hovered .letter {
-      color: var(--hover-text-color);
-      margin: 0 var(--hover-letter-spacing);
-    }
+  .button-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   
-    /* Add slightly different timing to each letter */
-    .hovered .letter {
-      transition-delay: calc(var(--index) * 0.03s);
-    }
-    
-    /* Alternate letter movement for more dynamic effect */
-    .hovered .letter:nth-child(2n) {
-      transform: translateY(-2px);
-    }
+  .letter {
+    display: inline-block;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
   
-    .hovered .letter:nth-child(2n+1) {
-      transform: translateY(2px);
-    }
-    
-    /* Button press effect */
-    .fancy-button:active {
-      transform: translateY(1px);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    }
-    
-    .fancy-button:active .letter {
-      transform: scale(0.95);
-    }
-  </style>
+  .scrambled {
+    opacity: 0.8;
+    transform: translateY(-1px);
+  }
+</style>

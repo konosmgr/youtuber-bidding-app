@@ -432,7 +432,13 @@
 </script>
 
 <div class="container mx-auto py-8">
-  <h1 class="mb-8 text-center text-4xl font-bold text-white drop-shadow-lg">Knife Collection</h1>
+  <!-- Simple minimal header -->
+  <div class="cool-header mb-16 px-4 py-8 flex items-center">
+    <h1 class="text-4xl font-bold text-white">Knives</h1>
+    <div class="ml-4 px-3 py-1 bg-blue-500 rounded text-sm font-medium text-white inline-flex items-center">
+      <span class="mr-1">●</span> Auction
+    </div>
+  </div>
 
   {#if loading}
     <div class="text-center text-xl text-white/80">Loading auctions...</div>
@@ -475,39 +481,68 @@
       </select>
     </div>
 
-    <!-- Real auctions grid with AuctionCard -->
-    <div class="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-3">
-      {#each filteredItems as item}
-        <div class="card-wrapper perspective-container">
-          <AuctionCard 
-            item={mapItemToAuctionCard(item)}
-            cardHeight="h-[500px]"
-            hoverScale={1.1}
-            on:bid={handleBid}
-            on:watchlist={handleWatchlist}
-            on:imageClick={handleImageClick}
-            on:cardClick={handleCardClick}
-          />
-        </div>
-      {/each}
+    <!-- Real auctions grid with AuctionCard - Premium Layout -->
+    <div class="grid grid-cols-1 gap-12 md:grid-cols-3">
+      <!-- Style-specific card sections -->
+      {#if filteredItems.length > 0}
+        {#each filteredItems.slice(0, 3) as item, i}
+          <div class="card-wrapper perspective-container">
+            <AuctionCard 
+              item={mapItemToAuctionCard(item)}
+              cardHeight="h-[500px]"
+              hoverScale={1.1}
+              on:bid={handleBid}
+              on:watchlist={handleWatchlist}
+              on:imageClick={handleImageClick}
+              on:cardClick={handleCardClick}
+            />
+          </div>
+        {/each}
+      {/if}
     </div>
+    
+    <!-- Additional items in standard grid if more than 3 -->
+    {#if filteredItems.length > 3}
+      <div class="mt-16">
+        <h2 class="text-3xl font-bold text-white mb-8">More Auctions</h2>
+        <div class="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-3">
+          {#each filteredItems.slice(3) as item}
+            <div class="card-wrapper perspective-container">
+              <AuctionCard 
+                item={mapItemToAuctionCard(item)}
+                cardHeight="h-[500px]"
+                hoverScale={1.1}
+                on:bid={handleBid}
+                on:watchlist={handleWatchlist}
+                on:imageClick={handleImageClick}
+                on:cardClick={handleCardClick}
+              />
+            </div>
+          {/each}
+        </div>
+      </div>
+    {/if}
   {/if}
   
   <!-- Past Auctions Section -->
   <div class="mt-24 mb-20">
     <div class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <h2 class="text-3xl font-bold text-white mb-2 tracking-tight">Past Auctions</h2>
+      <div class="flex items-center mb-8">
+        <h2 class="text-3xl font-bold text-white tracking-tight">Past Auctions</h2>
+        <div class="ml-4 h-0.5 flex-1 bg-indigo-900/50 rounded-full"></div>
+      </div>
+
       <p class="text-gray-400 mb-10">Check out previously sold items.</p>
       
       <!-- Subtle background for past auctions section -->
-      <div class="bg-black/30 backdrop-blur-lg rounded-xl p-6 sm:p-8 border border-teal-900/20 shadow-xl relative overflow-hidden">
+      <div class="bg-black/30 backdrop-blur-lg rounded-xl p-6 sm:p-8 border border-indigo-900/20 shadow-xl relative overflow-hidden">
         <!-- Decorative teal accent elements -->
-        <div class="absolute -top-10 -right-10 w-40 h-40 bg-teal-500/5 rounded-full blur-2xl"></div>
-        <div class="absolute -bottom-20 -left-20 w-60 h-60 bg-teal-500/5 rounded-full blur-3xl"></div>
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-2xl"></div>
+        <div class="absolute -bottom-20 -left-20 w-60 h-60 bg-indigo-500/5 rounded-full blur-3xl"></div>
         
         {#if loadingPast}
           <div class="text-center py-10">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-400"></div>
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-400"></div>
             <p class="mt-2 text-gray-400">Loading past auctions...</p>
           </div>
         {:else if pastError}
@@ -538,6 +573,26 @@
 </div>
 
 <style>
+  /* Add animation for the gradient background */
+  @keyframes gradient-x {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+  
+  .animate-gradient-x {
+    animation: gradient-x 15s ease infinite;
+    background-size: 200% 100%;
+  }
+  
+  .premium-header {
+    box-shadow: 0 10px 30px -5px rgba(2, 8, 23, 0.6);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+  }
+  
   /* Update card styling to ensure proper 3D rendering */
   .perspective-container {
     perspective: 2000px;
@@ -652,7 +707,6 @@
       transform: translateY(0) scale(1);
       filter: blur(0);
     }
-
   }
   
   /* Adjust wrapper for better animation display */
@@ -670,4 +724,79 @@
   :global(.auction-card-wrapper > *) {
     overflow: visible !important;
   }
+  
+  /* Page background */
+  :global(body) {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    background-attachment: fixed;
+    position: relative;
+  }
+  
+  :global(body::before) {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/images/subtle-pattern.svg');
+    background-size: 200px;
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  /* Add premium glow effects */
+  .premium-glow {
+    position: fixed;
+    width: 40vw;
+    height: 40vw;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.1;
+  }
+  
+  .premium-glow-1 {
+    top: -20vw;
+    right: -10vw;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0) 70%);
+  }
+  
+  .premium-glow-2 {
+    bottom: -20vw;
+    left: -10vw;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0) 70%);
+  }
+  
+  /* Style category highlights */
+  .style-highlight {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .style-highlight::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background-color: currentColor;
+    transition: width 0.3s ease;
+  }
+  
+  .style-highlight:hover::after {
+    width: 80%;
+  }
+
+  /* Remove the fancy header styles */
+  .cool-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
 </style>
+
+<!-- Premium background effects -->
+<div class="premium-glow premium-glow-1"></div>
+<div class="premium-glow premium-glow-2"></div>

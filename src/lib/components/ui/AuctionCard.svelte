@@ -191,7 +191,10 @@
              customEasing: 'cubic-bezier(0.4, 0, 0.2, 1)'
            }).transform}
            style:transition={getItemStyle(zValues.farBackground).transition}>
-        <div class="w-full h-full bg-gradient-to-br from-indigo-950 to-slate-900 rounded-xl"></div>
+        <div class="w-full h-full bg-gradient-to-br from-indigo-950 to-slate-900 rounded-xl">
+          <!-- Premium texture overlay -->
+          <div class="absolute inset-0 bg-noise opacity-5"></div>
+        </div>
       </div>
       
       <!-- Animated background pattern with parallax -->
@@ -215,7 +218,7 @@
              customEasing: 'ease-in-out'
            }).transform}
            style:transition={getItemStyle(zValues.backgroundGlow).transition}>
-        <div class="w-full h-full rounded-xl opacity-30" 
+        <div class="w-full h-full rounded-xl opacity-40" 
              style="background: radial-gradient(circle at {50 + sineWave(currentTime, 15, 0.5)}% {50 + cosineWave(currentTime, 15, 0.7)}%, {item.glowColor} 0%, transparent 70%);">
         </div>
       </div>
@@ -376,7 +379,7 @@
                   style:transition={getItemStyle(zValues.subtitle).transition}
                   class="mb-1">
                 <p class="text-gray-300 text-sm font-medium">
-                  By {item.youtuber}
+                  By <span class="text-indigo-300">{item.youtuber}</span>
                 </p>
               </div>
             {/if}
@@ -533,7 +536,7 @@
 
 <style>
   .text-shadow-sharp {
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8), 0 0 30px rgba(99, 102, 241, 0.2);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     font-weight: 700;
     letter-spacing: -0.01em;
   }
@@ -588,5 +591,12 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  
+  /* Premium noise texture */
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 150px;
   }
 </style> 
