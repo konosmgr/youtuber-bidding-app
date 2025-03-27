@@ -356,10 +356,9 @@
         <div class="mb-8 relative">
           <Enhanced3DCard
             on:hoverChange={handleHoverChange}
-            className="w-full aspect-[4/3] perspective-1200"
+            className="w-full aspect-[4/3] perspective-1200 w-full"
             enableFloatingParticles={true}
             enableBreathing={true}
-            className="w-full"
             time={currentTime}
             sineAmplitude={10}
             cosineAmplitude={8}
