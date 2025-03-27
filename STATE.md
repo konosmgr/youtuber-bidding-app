@@ -4,6 +4,24 @@
 The project is a SvelteKit application for "Betting on Alaska Auctions" - a youtuber bidding platform. The application provides an interface for users to participate in auctions related to various categories including general auctions, knives, art, and miscellaneous items.
 
 ### Recent Changes
+- Further reduced SVG usage by replacing subtle-pattern.svg with inline CSS gradient pattern
+- Removed mountain-backdrop.svg which wasn't referenced in the codebase
+- Improved loading performance by eliminating the need for external pattern SVG files
+- Used CSS radial-gradient for subtle background patterns instead of SVG images
+- Reduced network requests by using CSS-based patterns instead of image files
+- Improved site performance by removing unused SVG pattern files (japanese-pattern.svg, wood-texture.svg, tactical-pattern.svg)
+- Optimized the Vite configuration with better build settings, chunking, and dependency optimization
+- Added resource preloading in the main layout for critical assets
+- Enhanced the ResponsiveImage component with progressive loading, priority attributes, and blur placeholders
+- Added GPU acceleration for animations with CSS optimizations
+- Improved text rendering performance with optimized CSS settings
+- Enhanced build process to minify and compress assets more efficiently
+- Added manual chunking for better code splitting and faster initial load
+- Implemented preconnect for API endpoints to reduce connection setup time
+- Added browser rendering optimization with better CSS settings for animations
+- Removed unused SVGs to reduce the bundle size and network requests
+- Added proper loading attributes and fetch priorities for images
+- Enhanced image loading with proper size attributes and responsive sizing
 - Added the Utsubo-style contact button effect to the showcase2 page, featuring staggered letter animations on hover
 - Implemented the vertical text replacement animation with smooth cubic-bezier easing for realistic motion
 - Created a subtle glow effect on the contact button hover state with radial gradient background
@@ -123,14 +141,35 @@ The project is a SvelteKit application for "Betting on Alaska Auctions" - a yout
   - Implemented correct z-index handling and positioning for the animated letters
   - Added proper letter spacing and margins between letter elements
   - Ensured all CSS variables match the original site (--defaultColor, --hlColor, --mainEasing)
-- Created a reusable HoverTextButton component for the Utsubo-style hover letter animations
-  - Implemented as a fully customizable component with various style props
-  - Fixed the initial state to properly hide the yellow highlight text behind white text
-  - Added z-index and opacity handling to ensure proper visibility during animations
-  - Supports custom text with automatic letter splitting
-  - Allows customization of colors, font sizes, weights, padding, and other styles
-  - Handles up to 20 letters with proper staggered animation timing
-  - Includes the entire animation effect in a self-contained component
+- Added 'preserveStyle' option to HoverTextButton component
+  - Allows the text hover animation to be applied to existing buttons without changing their styles
+  - Can be integrated with navigation, CTAs, and other UI elements while maintaining their original appearance
+  - Enables consistent text hover effects across the site without requiring redesign of existing buttons
+  - Preserves existing background, border, padding, and other styles of the original button
+  - Only applies the letter-by-letter animation effect on hover
+- Enhanced the HoverTextButton component with additional functionality:
+  - Reduced letter spacing for a more compact, polished look
+  - Added support for both button and anchor elements with automatic selection based on href value
+  - Implemented disabled state styling with proper accessibility attributes
+  - Added event forwarding for all standard events (click, focus, blur, keydown, keyup)
+  - Added support for button type attribute when used as a button element
+  - Updated showcase page to demonstrate all component features with interactive examples
+  - Fixed z-index and opacity issues to ensure proper text visibility during animations
+- Added navbar integration example for the HoverTextButton component
+  - Demonstrated how to integrate the text hover effect with existing navbar elements
+  - Created example navigation with icons and active states that maintains design
+  - Showed proper component nesting within existing link elements
+  - Preserved all existing styling while adding only the letter animation effect
+  - Provided complete example code for easy adaptation to the actual navbar
+- Implemented HoverTextButton into the actual Navbar component
+  - Replaced all navigation text items with the HoverTextButton component
+  - Used preserveStyle={true} to maintain existing styling while adding hover animations
+  - Applied consistent text styling with uppercase labels for better visual hierarchy
+  - Added the hover effect to both desktop and mobile menu items for consistency
+  - Integrated with existing icon layouts and active state indicators
+  - Preserved special styling for YouTube link and authentication buttons
+  - Ensured accessibility with proper focus states and event forwarding
+  - Maintained amber highlight color (#f9b639) to match the site's theme
 
 ## Project Structure
 The project follows a typical SvelteKit structure:
@@ -211,6 +250,11 @@ The project follows a typical SvelteKit structure:
   - Supports customizable text, colors, styling, and transitions
   - Creates interactive letter-by-letter animations with staggered timing
   - Properly handles animation state transitions with z-index and opacity control
+  - Supports both anchor and button elements with automatic element selection
+  - Includes proper accessibility attributes and disabled state handling
+  - Automatically handles text splitting with staggered animation timing for up to 20 characters
+  - Forwards standard DOM events for custom handlers
+  - Can be applied to existing buttons via the preserveStyle option without changing their appearance
 
 ## Styling
 - Using Tailwind CSS for responsive styling

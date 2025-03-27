@@ -739,8 +739,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('/images/subtle-pattern.svg');
-    background-size: 200px;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
     opacity: 0.03;
     pointer-events: none;
     z-index: -1;

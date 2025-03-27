@@ -13,4 +13,36 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    // Optimize build performance
+    target: 'esnext',
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      }
+    },
+    // Improve chunking with simpler configuration
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes('node_modules/lucide-svelte')) {
+            return 'ui';
+          }
+          if (id.includes('node_modules/clsx') || id.includes('node_modules/tailwind-merge')) {
+            return 'vendor';
+          }
+          return undefined;
+        }
+      }
+    },
+    // Enable source maps for production
+    sourcemap: false,
+    // Optimize assets
+    assetsInlineLimit: 4096, // 4KB
+  },
+  optimizeDeps: {
+    include: ['clsx', 'tailwind-merge', 'lucide-svelte']
+  }
 });

@@ -17,6 +17,17 @@
   });
 </script>
 
+<svelte:head>
+  <!-- Preload critical resources -->
+  <link rel="preload" href="/favicon.png" as="image" />
+  <link rel="preconnect" href="http://api:8000" />
+  
+  <!-- Improve paint performance -->
+  <meta name="theme-color" content="#000000" />
+  
+  <!-- Optimize rendering -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+</svelte:head>
 
 <NicknameCheckWrapper currentPath={$page.url.pathname}>
   <BeamsBackground intensity="medium">
@@ -45,5 +56,15 @@
     padding: 0;
     overflow-y: auto;
     overflow-x: hidden;
+    text-rendering: optimizeSpeed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Optimize animations to use GPU acceleration */
+  :global(.gpu-accelerated) {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
   }
 </style>

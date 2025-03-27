@@ -5,6 +5,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { unreadCount, loadConversations } from '$lib/stores/messaging';
   import { browser } from '$app/environment';
+  import HoverTextButton from '$lib/components/ui/HoverTextButton.svelte';
 
   // Make the component client-side only
   export const csr = true;
@@ -141,7 +142,12 @@
             on:mouseleave={() => handleHover('home', false)}
           >
             <span class="relative z-10 flex items-center text-sm font-medium group-hover:text-amber-300">
-              Auctions
+              <HoverTextButton 
+                text="AUCTIONS" 
+                href="/" 
+                preserveStyle={true}
+                highlightColor="#f9b639"
+              />
             </span>
             
             <!-- Highlight background -->
@@ -164,7 +170,12 @@
             on:mouseleave={() => handleHover('knives', false)}
           >
             <span class="relative z-10 flex items-center text-sm font-medium group-hover:text-amber-300">
-              Knives
+              <HoverTextButton 
+                text="KNIVES" 
+                href="/knives" 
+                preserveStyle={true}
+                highlightColor="#f9b639"
+              />
             </span>
             
             <!-- Highlight background -->
@@ -187,7 +198,12 @@
             on:mouseleave={() => handleHover('art', false)}
           >
             <span class="relative z-10 flex items-center text-sm font-medium group-hover:text-amber-300">
-              Art
+              <HoverTextButton 
+                text="ART" 
+                href="/paintings" 
+                preserveStyle={true}
+                highlightColor="#f9b639"
+              />
             </span>
             
             <!-- Highlight background -->
@@ -210,7 +226,12 @@
             on:mouseleave={() => handleHover('misc', false)}
           >
             <span class="relative z-10 flex items-center text-sm font-medium group-hover:text-amber-300">
-              Misc
+              <HoverTextButton 
+                text="MISC" 
+                href="/misc" 
+                preserveStyle={true}
+                highlightColor="#f9b639"
+              />
             </span>
             
             <!-- Highlight background -->
@@ -239,7 +260,12 @@
               <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
               </svg>
-              About
+              <HoverTextButton 
+                text="ABOUT" 
+                href="/about" 
+                preserveStyle={true}
+                highlightColor="#f9b639"
+              />
             </span>
             
             <!-- Hover effect -->
@@ -261,7 +287,12 @@
               <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
               </svg>
-              Contact
+              <HoverTextButton 
+                text="CONTACT" 
+                href="/contact" 
+                preserveStyle={true}
+                highlightColor="#f9b639"
+              />
             </span>
             
             <!-- Hover effect -->
@@ -285,7 +316,12 @@
                 <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
-                Support
+                <HoverTextButton 
+                  text="SUPPORT" 
+                  href="/support" 
+                  preserveStyle={true}
+                  highlightColor="#f9b639"
+                />
                 {#if $unreadCount > 0}
                   <span class="ml-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
                     {$unreadCount}
@@ -312,7 +348,12 @@
                 <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
-                Support Chats
+                <HoverTextButton 
+                  text="SUPPORT CHATS" 
+                  href="/admin/chats" 
+                  preserveStyle={true}
+                  highlightColor="#f9b639"
+                />
                 {#if $unreadCount > 0}
                   <span class="ml-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
                     {$unreadCount}
@@ -342,7 +383,12 @@
               <svg class="mr-1.5 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
               </svg>
-              YouTube
+              <HoverTextButton 
+                text="YOUTUBE" 
+                href="https://www.youtube.com/@MickWhipple" 
+                preserveStyle={true}
+                highlightColor="#ff0000"
+              />
             </span>
             
             <!-- Hover effect -->
@@ -483,10 +529,10 @@
         <!-- Mobile menu items -->
         <div class="space-y-3">
           {#each [
-            { href: "/", label: "Auctions", icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },
-            { href: "/knives", label: "Knives", icon: "M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" },
-            { href: "/paintings", label: "Art", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
-            { href: "/misc", label: "Misc", icon: "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" }
+            { href: "/", label: "AUCTIONS", icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },
+            { href: "/knives", label: "KNIVES", icon: "M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" },
+            { href: "/paintings", label: "ART", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
+            { href: "/misc", label: "MISC", icon: "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" }
           ] as item}
             <a
               href={item.href}
@@ -497,7 +543,14 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d={item.icon} />
                 </svg>
               </div>
-              <span class="font-medium">{item.label}</span>
+              <span class="font-medium">
+                <HoverTextButton 
+                  text={item.label} 
+                  href={item.href} 
+                  preserveStyle={true}
+                  highlightColor="#f9b639"
+                />
+              </span>
             </a>
           {/each}
           
@@ -509,7 +562,14 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
               </svg>
             </div>
-            <span class="font-medium">About</span>
+            <span class="font-medium">
+              <HoverTextButton 
+                text="ABOUT" 
+                href="/about" 
+                preserveStyle={true}
+                highlightColor="#f9b639"
+              />
+            </span>
           </a>
           
           <a href="/contact" class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 {activeRoute === '/contact' ? 'bg-gradient-to-r from-amber-900/20 to-black border-l-2 border-amber-500 text-amber-400' : 'text-gray-200 hover:bg-gray-800/30'}">
@@ -518,7 +578,14 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
               </svg>
             </div>
-            <span class="font-medium">Contact</span>
+            <span class="font-medium">
+              <HoverTextButton 
+                text="CONTACT" 
+                href="/contact" 
+                preserveStyle={true}
+                highlightColor="#f9b639"
+              />
+            </span>
           </a>
           
           <!-- Support Chat Link (Mobile) -->
@@ -534,7 +601,14 @@
                   </span>
                 {/if}
               </div>
-              <span class="font-medium">Support</span>
+              <span class="font-medium">
+                <HoverTextButton 
+                  text="SUPPORT" 
+                  href="/support" 
+                  preserveStyle={true}
+                  highlightColor="#f9b639"
+                />
+              </span>
             </a>
           {:else if $isAuthenticated && isAdmin}
             <a href="/admin/chats" class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 {activeRoute === '/admin/chats' ? 'bg-gradient-to-r from-amber-900/20 to-black border-l-2 border-amber-500 text-amber-400' : 'text-gray-200 hover:bg-gray-800/30'}">
@@ -548,7 +622,14 @@
                   </span>
                 {/if}
               </div>
-              <span class="font-medium">Support Chats</span>
+              <span class="font-medium">
+                <HoverTextButton 
+                  text="SUPPORT CHATS" 
+                  href="/admin/chats" 
+                  preserveStyle={true}
+                  highlightColor="#f9b639"
+                />
+              </span>
             </a>
           {/if}
           
@@ -558,7 +639,15 @@
                 <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
               </svg>
             </div>
-            <span class="font-medium">YouTube</span>
+            <span class="font-medium">
+              <HoverTextButton 
+                text="YOUTUBE" 
+                href="https://www.youtube.com/@MickWhipple" 
+                preserveStyle={true}
+                highlightColor="#f9b639"
+                external={true}
+              />
+            </span>
           </a>
         </div>
         
@@ -585,7 +674,14 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
-              <span class="font-medium">Your Profile</span>
+              <span class="font-medium">
+                <HoverTextButton 
+                  text="YOUR PROFILE" 
+                  href="/profile" 
+                  preserveStyle={true}
+                  highlightColor="#f9b639"
+                />
+              </span>
             </a>
             
             {#if isAdmin}
@@ -599,7 +695,14 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-                <span class="font-medium">Admin Panel</span>
+                <span class="font-medium">
+                  <HoverTextButton 
+                    text="ADMIN PANEL" 
+                    href="/admin" 
+                    preserveStyle={true}
+                    highlightColor="#f9b639"
+                  />
+                </span>
               </a>
             {/if}
             
@@ -612,15 +715,32 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
               </div>
-              <span class="font-medium">Sign Out</span>
+              <span class="font-medium">
+                <HoverTextButton 
+                  text="SIGN OUT" 
+                  preserveStyle={true}
+                  highlightColor="#f9b639"
+                  isButton={true}
+                />
+              </span>
             </button>
           {:else}
             <div class="space-y-3 px-4">
               <a href="/login" class="block w-full py-3 text-center text-sm font-medium text-white/90 hover:text-white bg-black/20 hover:bg-black/30 backdrop-blur-sm rounded-xl border border-white/5 hover:border-white/10 transition-all duration-300">
-                Sign In
+                <HoverTextButton 
+                  text="SIGN IN" 
+                  href="/login" 
+                  preserveStyle={true}
+                  highlightColor="#f9b639"
+                />
               </a>
               <a href="/register" class="block w-full py-3 text-center text-sm font-medium text-white bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-700 rounded-xl shadow-lg shadow-amber-800/20 hover:shadow-amber-800/30 transition-all duration-300 border border-amber-500/50">
-                Register
+                <HoverTextButton 
+                  text="REGISTER" 
+                  href="/register" 
+                  preserveStyle={true}
+                  highlightColor="#ffffff"
+                />
               </a>
             </div>
           {/if}
