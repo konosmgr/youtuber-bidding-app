@@ -11,6 +11,7 @@ export async function load({ params, fetch }) {
   const id = params.id;
   
   try {
+    console.log(`+page.js: Loading knife data for ID: ${id}`);
     // Fetch item data using the native fetch API
     const response = await fetch(`/api/items/${id}/`);
     
@@ -19,9 +20,24 @@ export async function load({ params, fetch }) {
     }
     
     const item = await response.json();
+    console.log('+page.js: Raw API response:', { 
+      id: item.id, 
+      title: item.title, 
+      hasImages: !!item.images,
+      imageCount: item.images?.length || 0
+    });
+
+    // Pre-process images to ensure they're in the correct format
+    if (item.images) {
+      console.log('+page.js: Original images:', JSON.stringify(item.images));
+      item.images = processImages(item.images);
+      console.log('+page.js: Processed images:', JSON.stringify(item.images));
+    }
     
     // Pre-calculate time remaining for the initial render
     const timeRemaining = getTimeRemaining(item.end_date);
+    
+    console.log('Loaded knife data in +page.js:', { id, imageCount: item.images?.length });
     
     // Return data to be accessible in the +page.svelte component
     return {
@@ -38,6 +54,46 @@ export async function load({ params, fetch }) {
       initialBidAmount: 0
     };
   }
+}
+
+// Helper function to process images to a consistent format
+function processImages(images) {
+  if (!images || !Array.isArray(images) || images.length === 0) {
+    return [];
+  }
+  
+  return images.map(img => {
+    // Handle different possible image formats from API
+    if (typeof img === 'string') {
+      return {
+        image: img,
+        url: img,
+        webp_url: '',
+        width: 800,
+        height: 600
+      };
+    }
+    
+    // Handle case where image is an object with 'image' or 'url' property
+    if (typeof img === 'object') {
+      return {
+        image: img.image || img.url || '',
+        url: img.image || img.url || '',
+        webp_url: img.webp_url || '',
+        width: img.width || 800,
+        height: img.height || 600
+      };
+    }
+    
+    // Default fallback
+    return {
+      image: '/placeholder.jpg',
+      url: '/placeholder.jpg',
+      webp_url: '',
+      width: 800,
+      height: 600
+    };
+  });
 }
 
 // Copy of the getTimeRemaining function so it's available during load

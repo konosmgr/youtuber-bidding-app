@@ -202,15 +202,15 @@
           </a>
 
           <a
-            href="/paintings"
-            class="group relative px-4 py-2 rounded-full transition-all duration-300 overflow-hidden {activeRoute === '/paintings' ? 'text-amber-400' : 'text-gray-200'}"
+            href="/paint"
+            class="group relative px-4 py-2 rounded-full transition-all duration-300 overflow-hidden {activeRoute === '/paint' ? 'text-amber-400' : 'text-gray-200'}"
             on:mouseenter={() => handleHover('art', true)}
             on:mouseleave={() => handleHover('art', false)}
           >
             <span class="relative z-10 flex items-center text-sm font-medium group-hover:text-amber-300">
               <HoverTextButton 
                 text="ART" 
-                href="/paintings" 
+                href="/paint" 
                 preserveStyle={true}
                 highlightColor="#f9b639"
                 fontSize="12px"
@@ -220,7 +220,7 @@
             </span>
             
             <!-- Highlight background -->
-            {#if activeRoute === '/paintings'}
+            {#if activeRoute === '/paint'}
               <span class="absolute inset-0 bg-gradient-to-r from-amber-900/20 to-amber-700/20 rounded-full"></span>
             {/if}
             
@@ -530,7 +530,7 @@
           {#each [
             { href: "/", label: "AUCTIONS", icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },
             { href: "/knives", label: "KNIVES", icon: "M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" },
-            { href: "/paintings", label: "ART", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
+            { href: "/paint", label: "ART", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
             { href: "/misc", label: "MISC", icon: "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" }
           ] as item}
             <a

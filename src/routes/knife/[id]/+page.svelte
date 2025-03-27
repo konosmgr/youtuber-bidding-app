@@ -142,8 +142,22 @@
       }
       
       const data = await response.json();
-      console.log('Successfully loaded knife data:', data);
       
+      // Process the images before assigning to the item - ensure images are fully validated
+      if (data) {
+        // Make sure images array exists and is initialized properly
+        if (!data.images || !Array.isArray(data.images)) {
+          data.images = [];
+        }
+        
+        // Process with our enhanced function
+        data.images = prepareItemImages(data);
+        
+        // Mark data as having processed images
+        data._imagesProcessed = true;
+      }
+      
+      // Now assign the processed data to item
       item = data;
       
       if (item && item.end_date) {
@@ -152,6 +166,11 @@
       
       if (item) {
         bidAmount = Math.ceil(item.current_price) + 1;
+      }
+      
+      // Set initial image index safely
+      if (item?.images?.length > 0) {
+        currentImageIndex = 0;
       }
       
       error = null;
@@ -177,7 +196,11 @@
   }
 
   function selectImage(index) {
-    currentImageIndex = index;
+    if (index >= 0 && index < (item.images?.length || 0)) {
+      currentImageIndex = index;
+    } else {
+      console.warn(`Invalid image index: ${index}`);
+    }
   }
 
   function formatPrice(price) {
@@ -271,8 +294,6 @@
   }
 
   onMount(async () => {
-    console.log("Knife detail page mounted, params:", $page.params);
-    
     // Set up timer regardless of data source
     timerInterval = setInterval(() => {
       if (item && item.end_date) {
@@ -385,40 +406,75 @@
     showBidModal = false;
   }
 
-  // Add a helper function to process image URLs
-  function processImages(images) {
-    if (!images || !Array.isArray(images) || images.length === 0) {
-      return [];
+  function prepareItemImages(item) {
+    let images = [];
+    
+    if (item.images && Array.isArray(item.images) && item.images.length > 0) {
+      images = item.images.map(img => {
+        // Simple null check for the image object
+        if (!img) {
+          return { image: '/placeholder.jpg', width: 800, height: 600 };
+        }
+        
+        // Handle string image
+        if (typeof img === 'string') {
+          // Check if the string itself is 'null' or 'undefined'
+          const imageUrl = (img === 'null' || img === 'undefined') ? '/placeholder.jpg' : img;
+          return { image: imageUrl, width: 800, height: 600 };
+        }
+        
+        // Handle object with image property
+        let imageUrl = img.image || img.url || '';
+        // Check if the URL string is 'null' or 'undefined'
+        if (!imageUrl || imageUrl === 'null' || imageUrl === 'undefined') {
+          imageUrl = '/placeholder.jpg';
+        }
+        
+        return {
+          image: imageUrl,
+          webp_url: img.webp_url || '',
+          width: img.width || 800,
+          height: img.height || 600
+        };
+      });
+    } else if (item.image && item.image !== 'null' && item.image !== 'undefined') {
+      images = [{ image: item.image, width: 800, height: 600 }];
+    } else if (item.thumbnail && item.thumbnail !== 'null' && item.thumbnail !== 'undefined') {
+      images = [{ image: item.thumbnail, width: 800, height: 600 }];
+    } else {
+      images = [{ image: '/placeholder.jpg', width: 800, height: 600 }];
     }
     
-    return images.map(img => {
-      // Handle both object and string formats
-      if (typeof img === 'string') {
-        return {
-          image: img,
-          url: img,
-          webp_url: '',
-          width: 800,
-          height: 600
-        };
-      }
-      
-      return {
-        image: img.image || img.url || '',
-        url: img.image || img.url || '',
-        webp_url: img.webp_url || '',
-        width: img.width || 800,
-        height: img.height || 600
-      };
-    });
+    return images;
   }
-  
+
   // Process images when item is loaded or updated
-  $: if (item && item.images) {
+  $: if (item && !item._imagesProcessed) {
+    // Use prepareItemImages to process the images
+    const processedImages = prepareItemImages(item);
+    
+    // Mark the item as processed to avoid infinite reactivity loops
     item = {
       ...item,
-      images: processImages(item.images)
+      images: processedImages,
+      _imagesProcessed: true
     };
+  }
+
+  // Ensure currentImageIndex stays within valid range when images array changes
+  $: if (item?.images?.length && currentImageIndex >= item.images.length) {
+    console.log('Adjusting currentImageIndex to be within bounds:', { currentImageIndex, imagesLength: item.images.length });
+    currentImageIndex = 0;
+  }
+
+  // Validate image object access to prevent undefined errors
+  $: currentImage = item?.images?.length > 0 && currentImageIndex < item.images.length
+    ? item.images[currentImageIndex]
+    : null;
+
+  // Log current image for debugging
+  $: if (currentImage) {
+    // No need to log the current image on every change
   }
 </script>
 
@@ -502,16 +558,20 @@
                    }).transform}
                    style:transition={getItemStyle(zValues.imageBase).transition}>
                 <div class="relative h-full w-full overflow-hidden rounded-xl bg-gradient-to-b from-indigo-900/20 to-black/50">
-                {#if item.images?.length > 0}
+                {#if item.images?.length > 0 && currentImage}
                   <ResponsiveImage
-                    src={item.images[currentImageIndex].image}
-                    webpSrc={item.images[currentImageIndex].webp_url}
-                    width={item.images[currentImageIndex].width}
-                    height={item.images[currentImageIndex].height}
+                    src={currentImage.image}
+                    webpSrc={currentImage.webp_url || ''}
+                    width={currentImage.width || 800}
+                    height={currentImage.height || 600}
                     alt={item.title}
                     className="w-full h-full object-cover absolute inset-0 rounded-xl cursor-pointer"
                     objectFit="cover"
+                    fallbackSrc="/placeholder.jpg"
+                    fillContainer={true}
+                    priority={true}
                     on:click={openImagePopup}
+                    on:error={handleImageError}
                   />
                 {:else}
                   <img
@@ -544,17 +604,26 @@
                       class="h-12 w-12 rounded-md cursor-pointer transition-all duration-200 overflow-hidden {i === currentImageIndex ? 'ring-2 ring-indigo-400 scale-110 shadow-lg' : 'opacity-70 hover:opacity-100 hover:ring-1 hover:ring-indigo-300/50'}"
                       on:click|stopPropagation={() => selectImage(i)}
                     >
-                      <div class="relative h-full w-full bg-indigo-900/20">
-                    <ResponsiveImage
-                      src={image.image}
-                      webpSrc={image.webp_url}
-                      width={image.width}
-                      height={image.height}
+                      {#if typeof image === 'object' && image.image && image.image !== 'null' && image.image !== 'undefined'}
+                        <ResponsiveImage
+                          src={image.image}
+                          webpSrc={image.webp_url ? image.webp_url : ''}
+                          width={100}
+                          height={100}
                           alt="Thumbnail"
-                          className="h-full w-full object-contain absolute inset-0 p-1"
-                          objectFit="contain"
+                          className="h-full w-full object-cover"
+                          objectFit="cover"
+                          fallbackSrc="/placeholder.jpg"
+                          priority={i === currentImageIndex}
                         />
-                      </div>
+                      {:else}
+                        <img 
+                          src="/placeholder.jpg" 
+                          alt="Thumbnail placeholder" 
+                          class="h-full w-full object-cover"
+                          on:error={handleImageError}
+                        />
+                      {/if}
                     </div>
                   {/each}
                 </div>
@@ -969,15 +1038,24 @@
                 <div class="relative w-full h-[70vh] overflow-hidden rounded-lg mx-auto bg-black/20 backdrop-blur-sm pointer-events-auto">
                   <div class="absolute inset-0 flex items-center justify-center">
                     <div class="w-full h-full max-w-full max-h-full relative">
-                      <ResponsiveImage
-                        src={image.image}
-                        webpSrc={image.webp_url}
-                        width={image.width}
-                        height={image.height}
-                        alt={`${item.title} - Image ${i + 1}`}
-                        className="w-full h-full object-contain rounded-lg"
-                        objectFit="contain"
-                      />
+                      {#if typeof image === 'object' && image.image && image.image !== 'null' && image.image !== 'undefined'}
+                        <ResponsiveImage
+                          src={image.image}
+                          webpSrc={image.webp_url ? image.webp_url : ''}
+                          width={image.width || 800}
+                          height={image.height || 600}
+                          alt={`${item.title} - Image ${i + 1}`}
+                          className="w-full h-full object-contain rounded-lg"
+                          objectFit="contain"
+                          fallbackSrc="/placeholder.jpg"
+                        />
+                      {:else}
+                        <img
+                          src="/placeholder.jpg"
+                          alt={`${item.title} - Image ${i + 1}`}
+                          class="w-full h-full object-contain rounded-lg"
+                        />
+                      {/if}
                     </div>
                   </div>
                 </div>
@@ -994,15 +1072,25 @@
                     {i === popupImageIndex ? 'ring-2 ring-indigo-400 scale-110 shadow-lg shadow-indigo-500/25' : 'opacity-60 hover:opacity-100 scale-100 hover:ring-1 hover:ring-indigo-400/50'}"
               on:click|stopPropagation={() => popupImageIndex = i}
             >
-              <ResponsiveImage
-                src={image.image}
-                webpSrc={image.webp_url}
-                width={100}
-                height={100}
-                alt={`Thumbnail ${i + 1}`}
-                className="w-full h-full object-cover"
-                objectFit="cover"
-              />
+              {#if typeof image === 'object' && image.image && image.image !== 'null' && image.image !== 'undefined'}
+                <ResponsiveImage
+                  src={image.image}
+                  webpSrc={image.webp_url ? image.webp_url : ''}
+                  width={100}
+                  height={100}
+                  alt={`Thumbnail ${i + 1}`}
+                  className="w-full h-full object-cover"
+                  objectFit="cover"
+                  fallbackSrc="/placeholder.jpg"
+                />
+              {:else}
+                <img
+                  src="/placeholder.jpg"
+                  alt={`Thumbnail ${i + 1}`}
+                  class="w-full h-full object-cover"
+                  on:error={handleImageError}
+                />
+              {/if}
             </button>
           {/each}
         </div>
@@ -1097,4 +1185,4 @@
   input[type=number] {
     -moz-appearance: textfield;
   }
-</style> 
+</style>

@@ -77,7 +77,7 @@
 
   async function loadItems() {
     try {
-      const data = await fetchApi('items/?active=true&category=MISC');
+      const data = await fetchApi('items/?active=true&category=PAINT');
       
       items = data.results
         .filter(item => !isAuctionEnded(item.end_date))
@@ -163,7 +163,7 @@
     
     try {
       // Use the working endpoint with the correct parameters
-      const data = await fetchApi('items/?category=MISC&active=false');
+      const data = await fetchApi('items/?category=PAINT&active=false');
       
       // This endpoint returns a paginated response object with a 'results' property
       const results = data.results || [];
@@ -202,13 +202,12 @@
   function extractSpecs(item) {
     const specs = [];
     
-    if (item.brand) specs.push(`Brand: ${item.brand}`);
-    if (item.condition) specs.push(`Condition: ${item.condition}`);
     if (item.material) specs.push(`Material: ${item.material}`);
-    if (item.size) specs.push(`Size: ${item.size}`);
-    if (item.weight) specs.push(`Weight: ${item.weight}`);
-    if (item.color) specs.push(`Color: ${item.color}`);
     if (item.dimensions) specs.push(`Dimensions: ${item.dimensions}`);
+    if (item.artist) specs.push(`Artist: ${item.artist}`);
+    if (item.medium) specs.push(`Medium: ${item.medium}`);
+    if (item.year) specs.push(`Year: ${item.year}`);
+    if (item.style) specs.push(`Style: ${item.style}`);
     
     // If we don't have any specific specs, use the description (if available)
     if (specs.length === 0 && item.description) {
@@ -227,10 +226,10 @@
 
   // Get appropriate colors for the item
   function getItemColor(item) {
-    // Misc items get teal/mint colors
+    // Artwork/Paintings get artistic colors
     return {
-      color: 'from-teal-600 to-emerald-600',
-      glow: 'teal'
+      color: 'from-indigo-600 to-violet-600',
+      glow: 'indigo'
     };
   }
 
@@ -306,16 +305,16 @@
 </script>
 
 <svelte:head>
-  <title>Miscellaneous Items | Alaska Auctions</title>
-  <meta name="description" content="Bid on miscellaneous items from Alaska youtubers" />
+  <title>Art & Paintings | Alaska Auctions</title>
+  <meta name="description" content="Bid on exclusive Alaska youtuber artwork and paintings" />
 </svelte:head>
 
 <div class="container mx-auto px-4 py-8">
   <div class="flex flex-col space-y-4 mb-12">
-    <h1 class="text-4xl font-bold text-amber-500">Miscellaneous Items</h1>
+    <h1 class="text-4xl font-bold text-amber-500">Art & Paintings</h1>
     <p class="text-gray-300 max-w-3xl">
-      Explore our diverse collection of unique miscellaneous items from your favorite Alaska youtubers.
-      From outdoor gear and equipment to collectibles and memorabilia, there's something for everyone.
+      Bid on unique artwork and paintings from your favorite Alaska youtubers. Each piece is one-of-a-kind
+      and tells a story of the Last Frontier's majestic landscapes, wildlife, and northern lights.
     </p>
   </div>
   
@@ -325,8 +324,8 @@
       <input
         type="text"
         bind:value={searchTerm}
-        placeholder="Search items..."
-        class="w-full rounded-lg bg-gray-900/80 border border-gray-700 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+        placeholder="Search paintings..."
+        class="w-full rounded-lg bg-gray-900/80 border border-gray-700 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
     </div>
     
@@ -335,7 +334,7 @@
       <select
         id="sort"
         bind:value={sortOption}
-        class="rounded-lg bg-gray-900/80 border border-gray-700 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+        class="rounded-lg bg-gray-900/80 border border-gray-700 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       >
         <option value="ending-soon">Ending Soon</option>
         <option value="price-high">Highest Price</option>
@@ -358,7 +357,7 @@
     </div>
   {:else if items.length === 0}
     <div class="bg-gray-900/50 border border-gray-800 text-gray-300 p-8 rounded-lg text-center">
-      <p class="text-xl mb-2">No active miscellaneous auctions currently</p>
+      <p class="text-xl mb-2">No active painting auctions currently</p>
       <p>Check back soon for new items or browse our past auctions below!</p>
     </div>
   {:else}
@@ -367,7 +366,7 @@
         <div transition:fade={{ duration: 300 }}>
           <AuctionCard
             item={mapItemToAuctionCard(item)}
-            href={`/misc/${item.id}`}
+            href={`/paint/${item.id}`}
           />
         </div>
       {/each}
@@ -397,7 +396,7 @@
       </div>
     {:else if pastItems.length === 0}
       <div class="bg-gray-900/50 border border-gray-800 text-gray-300 p-8 rounded-lg text-center mb-16">
-        <p>No past miscellaneous auctions found.</p>
+        <p>No past painting auctions found.</p>
       </div>
     {:else}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-16">
@@ -412,9 +411,9 @@
               specs={extractSpecs(item)}
               images={item.images}
               bids={item.bids?.length || 0}
-              href={`/misc/${item.id}`}
-              color="from-teal-600 to-emerald-600"
-              glowColor="teal"
+              href={`/paint/${item.id}`}
+              color="from-indigo-600 to-violet-600"
+              glowColor="indigo"
             />
           </div>
         {/each}
@@ -425,9 +424,9 @@
 
 <style>
   .loader {
-    border: 5px solid rgba(0, 128, 128, 0.1);
+    border: 5px solid rgba(75, 0, 130, 0.1);
     border-radius: 50%;
-    border-top: 5px solid rgba(0, 128, 128, 0.8);
+    border-top: 5px solid rgba(138, 43, 226, 0.8);
     width: 50px;
     height: 50px;
     animation: spin 1s linear infinite;
@@ -437,4 +436,4 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
-</style>
+</style> 

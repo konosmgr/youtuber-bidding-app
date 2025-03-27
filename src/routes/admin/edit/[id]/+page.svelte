@@ -233,7 +233,7 @@
 <div class="container mx-auto p-8">
   <div class="mx-auto max-w-3xl">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">Edit Item</h1>
+      <h1 class="text-2xl font-bold text-amber-600">Edit Item</h1>
       <a href="/admin" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded shadow transition-colors">
         Back to Admin
       </a>

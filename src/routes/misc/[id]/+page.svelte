@@ -4,23 +4,43 @@
   import BidModal from '$lib/components/BidModal.svelte';
   import Toast from '$lib/components/Toast.svelte';
   import YouTubeEmbed from '$lib/components/YouTubeEmbed.svelte';
-  import { fetchApi } from '$lib/utils/api';
+  import ResponsiveImage from '$lib/components/ResponsiveImage.svelte';
+  import Enhanced3DCard from '$lib/components/ui/3d-card/hybridcards/Enhanced3DCard.svelte';
   import { onDestroy, onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import Card from '$lib/components/ui/Focus/Card.svelte';
 
-  let item = null;
-  let loading = true;
-  let error = null;
+  // Force client-side rendering only
+  export const csr = true;
+  
+  // Access data from the load function in +page.js
+  export let data;
+  
+  // Initialize with data from load function or defaults
+  let item = data?.item || null;
+  let error = data?.error || null;
+  let loading = !item && !error;
+  let timeRemaining = data?.timeRemaining || null;
   let timerInterval;
-  let timeRemaining = null;
   let showBidModal = false;
   let showToast = false;
   let toastMessage = '';
   let currentImageIndex = 0;
-  let autoRefresh; // For auto-refreshing bids
-  let showLastMinuteAlert = false; // For last-minute bidding alert
+  let currentTime = 0;
+  let animationFrame;
+  let currentHoverCard = null;
+  let showImagePopup = false;
+  let popupImageIndex = 0;
+  let hoveredPopupImage = null;
+  let bidAmount = data?.initialBidAmount || 0;
+  let isSubmittingBid = false;
 
-  // Generate unique colors for each bidder
+  $: popupCards = item?.images ? item.images.map((img, i) => ({
+    src: img.image,
+    title: `${item.title} - Image ${i + 1}`,
+    index: i
+  })) : [];
+
   $: uniqueUsers = item?.bids ? [...new Set(item.bids.map(bid => bid.user_email))] : [];
   $: colors = [
     'text-blue-600', 'text-purple-600', 'text-green-600', 
@@ -35,15 +55,111 @@
     });
   }
 
+  const zValues = {
+    farBackground: -250,
+    backgroundPattern: -200,
+    backgroundGlow: -170,
+    midBackground: -150,
+    closeBackground: -120,
+    imageBase: -90,
+    imageForeground: -70,
+    overlay: -50,
+    glow: -40,
+    badge: 40,
+    badgeText: 45,
+    container: 30,
+    priceTag: 120,
+    priceText: 130,
+    title: 90,
+    titleShadow: 85,
+    subtitle: 70,
+    specs: 60,
+    specIcon: 65,
+    button: 0,
+    buttonText: 50,
+    buttonGlow: 45,
+    heartButton: 60,
+    heartIcon: 65,
+    floatingElements: 80,
+    countdownBox: 100
+  };
+
+  function startTimeAnimation() {
+    const animate = () => {
+      currentTime += 0.01;
+      animationFrame = requestAnimationFrame(animate);
+    };
+    animate();
+  }
+
+  function stopTimeAnimation() {
+    if (animationFrame) {
+      cancelAnimationFrame(animationFrame);
+    }
+  }
+
+  function handleHoverChange(event) {
+    if (event.detail.isHovering) {
+      currentHoverCard = 'item-card';
+      startTimeAnimation();
+    } else {
+      currentHoverCard = null;
+      stopTimeAnimation();
+    }
+  }
+
+  function sineWave(time, amplitude = 10, frequency = 2) {
+    return Math.sin(time * frequency) * amplitude;
+  }
+
+  function cosineWave(time, amplitude = 10, frequency = 2) {
+    return Math.cos(time * frequency) * amplitude;
+  }
+
+  function breathingAnimation(time, min = 0.95, max = 1.05) {
+    return min + ((Math.sin(time) + 1) / 2) * (max - min);
+  }
+
   async function refreshItem() {
     try {
+      loading = true;
       const id = $page.params.id;
-      const data = await fetchApi(`items/${id}/`);
+      console.log('Fetching misc item details for ID:', id);
+      
+      if (!id) {
+        console.error('No item ID found in URL parameters');
+        error = 'No item ID found';
+        item = null;
+        return;
+      }
+      
+      // Use a more reliable relative URL format
+      const response = await fetch(`/api/items/${id}/`);
+      
+      if (!response.ok) {
+        throw new Error(`API returned status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Successfully loaded misc item data:', data);
+      
       item = data;
-      timeRemaining = getTimeRemaining(item.end_date);
+      
+      if (item && item.end_date) {
+        timeRemaining = getTimeRemaining(item.end_date);
+      }
+      
+      if (item) {
+        bidAmount = Math.ceil(item.current_price) + 1;
+      }
+      
+      error = null;
     } catch (e) {
       console.error('Failed to refresh item:', e);
-      throw new Error('Failed to load item');
+      error = `Failed to load item: ${e.message}`;
+      item = null;
+    } finally {
+      loading = false;
     }
   }
 
@@ -98,6 +214,7 @@
   function maskEmail(email) {
     if (!email) return '';
     const [username, domain] = email.split('@');
+    if (!username || !domain) return '***@***';
     if (username.length <= 2) {
       return `${username}***@${domain}`;
     }
@@ -108,306 +225,462 @@
     goto(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
   }
 
-  function handleImageError(e) {
-    e.currentTarget.src = '/placeholder.jpg';
+  function formatTimeRemaining(time) {
+    if (!time) return '';
+    return `${time.days > 0 ? time.days + 'd ' : ''}${time.hours}h ${time.minutes}m ${time.seconds}s`;
   }
 
-  onMount(async () => {
-    try {
-      await refreshItem();
-      loading = false;
+  function openImagePopup(index) {
+    popupImageIndex = index;
+    showImagePopup = true;
+  }
 
-      // Timer for countdown only
-      timerInterval = setInterval(() => {
-        timeRemaining = getTimeRemaining(item.end_date);
-        
-        // Check for last minute bidding
-        if (timeRemaining && timeRemaining.days === 0 && timeRemaining.hours < 1) {
-          showLastMinuteAlert = true;
-        }
-        
-        // Optionally, check if auction has ended and clear interval
-        if (timeRemaining && timeRemaining.isExpired) {
-          clearInterval(timerInterval);
-        }
-      }, 1000);
-    } catch (e) {
-      console.error('Failed to load auction details:', e);
-      error = 'Failed to load auction details';
-      loading = false;
+  function closeImagePopup() {
+    showImagePopup = false;
+  }
+
+  async function submitBid() {
+    if (isSubmittingBid) return;
+    
+    if (!$isAuthenticated) {
+      handleLoginClick();
+      return;
     }
+    
+    const minimumBid = Math.ceil(item.current_price) + 1;
+    if (bidAmount < minimumBid) {
+      showToast = true;
+      toastMessage = `Bid must be at least ${formatPrice(minimumBid)}`;
+      setTimeout(() => { showToast = false; }, 3000);
+      return;
+    }
+    
+    isSubmittingBid = true;
+    
+    try {
+      const response = await fetch(`/api/items/${item.id}/bid/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ bid_amount: bidAmount })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.detail || data.message || 'Something went wrong');
+      }
+      
+      // Success! Refresh item data
+      await refreshItem();
+      showBidModal = false;
+      showSuccessToast('Bid placed successfully!');
+      
+    } catch (err) {
+      console.error('Error placing bid:', err);
+      showToast = true;
+      toastMessage = err.message || 'Failed to place bid';
+      setTimeout(() => { showToast = false; }, 3000);
+    } finally {
+      isSubmittingBid = false;
+    }
+  }
+
+  // Setup timer interval and perform initial item load if needed
+  onMount(() => {
+    if (!item && !error) {
+      refreshItem();
+    }
+    
+    // Set up timer interval for countdown
+    timerInterval = setInterval(() => {
+      if (item && item.end_date) {
+        timeRemaining = getTimeRemaining(item.end_date);
+      }
+    }, 1000);
+    
+    return () => {
+      clearInterval(timerInterval);
+      stopTimeAnimation();
+    };
   });
 
   onDestroy(() => {
-    if (timerInterval) clearInterval(timerInterval);
-  });
-
-  async function handleBidPlaced() {
-    try {
-      await refreshItem();
-      showSuccessToast('Bid placed successfully!');
-    } catch (e) {
-      console.error('Error refreshing after bid:', e);
+    clearInterval(timerInterval);
+    stopTimeAnimation();
+    if (animationFrame) {
+      cancelAnimationFrame(animationFrame);
     }
-  }
+  });
 </script>
 
-<div class="alaska-bg min-h-screen p-8">
-  <div class="container mx-auto max-w-5xl">
-    <button
-      on:click={() => window.history.back()}
-      class="mb-4 flex items-center text-white transition-colors hover:text-gray-200"
-    >
-      <svg class="mr-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M10 19l-7-7m0 0l7-7m-7 7h18"
-        />
-      </svg>
-      Back to Auctions
-    </button>
+<svelte:head>
+  <title>{item ? `${item.title} | Misc Item Auction` : 'Miscellaneous Item Auction Details'}</title>
+  <meta name="description" content={item ? `Bid on ${item.title}, a miscellaneous item from ${item.youtuber?.name || 'an Alaska YouTuber'}` : 'Miscellaneous item auction details'} />
+</svelte:head>
 
-    {#if loading}
-      <div class="text-center text-xl text-gray-600">Loading auction details...</div>
-    {:else if error}
-      <div class="text-center text-xl text-red-600">{error}</div>
-    {:else if item}
-      <div class="rounded-lg bg-white p-6 shadow-lg">
-        <h1 class="mb-4 text-3xl font-bold text-blue-600">{item.title}</h1>
-        <p class="mb-4 text-sm font-medium text-gray-500">{item.category.name}</p>
+<!-- Main container -->
+<div class="container mx-auto px-4 py-8">
+  <!-- Back button -->
+  <button
+    on:click={() => goto('/misc')}
+    class="mb-6 flex items-center gap-2 text-amber-500 hover:text-amber-400 transition-colors"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    </svg>
+    <span>Back to Miscellaneous Items</span>
+  </button>
 
-        <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
-          <div>
-            <div class="relative">
-              <img
-                src={item.images?.length > 0
-                  ? item.images[currentImageIndex].image
-                  : '/placeholder.jpg'}
-                alt={item.title}
-                class="w-full rounded-lg shadow-md"
-                on:error={handleImageError}
-              />
-              {#if item.images?.length > 1}
-                <button
-                  class="absolute left-2 top-1/2 -translate-y-1/2 transform rounded-full bg-black bg-opacity-50 p-2 text-white"
-                  on:click={previousImage}
-                >
-                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                </button>
-                <button
-                  class="absolute right-2 top-1/2 -translate-y-1/2 transform rounded-full bg-black bg-opacity-50 p-2 text-white"
-                  on:click={nextImage}
-                >
-                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              {/if}
-            </div>
-
-            {#if item.images?.length > 1}
-              <div class="mt-4 grid grid-cols-4 gap-2">
-                {#each item.images as image, i}
-                  <img
-                    src={image.image}
-                    alt={`${item.title} - Image ${i + 1}`}
-                    class="h-20 w-full cursor-pointer rounded object-cover hover:opacity-75 {i ===
-                    currentImageIndex
-                      ? 'ring-2 ring-blue-500'
-                      : ''}"
-                    on:click={() => selectImage(i)}
-                    on:error={handleImageError}
-                  />
-                {/each}
-              </div>
-            {/if}
+  {#if loading}
+    <div class="flex justify-center items-center min-h-[50vh]">
+      <div class="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  {:else if error}
+    <div class="bg-red-900/30 border border-red-700 text-red-300 p-6 rounded-lg text-center max-w-2xl mx-auto">
+      <h2 class="text-xl font-bold mb-2">Error Loading Item</h2>
+      <p>{error}</p>
+      <button 
+        on:click={refreshItem}
+        class="mt-4 px-4 py-2 bg-red-700 hover:bg-red-600 text-white rounded-md transition-colors"
+      >
+        Try Again
+      </button>
+    </div>
+  {:else if item}
+    <div class="grid grid-cols-1 xl:grid-cols-[3fr_2fr] gap-8">
+      <!-- Left side: 3D Card and images -->
+      <div>
+        <!-- 3D Card with the item -->
+        <div class="mb-8 relative">
+          <Enhanced3DCard
+            on:hoverChange={handleHoverChange}
+            className="w-full aspect-[4/3] perspective-1200"
+            enableFloatingParticles={true}
+            enableBreathing={true}
+            className="w-full"
+            time={currentTime}
+            sineAmplitude={10}
+            cosineAmplitude={8}
+            breathingMin={0.98}
+            breathingMax={1.02}
+            badge={timeRemaining && !timeRemaining.isExpired ? 'ACTIVE' : 'COMPLETED'}
+            badgeColor={timeRemaining && !timeRemaining.isExpired ? 'bg-teal-600' : 'bg-neutral-700'}
+          >
+            <svelte:fragment slot="background">
+              <div 
+                class="absolute inset-0 bg-gradient-to-br from-teal-900/60 to-emerald-800/60 z-[{zValues.farBackground}]"
+              ></div>
+              <div 
+                class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(20,184,166,0.1),transparent_70%)] z-[{zValues.backgroundGlow}]"
+                style="transform: translateZ({sineWave(currentTime, 5, 0.5)}px);"
+              ></div>
+              <div 
+                class="absolute inset-0 bg-[linear-gradient(to_right,rgba(10,80,60,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(10,80,60,0.05)_1px,transparent_1px)] bg-[size:24px_24px] z-[{zValues.backgroundPattern}]"
+                style="transform: translateZ({sineWave(currentTime + 0.5, 4, 0.2)}px);"
+              ></div>
+            </svelte:fragment>
             
-            {#if item.youtube_url}
-              <div class="mt-4">
-                <h3 class="mb-2 text-lg font-semibold text-blue-600">Watch Video</h3>
-                <YouTubeEmbed youtubeUrl={item.youtube_url} />
-              </div>
-            {/if}
-          </div>
-
-          <div>
-            <div class="mb-4 rounded-lg bg-blue-50 p-4">
-              {#if timeRemaining}
-                {#if timeRemaining.isExpired}
-                  <p class="text-center text-xl font-bold text-red-600">Auction Ended</p>
-                {:else}
-                  <p class="mb-2 text-center text-lg font-semibold text-blue-800">
-                    Time Remaining:
-                  </p>
-                  <div class="grid grid-cols-4 gap-2 text-center">
-                    <div class="rounded bg-white p-2 shadow">
-                      <span class="text-2xl font-bold text-blue-600">{timeRemaining.days}</span>
-                      <p class="text-sm text-gray-600">Days</p>
-                    </div>
-                    <div class="rounded bg-white p-2 shadow">
-                      <span class="text-2xl font-bold text-blue-600">{timeRemaining.hours}</span>
-                      <p class="text-sm text-gray-600">Hours</p>
-                    </div>
-                    <div class="rounded bg-white p-2 shadow">
-                      <span class="text-2xl font-bold text-blue-600">{timeRemaining.minutes}</span>
-                      <p class="text-sm text-gray-600">Minutes</p>
-                    </div>
-                    <div class="rounded bg-white p-2 shadow">
-                      <span class="text-2xl font-bold text-blue-600">{timeRemaining.seconds}</span>
-                      <p class="text-sm text-gray-600">Seconds</p>
-                    </div>
-                  </div>
-                {/if}
-              {/if}
-            </div>
-
-            <p class="mb-4 text-gray-700">{item.description}</p>
-
-            <!-- Stats and Share button -->
-            <div class="mb-4 flex items-center justify-between">
-              <div class="text-sm text-gray-600">
-                <div>Total Bids: {item.bids.length}</div>
-                <div>Unique Bidders: {new Set(item.bids.map(bid => bid.user_email)).size}</div>
-              </div>
-              <button
-                class="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-                on:click={() => {
-                  navigator.clipboard.writeText(window.location.href);
-                  showSuccessToast('Link copied to clipboard!');
-                }}
+            <svelte:fragment slot="content">
+              <div 
+                class="relative h-full w-full rounded-xl bg-black/20 backdrop-blur-sm p-3 z-[{zValues.container}]"
+                style="transform: translateZ({sineWave(currentTime, 3, 0.3)}px);"
               >
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                  />
-                </svg>
-                Share Auction
-              </button>
-            </div>
-
-            <div class="mb-4 rounded-lg bg-blue-50 p-4">
-              <p class="text-lg font-semibold text-blue-800">
-                Current Bid: {formatPrice(item.current_price)}
-              </p>
-              <p class="text-sm text-blue-600">
-                Starting Price: {formatPrice(item.starting_price)}
-              </p>
-            </div>
-
-            {#if timeRemaining && !timeRemaining.isExpired}
-              {#if $isAuthenticated}
-                <button
-                  on:click={() => (showBidModal = true)}
-                  class="w-full rounded-lg bg-blue-500 px-4 py-3 text-white transition hover:bg-blue-600"
-                >
-                  Place Bid
-                </button>
-              {:else}
-                <button
-                  on:click={handleLoginClick}
-                  class="w-full rounded-lg bg-blue-500 px-4 py-3 text-white transition hover:bg-blue-600"
-                >
-                  Log In to Bid
-                </button>
-                <p class="mt-2 text-center text-sm text-gray-500">
-                  You must be logged in to place a bid
-                </p>
-              {/if}
-            {:else}
-              <button class="w-full cursor-not-allowed rounded-lg bg-gray-400 px-4 py-3 text-white">
-                Auction Ended
-              </button>
-            {/if}
-          </div>
-        </div>
-
-        {#if showBidModal}
-          <BidModal {item} bind:show={showBidModal} on:bidPlaced={handleBidPlaced} />
-        {/if}
-      </div>
-
-      {#if item.bids?.length > 0}
-        <div class="mt-8">
-          <!-- Redesigned Bid History Component -->
-          <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div class="border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700 p-4">
-              <h2 class="text-xl font-semibold text-white">Bid History</h2>
-            </div>
-            
-            <div class="divide-y divide-gray-100">
-              {#each item.bids as bid, i}
-                {@const isRepeatBidder = item.bids
-                  .slice(0, i)
-                  .some(prevBid => prevBid.user_email === bid.user_email)}
-                {@const isMostRecentBidder =
-                  i > 0 && item.bids[i - 1].user_email === bid.user_email}
-                
-                <div class="flex items-center p-4 transition-colors hover:bg-blue-50 {i === 0 ? 'bg-blue-50' : ''}">
-                  <div class="flex-grow">
-                    <div class="flex items-center gap-2">
-                      <p class="font-medium {userColors[bid.user_email] || 'text-gray-800'}">
-                        {bid.user_nickname || 'User'}
-                        <span class="ml-2 text-sm text-gray-500">
-                          ({maskEmail(bid.user_email)})
-                        </span>
-                      </p>
-                      
-                      {#if i === 0}
-                        <span class="rounded bg-green-100 px-2 py-1 text-xs text-green-600">
-                          Current Highest
-                        </span>
-                      {/if}
-                      
-                      {#if isRepeatBidder}
-                        <span class="rounded bg-blue-100 px-2 py-1 text-xs text-blue-600">
-                          Returning Bidder
-                        </span>
-                      {/if}
+                <div class="relative h-full w-full overflow-hidden rounded-lg">
+                  <!-- Main image -->
+                  {#if item.images && item.images.length > 0}
+                    <div 
+                      class="relative h-full w-full z-[{zValues.imageBase}]"
+                      style="transform: translateZ({sineWave(currentTime, 8, 0.5)}px) scale({breathingAnimation(currentTime, 1, 1.03)});"
+                    >
+                      <ResponsiveImage
+                        src={item.images[currentImageIndex]?.image || item.images[currentImageIndex]?.url || ''}
+                        webpSrc={item.images[currentImageIndex]?.webp_url || ''}
+                        alt={item.title}
+                        className="h-full w-full object-contain rounded-lg"
+                      />
                     </div>
-                    <p class="text-sm text-gray-500">
-                      {new Date(bid.created_at).toLocaleString()}
+                  {:else}
+                    <div
+                      class="absolute inset-0 flex items-center justify-center bg-gray-900 text-gray-500 z-[{zValues.imageBase}]"
+                    >
+                      <span>No image available</span>
+                    </div>
+                  {/if}
+                  
+                  <!-- Overlay gradient -->
+                  <div
+                    class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-[{zValues.overlay}]"
+                  ></div>
+                  
+                  <!-- Title -->
+                  <div
+                    class="absolute bottom-0 left-0 right-0 p-4 z-[{zValues.title}]"
+                    style="transform: translateZ({sineWave(currentTime, 12, 0.2)}px);"
+                  >
+                    <h1 class="font-bold text-xl text-white drop-shadow-lg">
+                      {item.title}
+                    </h1>
+                    <p class="text-teal-200 text-sm">
+                      By {item.youtuber?.name || 'Unknown Youtuber'}
                     </p>
                   </div>
                   
-                  <div class="text-right">
-                    <span class="text-lg font-bold text-blue-600">
-                      {formatPrice(bid.amount)}
+                  <!-- Price tag -->
+                  <div
+                    class="absolute top-3 right-3 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full z-[{zValues.priceTag}]"
+                    style="transform: translateZ({sineWave(currentTime + 0.5, 15, 0.3)}px);"
+                  >
+                    <span class="text-teal-200 text-xs font-medium">Current bid:</span>
+                    <span class="text-white font-bold ml-1">
+                      {formatPrice(item.current_price)}
                     </span>
-                    {#if i < item.bids.length - 1}
-                      <div class="text-sm text-gray-500">
-                        +${(bid.amount - item.bids[i + 1].amount).toFixed(2)}
-                      </div>
-                    {/if}
+                  </div>
+                  
+                  <!-- Countdown box (if auction is active) -->
+                  {#if timeRemaining && !timeRemaining.isExpired}
+                    <div
+                      class="absolute top-3 left-3 bg-teal-900/60 backdrop-blur-sm px-3 py-1.5 rounded-full z-[{zValues.countdownBox}]"
+                      style="transform: translateZ({sineWave(currentTime + 0.2, 14, 0.3)}px);"
+                    >
+                      <span class="text-teal-100 text-xs font-medium">Ends in:</span>
+                      <span class="text-white font-bold ml-1">
+                        {formatTimeRemaining(timeRemaining)}
+                      </span>
+                    </div>
+                  {/if}
+                </div>
+              </div>
+            </svelte:fragment>
+          </Enhanced3DCard>
+        </div>
+        
+        <!-- Image gallery -->
+        {#if item.images && item.images.length > 1}
+          <div class="grid grid-cols-5 gap-2">
+            {#each item.images as image, i}
+              <button
+                class="relative overflow-hidden rounded-md aspect-square {
+                  i === currentImageIndex ? 'ring-2 ring-teal-500' : ''
+                }"
+                on:click={() => selectImage(i)}
+              >
+                <ResponsiveImage
+                  src={image.image || image.url || ''}
+                  webpSrc={image.webp_url || ''}
+                  alt={`${item.title} - Image ${i + 1}`}
+                  className="h-full w-full object-cover"
+                />
+              </button>
+            {/each}
+          </div>
+        {/if}
+      </div>
+      
+      <!-- Right side: Info section -->
+      <div class="space-y-6">
+        <!-- Title and youtuber info -->
+        <div>
+          <h1 class="text-3xl font-bold text-teal-400">{item.title}</h1>
+          <p class="text-gray-400">
+            By {item.youtuber?.name || 'Unknown Youtuber'}
+          </p>
+        </div>
+        
+        <!-- Auction status -->
+        <div class="bg-gray-900/50 backdrop-blur-sm rounded-lg p-5 border border-gray-800">
+          <div class="flex justify-between mb-3">
+            <span class="text-gray-400">Current Bid:</span>
+            <span class="text-xl font-bold text-teal-400">{formatPrice(item.current_price)}</span>
+          </div>
+          
+          <div class="flex justify-between mb-5">
+            <span class="text-gray-400">Starting Price:</span>
+            <span class="text-gray-300">{formatPrice(item.starting_price)}</span>
+          </div>
+          
+          <!-- Status display -->
+          {#if timeRemaining?.isExpired}
+            <div class="text-center p-2 bg-gray-800/50 rounded-md text-red-400 mb-4">
+              Auction Ended
+            </div>
+          {/if}
+          
+          <!-- Bid or login button -->
+          {#if timeRemaining && !timeRemaining.isExpired}
+            <button
+              on:click={() => showBidModal = true}
+              class="w-full py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-medium rounded-md hover:from-teal-500 hover:to-emerald-500 transition-all"
+            >
+              Place Bid
+            </button>
+          {:else if item.bids && item.bids.length > 0}
+            <div class="text-center py-3 bg-gray-800 text-gray-300 rounded-md">
+              Sold for {formatPrice(item.current_price)}
+            </div>
+          {:else}
+            <div class="text-center py-3 bg-gray-800 text-gray-300 rounded-md">
+              No bids placed
+            </div>
+          {/if}
+          
+          <!-- Time remaining -->
+          {#if timeRemaining && !timeRemaining.isExpired}
+            <div class="mt-4 text-center">
+              <span class="text-gray-400">Ends in: </span>
+              <span class="text-amber-500">
+                {timeRemaining.days}d {timeRemaining.hours}h {timeRemaining.minutes}m {timeRemaining.seconds}s
+              </span>
+            </div>
+          {/if}
+        </div>
+        
+        <!-- Specifications -->
+        <div class="bg-gray-900/50 backdrop-blur-sm rounded-lg p-5 border border-gray-800">
+          <h2 class="text-xl font-semibold text-teal-400 mb-4">Item Details</h2>
+          
+          <div class="space-y-3">
+            {#if item.condition}
+              <div class="flex justify-between">
+                <span class="text-gray-400">Condition:</span>
+                <span class="text-gray-200">{item.condition}</span>
+              </div>
+            {/if}
+            
+            {#if item.brand}
+              <div class="flex justify-between">
+                <span class="text-gray-400">Brand:</span>
+                <span class="text-gray-200">{item.brand}</span>
+              </div>
+            {/if}
+            
+            {#if item.material}
+              <div class="flex justify-between">
+                <span class="text-gray-400">Material:</span>
+                <span class="text-gray-200">{item.material}</span>
+              </div>
+            {/if}
+            
+            {#if item.dimensions}
+              <div class="flex justify-between">
+                <span class="text-gray-400">Dimensions:</span>
+                <span class="text-gray-200">{item.dimensions}</span>
+              </div>
+            {/if}
+            
+            {#if item.weight}
+              <div class="flex justify-between">
+                <span class="text-gray-400">Weight:</span>
+                <span class="text-gray-200">{item.weight}</span>
+              </div>
+            {/if}
+            
+            {#if item.color}
+              <div class="flex justify-between">
+                <span class="text-gray-400">Color:</span>
+                <span class="text-gray-200">{item.color}</span>
+              </div>
+            {/if}
+          </div>
+          
+          {#if item.description}
+            <div class="mt-4 pt-4 border-t border-gray-800">
+              <h3 class="text-gray-300 font-medium mb-2">Description</h3>
+              <p class="text-gray-400 whitespace-pre-line">{item.description}</p>
+            </div>
+          {/if}
+        </div>
+        
+        <!-- Bid history -->
+        <div class="bg-gray-900/50 backdrop-blur-sm rounded-lg p-5 border border-gray-800">
+          <h2 class="text-xl font-semibold text-teal-400 mb-4">Bid History</h2>
+          
+          {#if !item.bids || item.bids.length === 0}
+            <p class="text-gray-400 text-center py-4">No bids yet</p>
+          {:else}
+            <div class="space-y-3">
+              {#each item.bids.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) as bid}
+                <div class="flex justify-between items-center p-2 rounded-md hover:bg-gray-800/30">
+                  <div>
+                    <span class={userColors[bid.user_email] || 'text-gray-300'}>
+                      {maskEmail(bid.user_email)}
+                    </span>
+                    <div class="text-xs text-gray-500">
+                      {new Date(bid.created_at).toLocaleString()}
+                    </div>
+                  </div>
+                  <div class="font-semibold text-white">
+                    {formatPrice(bid.bid_amount)}
                   </div>
                 </div>
               {/each}
             </div>
-          </div>
+          {/if}
         </div>
-      {:else}
-        <div class="mt-8 rounded-lg bg-white p-6 shadow-lg">
-          <p class="text-center text-gray-600">No bids yet. Be the first to bid!</p>
-        </div>
-      {/if}
-    {/if}
-  </div>
+      </div>
+    </div>
+  {/if}
 </div>
 
-<Toast message={toastMessage} type="success" bind:show={showToast} />
+<!-- Bid Modal -->
+{#if showBidModal && item}
+  <BidModal
+    item={item}
+    minimumBid={Math.ceil(item.current_price) + 1}
+    bind:bidAmount
+    on:close={() => (showBidModal = false)}
+    on:submit={submitBid}
+    loading={isSubmittingBid}
+  />
+{/if}
+
+<!-- Toast notification -->
+{#if showToast}
+  <Toast message={toastMessage} />
+{/if}
+
+<!-- Image popup/lightbox -->
+{#if showImagePopup && item?.images}
+  <div 
+    class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
+    on:click={closeImagePopup}
+  >
+    <button 
+      class="absolute top-4 right-4 text-white/70 hover:text-white"
+      on:click|stopPropagation={closeImagePopup}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    
+    <div 
+      class="relative max-w-4xl max-h-[80vh]"
+      on:click|stopPropagation={() => {}}
+    >
+      <img 
+        src={item.images[popupImageIndex].image || item.images[popupImageIndex].url} 
+        alt={`${item.title} - Full size image`} 
+        class="max-h-[80vh] max-w-full object-contain"
+      />
+      
+      {#if item.images.length > 1}
+        <div class="absolute bottom-0 left-0 right-0 flex justify-center gap-2 p-4">
+          {#each item.images as _, i}
+            <button 
+              class="w-3 h-3 rounded-full {i === popupImageIndex ? 'bg-teal-500' : 'bg-gray-600 hover:bg-gray-500'}"
+              on:click|stopPropagation={() => popupImageIndex = i}
+            />
+          {/each}
+        </div>
+      {/if}
+    </div>
+  </div>
+{/if}
+
+<style>
+  .perspective-1200 {
+    perspective: 1200px;
+  }
+</style>
