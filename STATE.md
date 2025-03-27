@@ -4,6 +4,7 @@
 The project is a SvelteKit application for "Betting on Alaska Auctions" - a youtuber bidding platform. The application provides an interface for users to participate in auctions related to various categories including general auctions, knives, art, and miscellaneous items.
 
 ### Recent Changes
+- Fixed Content Security Policy (CSP) configuration by removing invalid 'api.*' pattern from connect-src and default-src directives
 - Removed unused dark/light theme system to streamline the codebase
 - Redesigned the sound toggle button with an animated sine wave visualization
 - Replaced circular wave animation with a horizontal sine wave for better visual feedback
