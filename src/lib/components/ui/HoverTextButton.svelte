@@ -1,4 +1,6 @@
 <script>
+  import { browser } from '$app/environment';
+
   export let text = "CONTACT";
   export let href = "/contact";
   export let id = "";
@@ -16,18 +18,67 @@
   export let preserveStyle = false; // Only apply the text hover animation, preserve all other styles
   export let external = false; // For external links
   export let isButton = false; // Force button even with href
+  export let audioEnabled = true; // New prop to enable/disable audio feedback
 
   // Animation states
   let isHovered = false;
   
+  // Audio elements references
+  let audioIn;
+  let audioOut;
+  let audioLoaded = false;
+  
+  // Function to handle audio loading
+  function initAudio() {
+    if (browser && audioEnabled) {
+      audioLoaded = true;
+    }
+  }
+  
+  function playAudio(audioElement) {
+    if (browser && audioElement && audioEnabled && !disabled) {
+      // Reset audio to beginning in case it's still playing
+      audioElement.currentTime = 0;
+      
+      // Set volume
+      audioElement.volume = 0.3;
+      
+      // Play the audio
+      const playPromise = audioElement.play();
+      
+      // Handle potential play() Promise rejection (happens if user hasn't interacted with the page yet)
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.log("Audio couldn't play automatically:", error);
+        });
+      }
+    }
+  }
+  
   function handleMouseEnter() {
     isHovered = true;
+    playAudio(audioIn);
   }
   
   function handleMouseLeave() {
     isHovered = false;
+    playAudio(audioOut);
   }
 </script>
+
+<!-- Audio elements -->
+{#if browser && audioEnabled}
+  <audio bind:this={audioIn} preload="metadata" on:canplaythrough={initAudio}>
+    <source src="/audio/button-in.mp3" type="audio/mp3">
+    <source src="/audio/button-in.wav" type="audio/wav">
+    <source src="/audio/button-in.opus" type="audio/opus">
+  </audio>
+  <audio bind:this={audioOut} preload="metadata">
+    <source src="/audio/button-out.mp3" type="audio/mp3">
+    <source src="/audio/button-out.wav" type="audio/wav">
+    <source src="/audio/button-out.opus" type="audio/opus">
+  </audio>
+{/if}
 
 {#if isButton || !href || href === '#' || disabled}
   <button 
@@ -36,7 +87,7 @@
     class="{preserveStyle ? 'header-btn' : 'header-btn simple-hover flx-center'} {className}"
     on:mouseenter={handleMouseEnter}
     on:mouseleave={handleMouseLeave}
-    style="{preserveStyle ? `--defaultColor: ${color}; --hlColor: ${highlightColor};` : `--defaultColor: ${color}; --hlColor: ${highlightColor}; font-size: ${fontSize}; font-weight: ${fontWeight}; letter-spacing: ${letterSpacing}; padding: ${padding}; height: ${buttonHeight};`}"
+    style="{preserveStyle ? `--defaultColor: ${color}; --hlColor: ${highlightColor}; font-size: ${fontSize}; font-weight: ${fontWeight}; letter-spacing: ${letterSpacing};` : `--defaultColor: ${color}; --hlColor: ${highlightColor}; font-size: ${fontSize}; font-weight: ${fontWeight}; letter-spacing: ${letterSpacing}; padding: ${padding}; height: ${buttonHeight};`}"
     on:click
     on:focus
     on:blur
@@ -60,7 +111,7 @@
     class="{preserveStyle ? 'header-btn' : 'header-btn simple-hover flx-center'} {className} {disabled ? 'disabled' : ''}"
     on:mouseenter={handleMouseEnter}
     on:mouseleave={handleMouseLeave}
-    style="{preserveStyle ? `--defaultColor: ${color}; --hlColor: ${highlightColor};` : `--defaultColor: ${color}; --hlColor: ${highlightColor}; font-size: ${fontSize}; font-weight: ${fontWeight}; letter-spacing: ${letterSpacing}; padding: ${padding}; height: ${buttonHeight};`}"
+    style="{preserveStyle ? `--defaultColor: ${color}; --hlColor: ${highlightColor}; font-size: ${fontSize}; font-weight: ${fontWeight}; letter-spacing: ${letterSpacing};` : `--defaultColor: ${color}; --hlColor: ${highlightColor}; font-size: ${fontSize}; font-weight: ${fontWeight}; letter-spacing: ${letterSpacing}; padding: ${padding}; height: ${buttonHeight};`}"
     on:click
     on:focus
     on:blur
@@ -190,5 +241,10 @@
   :global(button:disabled) {
     opacity: 0.6;
     cursor: not-allowed !important;
+  }
+  
+  /* Hide audio elements */
+  audio {
+    display: none;
   }
 </style> 

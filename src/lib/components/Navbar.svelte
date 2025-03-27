@@ -141,12 +141,15 @@
             on:mouseenter={() => handleHover('home', true)}
             on:mouseleave={() => handleHover('home', false)}
           >
-            <span class="relative z-10 flex items-center text-sm font-medium group-hover:text-amber-300">
+            <span class="relative z-10 flex items-center text-sm group-hover:text-amber-300">
               <HoverTextButton 
                 text="AUCTIONS" 
                 href="/" 
                 preserveStyle={true}
                 highlightColor="#f9b639"
+                fontSize="12px"
+                fontWeight="600"
+                letterSpacing="1px"
               />
             </span>
             
@@ -175,6 +178,9 @@
                 href="/knives" 
                 preserveStyle={true}
                 highlightColor="#f9b639"
+                fontSize="12px"
+                fontWeight="600"
+                letterSpacing="1px"
               />
             </span>
             
@@ -203,6 +209,9 @@
                 href="/paintings" 
                 preserveStyle={true}
                 highlightColor="#f9b639"
+                fontSize="12px"
+                fontWeight="600"
+                letterSpacing="1px"
               />
             </span>
             
@@ -231,6 +240,9 @@
                 href="/misc" 
                 preserveStyle={true}
                 highlightColor="#f9b639"
+                fontSize="12px"
+                fontWeight="600"
+                letterSpacing="1px"
               />
             </span>
             
@@ -265,6 +277,9 @@
                 href="/about" 
                 preserveStyle={true}
                 highlightColor="#f9b639"
+                fontSize="12px"
+                fontWeight="600"
+                letterSpacing="1px"
               />
             </span>
             
@@ -292,6 +307,9 @@
                 href="/contact" 
                 preserveStyle={true}
                 highlightColor="#f9b639"
+                fontSize="12px"
+                fontWeight="600"
+                letterSpacing="1px"
               />
             </span>
             
@@ -317,16 +335,14 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
                 <HoverTextButton 
-                  text="SUPPORT" 
+                  text="SUPPORT CHATS" 
                   href="/support" 
                   preserveStyle={true}
                   highlightColor="#f9b639"
+                  fontSize="12px"
+                  fontWeight="600"
+                  letterSpacing="1px"
                 />
-                {#if $unreadCount > 0}
-                  <span class="ml-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
-                    {$unreadCount}
-                  </span>
-                {/if}
               </span>
               
               <!-- Hover effect -->
@@ -353,12 +369,10 @@
                   href="/admin/chats" 
                   preserveStyle={true}
                   highlightColor="#f9b639"
+                  fontSize="12px"
+                  fontWeight="600"
+                  letterSpacing="1px"
                 />
-                {#if $unreadCount > 0}
-                  <span class="ml-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
-                    {$unreadCount}
-                  </span>
-                {/if}
               </span>
               
               <!-- Hover effect -->
@@ -370,6 +384,37 @@
               {/if}
             </a>
           {/if}
+
+          <!-- Audio Demo Link -->
+          <a 
+            href="/audio-demo" 
+            class="group relative px-3 py-2 rounded-full transition-all duration-300 {activeRoute === '/audio-demo' ? 'text-amber-400' : 'text-gray-300'}"
+            on:mouseenter={() => handleHover('audio', true)}
+            on:mouseleave={() => handleHover('audio', false)}
+          >
+            <span class="relative z-10 flex items-center text-sm group-hover:text-amber-300">
+              <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+              </svg>
+              <HoverTextButton 
+                text="AUDIO DEMO" 
+                href="/audio-demo" 
+                preserveStyle={true}
+                highlightColor="#f9b639"
+                fontSize="12px"
+                fontWeight="600"
+                letterSpacing="1px"
+              />
+            </span>
+            
+            <!-- Hover effect -->
+            <span class="absolute inset-0 rounded-full bg-gray-700/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+            
+            <!-- Glow dot -->
+            {#if activeRoute === '/audio-demo'}
+              <span class="absolute bottom-0.5 left-1/2 h-1 w-1 bg-amber-400 rounded-full transform -translate-x-1/2"></span>
+            {/if}
+          </a>
 
           <a 
             href="https://www.youtube.com/@MickWhipple" 
@@ -388,6 +433,9 @@
                 href="https://www.youtube.com/@MickWhipple" 
                 preserveStyle={true}
                 highlightColor="#ff0000"
+                fontSize="12px"
+                fontWeight="600"
+                letterSpacing="1px"
               />
             </span>
             
@@ -549,6 +597,9 @@
                   href={item.href} 
                   preserveStyle={true}
                   highlightColor="#f9b639"
+                  fontSize="12px"
+                  fontWeight="600"
+                  letterSpacing="1px"
                 />
               </span>
             </a>
@@ -568,6 +619,9 @@
                 href="/about" 
                 preserveStyle={true}
                 highlightColor="#f9b639"
+                fontSize="12px"
+                fontWeight="600"
+                letterSpacing="1px"
               />
             </span>
           </a>
@@ -584,6 +638,9 @@
                 href="/contact" 
                 preserveStyle={true}
                 highlightColor="#f9b639"
+                fontSize="12px"
+                fontWeight="600"
+                letterSpacing="1px"
               />
             </span>
           </a>
@@ -607,6 +664,9 @@
                   href="/support" 
                   preserveStyle={true}
                   highlightColor="#f9b639"
+                  fontSize="12px"
+                  fontWeight="600"
+                  letterSpacing="1px"
                 />
               </span>
             </a>
@@ -628,10 +688,33 @@
                   href="/admin/chats" 
                   preserveStyle={true}
                   highlightColor="#f9b639"
+                  fontSize="12px"
+                  fontWeight="600"
+                  letterSpacing="1px"
                 />
               </span>
             </a>
           {/if}
+          
+          <!-- Audio Demo Link (Mobile) -->
+          <a href="/audio-demo" class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 {activeRoute === '/audio-demo' ? 'bg-gradient-to-r from-amber-900/20 to-black border-l-2 border-amber-500 text-amber-400' : 'text-gray-200 hover:bg-gray-800/30'}">
+            <div class="w-8 h-8 flex items-center justify-center mr-3 {activeRoute === '/audio-demo' ? 'text-amber-400' : 'text-gray-400'}">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+              </svg>
+            </div>
+            <span class="font-medium">
+              <HoverTextButton 
+                text="AUDIO DEMO" 
+                href="/audio-demo" 
+                preserveStyle={true}
+                highlightColor="#f9b639"
+                fontSize="12px"
+                fontWeight="600"
+                letterSpacing="1px"
+              />
+            </span>
+          </a>
           
           <a href="https://www.youtube.com/@MickWhipple" target="_blank" rel="noopener noreferrer" class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 text-gray-200 hover:bg-red-900/10 hover:text-red-400">
             <div class="w-8 h-8 flex items-center justify-center mr-3 text-red-400">
@@ -645,6 +728,9 @@
                 href="https://www.youtube.com/@MickWhipple" 
                 preserveStyle={true}
                 highlightColor="#f9b639"
+                fontSize="12px"
+                fontWeight="600"
+                letterSpacing="1px"
                 external={true}
               />
             </span>
@@ -680,6 +766,9 @@
                   href="/profile" 
                   preserveStyle={true}
                   highlightColor="#f9b639"
+                  fontSize="12px"
+                  fontWeight="600"
+                  letterSpacing="1px"
                 />
               </span>
             </a>
@@ -701,6 +790,9 @@
                     href="/admin" 
                     preserveStyle={true}
                     highlightColor="#f9b639"
+                    fontSize="12px"
+                    fontWeight="600"
+                    letterSpacing="1px"
                   />
                 </span>
               </a>
@@ -720,6 +812,9 @@
                   text="SIGN OUT" 
                   preserveStyle={true}
                   highlightColor="#f9b639"
+                  fontSize="12px"
+                  fontWeight="600"
+                  letterSpacing="1px"
                   isButton={true}
                 />
               </span>
@@ -732,6 +827,9 @@
                   href="/login" 
                   preserveStyle={true}
                   highlightColor="#f9b639"
+                  fontSize="12px"
+                  fontWeight="600"
+                  letterSpacing="1px"
                 />
               </a>
               <a href="/register" class="block w-full py-3 text-center text-sm font-medium text-white bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-700 rounded-xl shadow-lg shadow-amber-800/20 hover:shadow-amber-800/30 transition-all duration-300 border border-amber-500/50">
@@ -740,6 +838,9 @@
                   href="/register" 
                   preserveStyle={true}
                   highlightColor="#ffffff"
+                  fontSize="12px"
+                  fontWeight="600"
+                  letterSpacing="1px"
                 />
               </a>
             </div>

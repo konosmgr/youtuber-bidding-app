@@ -4,6 +4,19 @@
 The project is a SvelteKit application for "Betting on Alaska Auctions" - a youtuber bidding platform. The application provides an interface for users to participate in auctions related to various categories including general auctions, knives, art, and miscellaneous items.
 
 ### Recent Changes
+- Standardized navbar text styling to match the Default Style example in the HoverTextButton demo
+- Updated all navbar HoverTextButton components with consistent fontSize, fontWeight, and letterSpacing
+- Applied consistent 12px font size with 600 weight and 1px letter spacing across all navigation elements
+- Enhanced visual consistency between demo components and actual implementation
+- Improved audio support with multiple file formats (mp3, wav, opus) for cross-browser compatibility
+- Fixed audio playback issues by providing alternative audio formats
+- Optimized audio file sizes with appropriate encoding
+- Cleaned up unused development server processes to improve system performance
+- Added audio feedback to the HoverTextButton component with enter and exit sounds
+- Implemented responsive audio controls with volume adjustment and error handling
+- Added audioEnabled prop to allow disabling sound for accessibility purposes
+- Used browser environment check to ensure audio only loads on the client side
+- Ensured audio doesn't play when buttons are disabled
 - Further reduced SVG usage by replacing subtle-pattern.svg with inline CSS gradient pattern
 - Removed mountain-backdrop.svg which wasn't referenced in the codebase
 - Improved loading performance by eliminating the need for external pattern SVG files
