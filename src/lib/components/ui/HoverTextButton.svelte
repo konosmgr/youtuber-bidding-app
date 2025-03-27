@@ -42,7 +42,7 @@
       audioElement.currentTime = 0;
       
       // Set volume
-      audioElement.volume = 0.3;
+      audioElement.volume = 0.8;
       
       // Play the audio
       const playPromise = audioElement.play();

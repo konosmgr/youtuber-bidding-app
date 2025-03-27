@@ -359,7 +359,6 @@
             className="w-full aspect-[4/3] perspective-1200"
             enableFloatingParticles={true}
             enableBreathing={true}
-            className="w-full"
             time={currentTime}
             sineAmplitude={10}
             cosineAmplitude={8}

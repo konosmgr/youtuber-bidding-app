@@ -185,7 +185,15 @@
             starting_price: item.starting_price || 0,
             title: item.title || 'Unknown Item',
             // Create proper images structure
-            images: prepareItemImages(item)
+            images: prepareItemImages(item),
+            // Ensure category is set with the correct structure
+            category: typeof item.category === 'object' && item.category !== null
+              ? item.category
+              : {
+                  id: '',
+                  name: 'Miscellaneous Items',
+                  code: 'MISC'
+                }
           };
         });
       
@@ -403,18 +411,19 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-16">
         {#each pastItems.filter(item => item.title.toLowerCase().includes(searchTerm.toLowerCase())) as item (item.id)}
           <div transition:fade={{ duration: 300 }}>
-            <PastAuctionCard
-              id={item.id}
-              title={item.title}
-              youtuber={item.youtuber?.name || ''}
-              finalPrice={item.current_price}
-              startingPrice={item.starting_price}
-              specs={extractSpecs(item)}
-              images={item.images}
-              bids={item.bids?.length || 0}
-              href={`/misc/${item.id}`}
-              color="from-teal-600 to-emerald-600"
-              glowColor="teal"
+            <PastAuctionCard 
+              item={{
+                id: item.id,
+                title: item.title,
+                youtuber: item.youtuber,
+                current_price: item.current_price,
+                starting_price: item.starting_price,
+                specs: extractSpecs(item),
+                images: item.images,
+                bids: item.bids,
+                description: item.description,
+                category: item.category
+              }}
             />
           </div>
         {/each}

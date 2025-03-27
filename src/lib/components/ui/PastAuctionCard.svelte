@@ -15,7 +15,12 @@
     images: [],
     thumbnail: '',
     condition: '',
-    highlights: ''
+    highlights: '',
+    category: {
+      id: '',
+      name: '',
+      code: ''
+    }
   };
   
   // Default card dimensions and appearance
@@ -363,7 +368,13 @@
         <div class="mt-auto relative z-10">
           <!-- Wrap both price and button in a single link -->
           <a 
-            href="/knife/{item.id}"
+            href="{
+              item.category 
+                ? (typeof item.category === 'object' && item.category.code 
+                    ? `/${item.category.code.toLowerCase()}` 
+                    : `/${typeof item.category === 'string' ? item.category.toLowerCase() : 'knife'}`)
+                : '/knife'
+              }/{item.id}"
             class="block no-underline relative z-50"
           >
             <!-- Final price with enhanced clarity -->

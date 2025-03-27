@@ -186,7 +186,15 @@
             starting_price: item.starting_price || 0,
             title: item.title || 'Unknown Item',
             // Create proper images structure
-            images: prepareItemImages(item)
+            images: prepareItemImages(item),
+            // Ensure category is set with the correct structure
+            category: typeof item.category === 'object' && item.category !== null
+              ? item.category
+              : {
+                  id: '',
+                  name: 'Knives',
+                  code: 'KNIFE'
+                }
           };
         });
       
