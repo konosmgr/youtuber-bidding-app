@@ -4,6 +4,20 @@
 The project is a SvelteKit application for "Betting on Alaska Auctions" - a youtuber bidding platform. The application provides an interface for users to participate in auctions related to various categories including general auctions, knives, art, and miscellaneous items.
 
 ### Recent Changes
+- Removed unused dark/light theme system to streamline the codebase
+- Redesigned the sound toggle button with an animated sine wave visualization
+- Replaced circular wave animation with a horizontal sine wave for better visual feedback
+- Enhanced sound toggle with canvas-based wave animation for smoother rendering
+- Added multiple sine waves with different frequencies for a more organic appearance
+- Implemented a red X indicator when sound is disabled for clearer feedback
+- Added global sound toggle feature with a fancy animated button in the navbar
+- Created a centralized audio state store to manage sound settings across the application
+- Implemented localStorage persistence for audio preferences to remember user settings
+- Removed dedicated audio demo page in favor of the global sound toggle in the navbar
+- Updated HoverTextButton component to use the global audio state instead of local prop
+- Maintained backward compatibility with existing audioEnabled prop for flexibility
+- Added subtle animations to the sound toggle with spring-based transitions
+- Improved accessibility by making sound controls easily available from any page
 - Standardized navbar text styling to match the Default Style example in the HoverTextButton demo
 - Updated all navbar HoverTextButton components with consistent fontSize, fontWeight, and letterSpacing
 - Applied consistent 12px font size with 600 weight and 1px letter spacing across all navigation elements
@@ -183,6 +197,9 @@ The project is a SvelteKit application for "Betting on Alaska Auctions" - a yout
   - Preserved special styling for YouTube link and authentication buttons
   - Ensured accessibility with proper focus states and event forwarding
   - Maintained amber highlight color (#f9b639) to match the site's theme
+- Simplified the sound toggle button by removing the red X indicator when sound is disabled
+- Improved visual minimalism with a clean horizontal line indicating when sound is off
+- Made the sound toggle design more subtle and less distracting when sound is disabled
 
 ## Project Structure
 The project follows a typical SvelteKit structure:

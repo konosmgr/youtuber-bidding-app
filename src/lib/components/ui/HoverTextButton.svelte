@@ -1,5 +1,6 @@
 <script>
   import { browser } from '$app/environment';
+  import audioEnabledStore from '$lib/stores/audio';
 
   export let text = "CONTACT";
   export let href = "/contact";
@@ -18,7 +19,7 @@
   export let preserveStyle = false; // Only apply the text hover animation, preserve all other styles
   export let external = false; // For external links
   export let isButton = false; // Force button even with href
-  export let audioEnabled = true; // New prop to enable/disable audio feedback
+  export let audioEnabled = true; // Prop for backward compatibility, will use global store if not explicitly set
 
   // Animation states
   let isHovered = false;
@@ -30,13 +31,13 @@
   
   // Function to handle audio loading
   function initAudio() {
-    if (browser && audioEnabled) {
+    if (browser) {
       audioLoaded = true;
     }
   }
   
   function playAudio(audioElement) {
-    if (browser && audioElement && audioEnabled && !disabled) {
+    if (browser && audioElement && $audioEnabledStore && audioEnabled && !disabled) {
       // Reset audio to beginning in case it's still playing
       audioElement.currentTime = 0;
       
@@ -67,7 +68,7 @@
 </script>
 
 <!-- Audio elements -->
-{#if browser && audioEnabled}
+{#if browser && ($audioEnabledStore || audioEnabled)}
   <audio bind:this={audioIn} preload="metadata" on:canplaythrough={initAudio}>
     <source src="/audio/button-in.mp3" type="audio/mp3">
     <source src="/audio/button-in.wav" type="audio/wav">

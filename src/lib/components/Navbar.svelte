@@ -6,6 +6,7 @@
   import { unreadCount, loadConversations } from '$lib/stores/messaging';
   import { browser } from '$app/environment';
   import HoverTextButton from '$lib/components/ui/HoverTextButton.svelte';
+  import SoundToggleButton from '$lib/components/ui/SoundToggleButton.svelte';
 
   // Make the component client-side only
   export const csr = true;
@@ -20,6 +21,9 @@
   let animationFrame;
   let currentTime = 0;
   let hoverItems = new Map();
+
+  // Mobile menu state
+  let menuOpen = false;
 
   // Track hover state for nav items
   function handleHover(id, isHovered) {
@@ -385,63 +389,10 @@
             </a>
           {/if}
 
-          <!-- Audio Demo Link -->
-          <a 
-            href="/audio-demo" 
-            class="group relative px-3 py-2 rounded-full transition-all duration-300 {activeRoute === '/audio-demo' ? 'text-amber-400' : 'text-gray-300'}"
-            on:mouseenter={() => handleHover('audio', true)}
-            on:mouseleave={() => handleHover('audio', false)}
-          >
-            <span class="relative z-10 flex items-center text-sm group-hover:text-amber-300">
-              <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-              </svg>
-              <HoverTextButton 
-                text="AUDIO DEMO" 
-                href="/audio-demo" 
-                preserveStyle={true}
-                highlightColor="#f9b639"
-                fontSize="12px"
-                fontWeight="600"
-                letterSpacing="1px"
-              />
-            </span>
-            
-            <!-- Hover effect -->
-            <span class="absolute inset-0 rounded-full bg-gray-700/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-            
-            <!-- Glow dot -->
-            {#if activeRoute === '/audio-demo'}
-              <span class="absolute bottom-0.5 left-1/2 h-1 w-1 bg-amber-400 rounded-full transform -translate-x-1/2"></span>
-            {/if}
-          </a>
-
-          <a 
-            href="https://www.youtube.com/@MickWhipple" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            class="group relative px-3 py-2 rounded-full transition-all duration-300 text-gray-300"
-            on:mouseenter={() => handleHover('youtube', true)}
-            on:mouseleave={() => handleHover('youtube', false)}
-          >
-            <span class="relative z-10 flex items-center text-sm group-hover:text-red-400">
-              <svg class="mr-1.5 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
-              </svg>
-              <HoverTextButton 
-                text="YOUTUBE" 
-                href="https://www.youtube.com/@MickWhipple" 
-                preserveStyle={true}
-                highlightColor="#ff0000"
-                fontSize="12px"
-                fontWeight="600"
-                letterSpacing="1px"
-              />
-            </span>
-            
-            <!-- Hover effect -->
-            <span class="absolute inset-0 rounded-full bg-red-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-          </a>
+          <!-- Sound Toggle Button -->
+          <div class="sound-toggle-wrapper">
+            <SoundToggleButton />
+          </div>
         </div>
       </nav>
 
@@ -695,46 +646,6 @@
               </span>
             </a>
           {/if}
-          
-          <!-- Audio Demo Link (Mobile) -->
-          <a href="/audio-demo" class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 {activeRoute === '/audio-demo' ? 'bg-gradient-to-r from-amber-900/20 to-black border-l-2 border-amber-500 text-amber-400' : 'text-gray-200 hover:bg-gray-800/30'}">
-            <div class="w-8 h-8 flex items-center justify-center mr-3 {activeRoute === '/audio-demo' ? 'text-amber-400' : 'text-gray-400'}">
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-              </svg>
-            </div>
-            <span class="font-medium">
-              <HoverTextButton 
-                text="AUDIO DEMO" 
-                href="/audio-demo" 
-                preserveStyle={true}
-                highlightColor="#f9b639"
-                fontSize="12px"
-                fontWeight="600"
-                letterSpacing="1px"
-              />
-            </span>
-          </a>
-          
-          <a href="https://www.youtube.com/@MickWhipple" target="_blank" rel="noopener noreferrer" class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 text-gray-200 hover:bg-red-900/10 hover:text-red-400">
-            <div class="w-8 h-8 flex items-center justify-center mr-3 text-red-400">
-              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
-              </svg>
-            </div>
-            <span class="font-medium">
-              <HoverTextButton 
-                text="YOUTUBE" 
-                href="https://www.youtube.com/@MickWhipple" 
-                preserveStyle={true}
-                highlightColor="#f9b639"
-                fontSize="12px"
-                fontWeight="600"
-                letterSpacing="1px"
-                external={true}
-              />
-            </span>
-          </a>
         </div>
         
         <div class="mt-6 pt-4 border-t border-gray-800">
@@ -907,5 +818,18 @@
   /* Dropdown styles */
   .group:hover .group-hover\:translate-y-0 {
     transform: translateY(0);
+  }
+  
+  .sound-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 1024px) {
+    .sound-toggle-wrapper {
+      margin-right: 5px;
+    }
   }
 </style>
