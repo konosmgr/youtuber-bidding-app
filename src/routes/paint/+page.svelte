@@ -154,6 +154,7 @@
       bids: item.bids?.length || 0,
       timeLeft: item.timeRemaining ? 
         `${item.timeRemaining.days > 0 ? item.timeRemaining.days + 'd ' : ''}${item.timeRemaining.hours}h ${item.timeRemaining.minutes}m` : '',
+      category: 'PAINT'
     };
   }
   

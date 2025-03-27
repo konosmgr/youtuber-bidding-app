@@ -4,6 +4,12 @@
 The project is a SvelteKit application for "Betting on Alaska Auctions" - a youtuber bidding platform. The application provides an interface for users to participate in auctions related to various categories including general auctions, knives, art, and miscellaneous items.
 
 ### Recent Changes
+- Fixed routing issues in AuctionCard component:
+  - Modified AuctionCard.svelte to dynamically determine category URL paths instead of hardcoding to knife/[id]
+  - Added category information to the items in all three category pages (knives, paint, misc)
+  - Updated click handlers to use the appropriate category paths based on item category
+  - Ensured consistent routing behavior across all category pages
+  - Added a getCategoryPath helper function to determine the correct route based on category code
 - Fixed issues with the "paint" category pages:
   - Added proper image processing in the paint/[id]/+page.js file to ensure images are displayed correctly
   - Updated PastAuctionCard component to use the item's category when creating view detail links

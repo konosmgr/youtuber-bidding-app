@@ -99,7 +99,8 @@
   // Handle click on the bid button
   function handleBidClick(event) {
     event.stopPropagation(); // Prevent card click
-    window.location.href = `/knife/${item.id}`;
+    const categoryPath = getCategoryPath(item);
+    window.location.href = `${categoryPath}/${item.id}`;
   }
   
   // Handle click on the watchlist button
@@ -112,14 +113,28 @@
   // Handle click on the entire card - no need for separate image handler
   function handleCardClick() {
     console.log('Card clicked!', item.id);
-    window.location.href = `/knife/${item.id}`;
+    const categoryPath = getCategoryPath(item);
+    window.location.href = `${categoryPath}/${item.id}`;
   }
   
   // Handle image click - forward to the right URL
   function handleImageClick(event) {
     // Stop propagation to prevent double navigation
     event.stopPropagation();
-    window.location.href = `/knife/${item.id}`;
+    const categoryPath = getCategoryPath(item);
+    window.location.href = `${categoryPath}/${item.id}`;
+  }
+  
+  // Determine the correct category path based on the item
+  function getCategoryPath(item) {
+    if (item.category === 'MISC') {
+      return '/misc';
+    } else if (item.category === 'PAINT') {
+      return '/paint';
+    } else {
+      // Default to knife category if no category match is found
+      return '/knife';
+    }
   }
   
   // Custom animation functions

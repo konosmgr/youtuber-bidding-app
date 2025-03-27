@@ -154,6 +154,7 @@
       bids: item.bids?.length || 0,
       timeLeft: item.timeRemaining ? 
         `${item.timeRemaining.days > 0 ? item.timeRemaining.days + 'd ' : ''}${item.timeRemaining.hours}h ${item.timeRemaining.minutes}m` : '',
+      category: 'KNIFE'
     };
   }
   
@@ -291,7 +292,8 @@
     );
     
     if (item) {
-      window.location.href = `/knife/${item.id}`;
+      const categoryPath = getCategoryPath(item);
+      window.location.href = `${categoryPath}/${item.id}`;
     }
   }
   
@@ -310,7 +312,8 @@
     );
     
     if (item) {
-      window.location.href = `/knife/${item.id}`;
+      const categoryPath = getCategoryPath(item);
+      window.location.href = `${categoryPath}/${item.id}`;
     } else {
       console.error('Item not found for ID:', event.detail.itemId);
     }
@@ -325,7 +328,8 @@
     );
     
     if (item) {
-      window.location.href = `/knife/${item.id}`;
+      const categoryPath = getCategoryPath(item);
+      window.location.href = `${categoryPath}/${item.id}`;
     }
   }
 
@@ -338,7 +342,22 @@
     );
     
     if (item) {
-      window.location.href = `/knife/${item.id}`;
+      const categoryPath = getCategoryPath(item);
+      window.location.href = `${categoryPath}/${item.id}`;
+    }
+  }
+
+  // Determine the correct category path based on the item
+  function getCategoryPath(item) {
+    if (item.category === 'MISC' || 
+       (item.category && typeof item.category === 'object' && item.category.code === 'MISC')) {
+      return '/misc';
+    } else if (item.category === 'PAINT' || 
+              (item.category && typeof item.category === 'object' && item.category.code === 'PAINT')) {
+      return '/paint';
+    } else {
+      // Default to knife category
+      return '/knife';
     }
   }
 
