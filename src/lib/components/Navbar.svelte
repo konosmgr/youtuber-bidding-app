@@ -374,7 +374,7 @@
             </button>
             
             <!-- Dropdown menu -->
-            <div class="absolute right-0 mt-2 w-56 rounded-lg overflow-hidden z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
+            <div class="absolute right-0 mt-2 w-56 rounded-lg overflow-hidden z-20 opacity-10 invisible group-hover:opacity-100 group-hover:visible transition-all duration-100 transform group-hover:translate-y-0 translate-y-2">
               <!-- Backdrop blur -->
               <div class="absolute inset-0 bg-gray-900/80 backdrop-blur-xl rounded-lg"></div>
               

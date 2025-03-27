@@ -4,6 +4,16 @@
 The project is a SvelteKit application for "Betting on Alaska Auctions" - a youtuber bidding platform. The application provides an interface for users to participate in auctions related to various categories including general auctions, knives, art, and miscellaneous items.
 
 ### Recent Changes
+- Added the Utsubo-style contact button effect to the showcase2 page, featuring staggered letter animations on hover
+- Implemented the vertical text replacement animation with smooth cubic-bezier easing for realistic motion
+- Created a subtle glow effect on the contact button hover state with radial gradient background
+- Added a new showcase2 page featuring an interactive "HOLD TO INTERACT" button effect inspired by the Utsubo website
+- Implemented SVG progress circles for visual feedback during button interaction
+- Created advanced animations for the button including expanding/closing transitions and particle effects
+- Added interactive text elements with staggered animations during the interaction phase
+- Used advanced CSS transitions with cubic-bezier timing functions for realistic motion
+- Implemented a standalone layout for the showcase2 page to avoid interfering with global styles
+- Optimized the interactive experience with proper event handling for both mouse and touch interactions
 - Fixed server-side rendering issue with the Navbar component by adding browser environment checks
 - Added conditional rendering in the layout file to prevent "window is not defined" errors
 - Modified all browser-specific code in the Navbar to check for browser environment before execution
@@ -77,12 +87,61 @@ The project is a SvelteKit application for "Betting on Alaska Auctions" - a yout
 - Fixed the implementation of the knives/[id] page by standardizing the API call approach with other working pages (paint/[id] and misc/[id])
 - Maintained the enhanced 3D card UI and animations while fixing the core functionality
 - Improved error handling and cleanup in the onDestroy lifecycle function
+- Added a new water effect showcase page inspired by the Utsubo contact page design
+- Created a fallback mechanism for when video files are not available, using canvas animations
+- Added advanced wave animations using multiple overlapping sine waves for a more realistic effect
+- Implemented a clean, modern interface with centered contact information
+- Enhanced the canvas animation with dynamic wave patterns and simulated ocean movement
+- Updated the contact button animation to match the Utsubo site exactly
+  - Implemented 3D transforms with `translate3d` and skew effects
+  - Added proper z-index handling and highlight colors
+  - Updated the animation timing with precise cubic-bezier curves
+  - Fixed staggered letter animation timing using specific transition delays
+- Updated the contact button with exact CSS properties from the Utsubo site:
+  - Set precise height (50px) and padding (8px) to match the original
+  - Added proper CSS classes (flx-center for the button, flx for the container)
+  - Added user-select and webkit-user-drag properties for proper interaction
+  - Implemented the exact transition timing for all animations
+  - Added proper text selection styling with highlight color 
+  - Included the correct font stack from the original site
+- Simplified the showcase2 page to only display the Utsubo-style contact button
+  - Removed all other content and UI elements
+  - Created a minimal, clean interface focused solely on the button effect
+  - Maintained all the interactive hover animations and styling of the contact button
+  - Simplified the page structure for better focus on the specific animation
+- Refined the Utsubo-style contact button to match the original site exactly:
+  - Fixed button dimensions and padding (smaller font size and proper spacing)
+  - Added proper letter spacing and margins between letter elements
+  - Adjusted the CSS transforms with precise values for the skewed animation
+  - Improved HTML structure to eliminate any styling conflicts
+  - Separated styling for contact button from HOLD TO INTERACT button to prevent conflicts
+- Added a new showcase4 page featuring the exact Utsubo-style contact button animation
+  - Implemented the precise CSS from the Utsubo website for the contact button hover effect
+  - Created pixel-perfect staggered letter animations with correct transition timing
+  - Added proper transform3d and skew effects to match the original site
+  - Used the exact color scheme with yellow highlight text (#f9b639)
+  - Implemented correct z-index handling and positioning for the animated letters
+  - Added proper letter spacing and margins between letter elements
+  - Ensured all CSS variables match the original site (--defaultColor, --hlColor, --mainEasing)
+- Created a reusable HoverTextButton component for the Utsubo-style hover letter animations
+  - Implemented as a fully customizable component with various style props
+  - Fixed the initial state to properly hide the yellow highlight text behind white text
+  - Added z-index and opacity handling to ensure proper visibility during animations
+  - Supports custom text with automatic letter splitting
+  - Allows customization of colors, font sizes, weights, padding, and other styles
+  - Handles up to 20 letters with proper staggered animation timing
+  - Includes the entire animation effect in a self-contained component
 
 ## Project Structure
 The project follows a typical SvelteKit structure:
 - `src/routes/` - Contains the pages and layouts of the application
   - `+layout.svelte` - Main application layout with global components (modified to fix scrolling issues)
   - `profile/+page.svelte` - User profile page with GlowingEffect implementation
+  - `showcase/+page.svelte` - A showcase page demonstrating a water background effect similar to Utsubo's contact page
+  - `showcase/+layout.svelte` - A minimal layout for the showcase that prevents inheriting styles from the parent layout
+  - `showcase2/+page.svelte` - A page featuring an interactive "HOLD TO INTERACT" button effect inspired by Utsubo's website
+  - `showcase2/+layout.svelte` - A clean layout for the showcase2 page that isolates its styles from the rest of the application
+  - `showcase4/+page.svelte` - A page featuring the exact implementation of Utsubo's contact button with letter hover animations
   - Various route folders containing page components and logic
   - `enhanced-3d-showcase5/` - Demo page for the 3D card component
   - `knives/+page.svelte` - Knives page using the AuctionCard component for current auctions and PastAuctionCard for past auctions with teal accents and enhanced staggered animations
@@ -97,6 +156,7 @@ The project follows a typical SvelteKit structure:
       - `3d-card/hybridcards/Enhanced3DCard.svelte` - Advanced 3D card transformation component
       - `AuctionCard.svelte` - Reusable auction card component with 3D effects and auction-specific UI
       - `PastAuctionCard.svelte` - Specialized card component with dual badges, text truncation, and optimized layout to prevent content cropping
+      - `HoverTextButton.svelte` - Reusable button component that implements the Utsubo-style letter hover animation effect with customizable properties
     - `Navbar.svelte` - Redesigned navigation component with glass-morphic design, animated effects, and improved mobile experience
     - `ResponsiveImage.svelte` - Component for responsive image handling with webp support and fallback options
   - `utils/` - Utility functions and helpers
@@ -118,6 +178,8 @@ The project follows a typical SvelteKit structure:
 - YouTube integration
 - Enhanced UI components with animated effects
 - Interactive 3D auction cards with dynamic animations and badges
+- Stylized contact button with staggered letter animations and hover effects
+- Interactive "HOLD TO INTERACT" button with progress indication and expanding animations
 - Bid placement and watchlist functionality
 - Properly scrollable pages with fixed animated background
 - Enhanced 3D detail pages for individual auction items with animated effects
@@ -125,17 +187,30 @@ The project follows a typical SvelteKit structure:
 - Staggered animation effects for past auction cards with multi-stage transitions
 - Distinct visual styling between current and past auctions with consistent 3D effects
 - Responsive layout with proper content sizing and truncation to prevent overflow
+- Advanced water background effect with canvas animations and video fallback mechanism
+- Interactive "HOLD TO INTERACT" button effect (hold-to-fill animation with emoji cloud)
+- Utsubo-style contact button with animated letter hover effect
+  - Each letter has a horizontal sliding animation with skew effect
+  - Letters are replaced with a yellow highlight version on hover
+  - Animation has staggered timing for a wave-like effect
 
 ## Core Components
 - `BeamsBackground(Animated).svelte` - An animated background component that creates a dynamic light beam effect using canvas, now with proper scrolling support
 - `Navbar.svelte` - Redesigned navigation component with glass-morphic effects, scroll animations, and improved mobile experience
 - `NicknameCheckWrapper.svelte` - A wrapper component that checks for user nicknames
 - `Enhanced3DCard.svelte` - A component for creating interactive 3D card effects with layering capabilities
+- `Contact Button Effect` - A component that demonstrates the Utsubo-style contact button with letter animations on hover
+- `Interactive Button Effect` - A showcase component featuring a "HOLD TO INTERACT" button with progress indication, expanding animations, and particle effects
 - `AuctionCard.svelte` - A reusable auction-specific card component with advanced 3D effects, time-based animations, and realistic depth perception using sine/cosine wave functions and floating particles
 - `PastAuctionCard.svelte` - A specialized card component with dual badges (PAST AUCTION and SOLD), responsive layout with text truncation, and optimized spacing to prevent content cropping
 - `ResponsiveImage.svelte` - A component that handles responsive images with format support and fallbacks
 - `GlowingEffect.svelte` - A component that adds an interactive glowing border to elements
 - `FocusCard.svelte` - A component that creates a gallery of cards where the focused card stands out while others blur
+- `Showcase Water Effect` - A page component demonstrating advanced water animations with canvas and video backgrounds
+- `HoverTextButton.svelte` - A reusable component for creating buttons with the Utsubo-style letter hover animation effect
+  - Supports customizable text, colors, styling, and transitions
+  - Creates interactive letter-by-letter animations with staggered timing
+  - Properly handles animation state transitions with z-index and opacity control
 
 ## Styling
 - Using Tailwind CSS for responsive styling
@@ -144,11 +219,16 @@ The project follows a typical SvelteKit structure:
 - Extensive use of backdrop-blur, semi-transparency, and shadow effects to complement the animated background
 - Fixed layout structure to ensure proper scrolling while maintaining visual effects
 - Enhanced 3D card display with ultra-detailed Z-layering for maximum depth perception (20+ depth levels)
+- Staggered letter animations for text elements with independent transition delays
+- Vertical text replacement animations using absolute positioning and transforms
 - Time-based sine/cosine wave animations for natural movement in card interactions
 - Dynamic color transitions based on hover state with breathing animations for subtle scaling effects
 - Staggered element animations with custom timing for a more polished user experience
 - Multi-stage animations with blur effects for more elegant card entrances
 - Floating particle systems with independent movement in card backgrounds
+- SVG circle animations for progress indication in interactive buttons
+- Advanced cubic-bezier easing for realistic motion in expanding/closing animations
+- Text animations with staggered delays for enhanced visual hierarchy
 - Consistent card styling across the application with standardized dimensions (500px for active auctions, 450px for past auctions)
 - Grayscale and filter effects for past auctions to distinguish them from current auctions
 - Teal color accents and subtle black backgrounds for past auction section
@@ -157,6 +237,12 @@ The project follows a typical SvelteKit structure:
 - Text truncation and responsive spacing to prevent content overflow on smaller screens
 - Glass-morphic navbar design with dynamic blur effects that change on scroll position
 - Amber/gold accent palette with subtle purple and indigo secondary accents
+- Deep blue water effect with canvas-generated wave animations and video background filter effects
+- Modern, clean aesthetic with dark background and light text
+- Button animations:
+  - Hold-to-fill effect with emoji cloud
+  - Letter hover animations with 3D transforms and skew effects
+  - Staggered animation timing using CSS transition delays
 
 ## Authentication
 - Authentication status is checked when the application loads
