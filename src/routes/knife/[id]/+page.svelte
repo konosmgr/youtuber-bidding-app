@@ -35,6 +35,14 @@
   let hoveredPopupImage = null;
   let bidAmount = data?.initialBidAmount || 0;
   let isSubmittingBid = false;
+  // Add zoom functionality variables
+  let isZoomed = false;
+  let zoomScale = 2.0;
+  let panPositionX = 0;
+  let panPositionY = 0;
+  let initialMouseX = 0;
+  let initialMouseY = 0;
+  let zoomableImageContainer;
 
   $: popupCards = item?.images ? item.images.map((img, i) => ({
     src: img.image,
@@ -254,16 +262,26 @@
     if (!item?.images?.length) return;
     popupImageIndex = currentImageIndex;
     showImagePopup = true;
+    // Reset zoom state when opening popup
+    isZoomed = false;
+    panPositionX = 0;
+    panPositionY = 0;
     document.body.classList.add('overflow-hidden');
   }
 
   function closeImagePopup() {
     showImagePopup = false;
+    // Reset zoom state when closing popup
+    isZoomed = false;
     document.body.classList.remove('overflow-hidden');
   }
 
   function navigatePopupImage(direction) {
     if (!item?.images?.length) return;
+    // Reset zoom state when navigating between images
+    isZoomed = false;
+    panPositionX = 0;
+    panPositionY = 0;
     if (direction === 'next') {
       popupImageIndex = (popupImageIndex + 1) % item.images.length;
     } else {
@@ -271,11 +289,79 @@
     }
   }
 
+  // Toggle zoom on click
+  function toggleZoom(e) {
+    e.stopPropagation();
+    
+    isZoomed = !isZoomed;
+    
+    if (isZoomed && zoomableImageContainer) {
+      // Get the container's dimensions
+      const rect = zoomableImageContainer.getBoundingClientRect();
+      
+      // Calculate the click position relative to the container
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+      
+      // Calculate mouse position as percentage of container dimensions
+      const mouseX = clickX / rect.width;
+      const mouseY = clickY / rect.height;
+      
+      // eBay-style: initial zoom focuses on clicked area but keeps more of the image visible
+      const panRangeX = (zoomScale - 1) * rect.width * 0.4;
+      const panRangeY = (zoomScale - 1) * rect.height * 0.4;
+      
+      // Center the zoom on the clicked point, but with limited movement
+      panPositionX = (0.5 - mouseX) * panRangeX * 0.6; // Reduced sensitivity for initial position
+      panPositionY = (0.5 - mouseY) * panRangeY * 0.6;
+      
+      // Store mouse position for future panning
+      initialMouseX = e.clientX;
+      initialMouseY = e.clientY;
+    } else {
+      // Reset pan position when zooming out
+      panPositionX = 0;
+      panPositionY = 0;
+    }
+  }
+
+  // Handle mouse movement when zoomed
+  function handleMouseMove(e) {
+    if (!isZoomed || !zoomableImageContainer) return;
+    updatePanPosition(e);
+  }
+
+  // Calculate pan position based on mouse coordinates
+  function updatePanPosition(e) {
+    if (!zoomableImageContainer) return;
+    
+    const rect = zoomableImageContainer.getBoundingClientRect();
+    
+    // Calculate mouse position as percentage of container dimensions
+    const mouseX = (e.clientX - rect.left) / rect.width;
+    const mouseY = (e.clientY - rect.top) / rect.height;
+    
+    // Add a sensitivity factor (lower = less sensitive panning)
+    const sensitivityFactor = 0.5;
+    
+    // eBay-style panning with containment:
+    // 1. Calculate pan range but limit it to ensure image stays more visible
+    // 2. Use a smaller movement coefficient to make panning less extreme
+    const panRangeX = (zoomScale - 1) * rect.width * 0.4; // 40% of theoretical max
+    const panRangeY = (zoomScale - 1) * rect.height * 0.4; // 40% of theoretical max
+    
+    // Map mouse position from 0-1 to a smaller range with sensitivity adjustment
+    // This creates the eBay-like effect where panning is more controlled
+    panPositionX = (0.5 - mouseX) * panRangeX * sensitivityFactor;
+    panPositionY = (0.5 - mouseY) * panRangeY * sensitivityFactor;
+  }
+
   function handleKeydown(event) {
     if (!showImagePopup) return;
     
     if (event.key === 'Escape') {
       closeImagePopup();
+      isZoomed = false; // Ensure zoom is reset
     } else if (event.key === 'ArrowRight') {
       navigatePopupImage('next');
     } else if (event.key === 'ArrowLeft') {
@@ -1012,8 +1098,9 @@
 
       <!-- Navigation buttons -->
       <button 
-        class="absolute left-4 top-1/2 -translate-y-1/2 z-[1020] text-white bg-black/50 hover:bg-black/70 rounded-full p-3 transition-all shadow-lg hover:scale-110 hover:bg-indigo-900/70 pointer-events-auto"
+        class="absolute left-4 top-1/2 -translate-y-1/2 z-[1020] text-white bg-black/50 hover:bg-black/70 rounded-full p-3 transition-all shadow-lg hover:scale-110 hover:bg-indigo-900/70 pointer-events-auto {isZoomed ? 'opacity-50' : 'opacity-100'}"
         on:click={e => {e.stopPropagation(); navigatePopupImage('prev');}}
+        disabled={isZoomed}
       >
         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -1021,8 +1108,9 @@
       </button>
       
       <button 
-        class="absolute right-4 top-1/2 -translate-y-1/2 z-[1020] text-white bg-black/50 hover:bg-black/70 rounded-full p-3 transition-all shadow-lg hover:scale-110 hover:bg-indigo-900/70 pointer-events-auto"
+        class="absolute right-4 top-1/2 -translate-y-1/2 z-[1020] text-white bg-black/50 hover:bg-black/70 rounded-full p-3 transition-all shadow-lg hover:scale-110 hover:bg-indigo-900/70 pointer-events-auto {isZoomed ? 'opacity-50' : 'opacity-100'}"
         on:click={e => {e.stopPropagation(); navigatePopupImage('next');}}
+        disabled={isZoomed}
       >
         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1037,27 +1125,62 @@
               class="transition-all duration-300 ease-in-out pointer-events-none {i === popupImageIndex ? 'opacity-100 scale-100 z-50' : 'opacity-0 scale-95 absolute inset-0'}"
             >
               {#if i === popupImageIndex}
-                <div class="relative w-full max-h-[80vh] flex items-center justify-center mx-auto pointer-events-auto">
+                <!-- Zoomable image container with mouse events -->
+                <div 
+                  bind:this={zoomableImageContainer}
+                  on:mousemove={handleMouseMove}
+                  class="relative w-full max-h-[75vh] flex items-center justify-center mx-auto pointer-events-auto overflow-hidden"
+                  style="cursor: {isZoomed ? 'move' : 'zoom-in'};"
+                >
                   {#if typeof image === 'object' && image.image && image.image !== 'null' && image.image !== 'undefined'}
-                    <!-- Use ResponsiveImage with proper settings for full-size display -->
-                    <ResponsiveImage
-                      src={image.image}
-                      webpSrc={image.webp_url || ''}
-                      width={image.width || 800}
-                      height={image.height || 600}
-                      alt={`${item.title} - Image ${i + 1}`}
-                      className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl carousel-image"
-                      objectFit="contain"
-                      fallbackSrc="/placeholder.jpg"
-                      priority={true}
-                      quality="high"
-                    />
+                    <!-- Responsive image with zoom transformation -->
+                    <div 
+                      class="relative w-full h-full flex items-center justify-center"
+                      on:click={toggleZoom}
+                      style="cursor: {isZoomed ? 'move' : 'zoom-in'};"
+                    >
+                      <div
+                        class="transition-transform origin-center w-full h-full overflow-visible"
+                        style={isZoomed ? 
+                          `transform: scale(${zoomScale}) translate(${panPositionX}px, ${panPositionY}px); 
+                           transition: ${isZoomed ? 'transform 0.08s ease-out' : 'all 0.25s ease-out'};` : 
+                          ''}
+                      >
+                        <ResponsiveImage
+                          src={image.image}
+                          webpSrc={image.webp_url || ''}
+                          width={image.width || 800}
+                          height={image.height || 600}
+                          alt={`${item.title} - Image ${i + 1}`}
+                          className="max-w-full max-h-[75vh] object-contain rounded-lg shadow-2xl carousel-image"
+                          objectFit="contain"
+                          fallbackSrc="/placeholder.jpg"
+                          priority={true}
+                          quality="high"
+                        />
+                      </div>
+                    </div>
                   {:else}
-                    <img
-                      src="/placeholder.jpg"
-                      alt={`${item.title} - Image ${i + 1}`}
-                      class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
-                    />
+                    <!-- Fallback image with zoom transformation -->
+                    <div
+                      class="relative w-full h-full flex items-center justify-center"
+                      on:click={toggleZoom}
+                      style="cursor: {isZoomed ? 'move' : 'zoom-in'};"
+                    >
+                      <div
+                        class="transition-transform origin-center w-full h-full overflow-visible"
+                        style={isZoomed ? 
+                          `transform: scale(${zoomScale}) translate(${panPositionX}px, ${panPositionY}px); 
+                           transition: ${isZoomed ? 'transform 0.08s ease-out' : 'all 0.25s ease-out'};` : 
+                          ''}
+                      >
+                        <img
+                          src="/placeholder.jpg"
+                          alt={`${item.title} - Image ${i + 1}`}
+                          class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                        />
+                      </div>
+                    </div>
                   {/if}
                 </div>
               {/if}
@@ -1065,40 +1188,48 @@
           {/each}
         </div>
         
-        <!-- Thumbnails -->
-        <div class="mt-6 flex justify-center space-x-3 overflow-x-auto py-2 pointer-events-auto">
-          {#each item.images as image, i}
-            <button 
-              class="h-16 w-16 flex-shrink-0 rounded-md overflow-hidden transition-all duration-200 
-                    {i === popupImageIndex ? 'ring-2 ring-indigo-400 scale-110 shadow-lg shadow-indigo-500/25' : 'opacity-60 hover:opacity-100 scale-100 hover:ring-1 hover:ring-indigo-400/50'}"
-              on:click|stopPropagation={() => popupImageIndex = i}
-            >
-              {#if typeof image === 'object' && image.image && image.image !== 'null' && image.image !== 'undefined'}
-                <ResponsiveImage
-                  src={image.image}
-                  webpSrc={image.webp_url || ''}
-                  alt={`Thumbnail ${i + 1}`}
-                  className="h-full w-full object-cover"
-                  objectFit="cover"
-                  width={100}
-                  height={100}
-                  fallbackSrc="/placeholder.jpg"
-                  priority={i === popupImageIndex}
-                />
-              {:else}
-                <img
-                  src="/placeholder.jpg"
-                  alt={`Thumbnail ${i + 1}`}
-                  class="w-full h-full object-cover"
-                />
-              {/if}
-            </button>
-          {/each}
-        </div>
-        
-        <!-- Image counter -->
-        <div class="mt-2 text-center text-white/90 text-sm font-medium pointer-events-auto">
-          {popupImageIndex + 1} / {item.images.length}
+        <!-- Thumbnails - Fixed at bottom with improved spacing to avoid being hidden -->
+        <div class="fixed bottom-6 left-0 right-0 flex flex-col items-center pointer-events-auto z-[1030]">
+          <div class="flex justify-center space-x-3 overflow-x-auto py-2 px-4 bg-black/60 backdrop-blur-sm rounded-xl max-w-[90%] mx-auto">
+            {#each item.images as image, i}
+              <button 
+                class="h-16 w-16 flex-shrink-0 rounded-md overflow-hidden transition-all duration-200 
+                      {i === popupImageIndex ? 'ring-2 ring-indigo-400 scale-110 shadow-lg shadow-indigo-500/25' : 'opacity-60 hover:opacity-100 scale-100 hover:ring-1 hover:ring-indigo-400/50'}"
+                on:click|stopPropagation={() => {
+                  // Reset zoom when changing images via thumbnails 
+                  isZoomed = false;
+                  panPositionX = 0;
+                  panPositionY = 0;
+                  popupImageIndex = i;
+                }}
+              >
+                {#if typeof image === 'object' && image.image && image.image !== 'null' && image.image !== 'undefined'}
+                  <ResponsiveImage
+                    src={image.image}
+                    webpSrc={image.webp_url || ''}
+                    alt={`Thumbnail ${i + 1}`}
+                    className="h-full w-full object-cover"
+                    objectFit="cover"
+                    width={100}
+                    height={100}
+                    fallbackSrc="/placeholder.jpg"
+                    priority={i === popupImageIndex}
+                  />
+                {:else}
+                  <img
+                    src="/placeholder.jpg"
+                    alt={`Thumbnail ${i + 1}`}
+                    class="w-full h-full object-cover"
+                  />
+                {/if}
+              </button>
+            {/each}
+          </div>
+          
+          <!-- Image counter -->
+          <div class="mt-2 text-center text-white/90 text-sm font-medium">
+            {popupImageIndex + 1} / {item.images.length}
+          </div>
         </div>
       </div>
     </div>
@@ -1192,12 +1323,65 @@
     max-height: 80vh;
     object-fit: contain;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-    transition: transform 0.3s ease;
+    transform-origin: center center;
+    will-change: transform;
+    pointer-events: none;  /* Prevent image from capturing clicks */
+  }
+  
+  /* Ensure thumbnails are visible at the bottom */
+  @media (max-height: 700px) {
+    .carousel-image {
+      max-height: 65vh;
+    }
   }
   
   @media (min-width: 1024px) {
     .carousel-image {
-      max-height: 85vh;
+      max-height: 75vh;
     }
+  }
+
+  /* Add more space for thumbnails at the bottom */
+  [class*="fixed bottom-6"] {
+    bottom: 12px;
+    padding-bottom: 4px;
+    background: transparent;
+  }
+  
+  /* Make thumbnails container more visible with stronger backdrop */
+  [class*="fixed bottom-6"] > div {
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Prevent text selection during zoom & pan */
+  .carousel-image, [style*="cursor: move"] {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+  
+  /* Smoother transitions for zoom container */
+  .transition-transform {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform-style: preserve-3d;
+    /* Add GPU acceleration for smoother performance */
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
+    transform: translateZ(0);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Ensure image wrapper can handle large transforms */
+  [style*="transform: scale"] {
+    overflow: visible !important;
   }
 </style>
