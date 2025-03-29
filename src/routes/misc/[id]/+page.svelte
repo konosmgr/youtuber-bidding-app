@@ -197,7 +197,7 @@
 
   function selectImage(index) {
     if (index >= 0 && index < (item.images?.length || 0)) {
-      currentImageIndex = index;
+    currentImageIndex = index;
     } else {
       console.warn(`Invalid image index: ${index}`);
     }
@@ -364,7 +364,7 @@
     }
     
     try {
-      isSubmittingBid = true;
+    isSubmittingBid = true;
       console.log('Submitting bid for item:', item.id, 'amount:', bidAmount);
       
       // Get CSRF token from cookies
@@ -435,8 +435,8 @@
           webp_url: img.webp_url || '',
           width: img.width || 800,
           height: img.height || 600
-        };
-      });
+    };
+  });
     } else if (item.image && item.image !== 'null' && item.image !== 'undefined') {
       images = [{ image: item.image, width: 800, height: 600 }];
     } else if (item.thumbnail && item.thumbnail !== 'null' && item.thumbnail !== 'undefined') {
@@ -480,7 +480,7 @@
 
 <div class="min-h-screen bg-gradient-to-br from-slate-900 to-slate-950 p-4 md:p-8">
   <div class="container mx-auto max-w-7xl">
-    <button
+  <button
       on:click={() => window.history.back()}
       class="mb-6 flex items-center text-white transition-colors hover:text-indigo-300"
     >
@@ -491,15 +491,15 @@
           stroke-width="2"
           d="M10 19l-7-7m0 0l7-7m-7 7h18"
         />
-      </svg>
+    </svg>
       Back to Auctions
-    </button>
+  </button>
 
-    {#if loading}
+  {#if loading}
       <div class="text-center text-xl text-white">Loading auction details...</div>
-    {:else if error}
+  {:else if error}
       <div class="text-center text-xl text-red-400">{error}</div>
-    {:else if item}
+  {:else if item}
       <!-- New 3-column layout for larger screens, 1-column for mobile -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- Main image and card - spans 6 columns on large screens -->
@@ -559,12 +559,12 @@
                    style:transition={getItemStyle(zValues.imageBase).transition}>
                 <div class="relative h-full w-full overflow-hidden rounded-xl bg-gradient-to-b from-indigo-900/20 to-black/50">
                 {#if item.images?.length > 0 && currentImage}
-                  <ResponsiveImage
+                      <ResponsiveImage
                     src={currentImage.image}
                     webpSrc={currentImage.webp_url || ''}
                     width={currentImage.width || 800}
                     height={currentImage.height || 600}
-                    alt={item.title}
+                        alt={item.title}
                     className="w-full h-full object-cover absolute inset-0 rounded-xl cursor-pointer"
                     objectFit="cover"
                     fallbackSrc="/placeholder.jpg"
@@ -573,7 +573,7 @@
                     on:click={openImagePopup}
                     on:error={handleImageError}
                   />
-                {:else}
+                  {:else}
                   <img
                     src="/placeholder.jpg"
                     alt={item.title}
@@ -626,9 +626,9 @@
                       {/if}
                     </div>
                   {/each}
-                </div>
-              {/if}
-              
+                    </div>
+                  {/if}
+                  
               {#if isHovering}
                 {#each Array(7) as _, i}
                   <div class="absolute w-2 h-2 rounded-full bg-white/30"
@@ -694,9 +694,9 @@
                 class="mb-3">
               <p class="text-indigo-300 text-sm font-medium">
               {item.category.name}
-              </p>
-              </div>
-
+                    </p>
+                  </div>
+                  
               <div style:transform={getItemStyle(zValues.specs, {
                   yOffset: isHovering ? -3 : 0,
                   delay: 0.1,
@@ -707,8 +707,8 @@
               <p class="text-white/80 text-xs sm:text-sm line-clamp-2">
               {item.description}
               </p>
-              </div>
-
+                  </div>
+                  
               <!-- Positioned current bid price more prominently -->
               <div style:transform={getItemStyle(zValues.priceTag, {
                   scale: isHovering ? breathingAnimation(currentTime, 1, 1.08) : 1,
@@ -725,7 +725,7 @@
                     scale: isHovering ? 1 + Math.sin(currentTime * 6) * 0.05 : 1
                   }).transform}>
               {timeRemaining?.isExpired ? "Final Bid: " : "Current Bid: "}{formatPrice(item.current_price)}
-              </div>
+                    </div>
               </div>
 
               <div class="relative z-[120] mt-2 pointer-events-none" on:click={stopPropagation}
@@ -745,13 +745,13 @@
               <p class="text-center text-sm text-white/80">
                 Auction Ended
               </p>
-              {/if}
-              </div>
+                  {/if}
+                </div>
               </div>
             </svelte:fragment>
           </Enhanced3DCard>
         </div>
-
+        
         <!-- Right column for auction info and bid history - spans 6 columns -->
         <div class="lg:col-span-6 flex flex-col gap-6">
           <!-- Auction Details Card - More compact -->
@@ -760,9 +760,9 @@
               <h2 class="text-2xl font-bold text-white">{item.title}</h2>
               <div class="text-sm rounded-full px-3 py-1 bg-indigo-900/50 border border-indigo-500/30 text-indigo-200">
                 {item.category?.name || 'Knife'}
-              </div>
-            </div>
-            
+          </div>
+      </div>
+      
             <!-- Time remaining countdown -->
             <div class="mb-4">
               <p class="text-sm text-indigo-300 mb-2">Time Remaining:</p>
@@ -770,7 +770,7 @@
                 <div class="bg-indigo-900/30 border border-indigo-500/20 rounded-lg p-2 text-center">
                   <div class="text-xl font-bold text-white">{timeRemaining?.isExpired ? 0 : timeRemaining?.days || 0}</div>
                   <div class="text-xs text-indigo-300">Days</div>
-                </div>
+        </div>
                 <div class="bg-indigo-900/30 border border-indigo-500/20 rounded-lg p-2 text-center">
                   <div class="text-xl font-bold text-white">{timeRemaining?.isExpired ? 0 : timeRemaining?.hours || 0}</div>
                   <div class="text-xs text-indigo-300">Hours</div>
@@ -784,8 +784,8 @@
                   <div class="text-xs text-indigo-300">Seconds</div>
                 </div>
               </div>
-            </div>
-            
+          </div>
+          
             <!-- Price information -->
             <div class="flex justify-between items-center mb-4">
               <div>
@@ -796,8 +796,8 @@
                 <p class="text-sm text-indigo-300">{timeRemaining?.isExpired ? "Final Bid:" : "Current Bid:"}</p>
                 <p class="text-2xl font-bold text-white">{formatPrice(item.current_price)}</p>
               </div>
-            </div>
-            
+          </div>
+          
             <!-- Description - Moved from bottom to here for better visibility -->
             <div class="mb-4">
               <h3 class="text-lg font-bold text-white mb-2">Description</h3>
@@ -820,14 +820,14 @@
                       placeholder="Enter bid amount"
                     />
                     <div class="absolute inset-y-0 right-0 flex">
-                      <button
+            <button
                         on:click={decrementBid}
                         class="px-2 text-white hover:text-indigo-300 transition-colors"
-                      >
+            >
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
                         </svg>
-                      </button>
+            </button>
                       <button
                         on:click={incrementBid}
                         class="px-2 text-white hover:text-indigo-300 transition-colors"
@@ -836,8 +836,8 @@
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
                       </button>
-                    </div>
-                  </div>
+            </div>
+            </div>
                   <button
                     on:click={submitBid}
                     disabled={isSubmittingBid}
@@ -857,10 +857,10 @@
                         Processing...
                       {:else}
                         Place Bid
-                      {/if}
-                    </span>
+          {/if}
+              </span>
                   </button>
-                </div>
+            </div>
                 <p class="text-xs text-indigo-200 mb-3">
                   Minimum bid: {formatPrice(Math.ceil(item.current_price) + 1)}
                 </p>
@@ -878,9 +878,9 @@
                 <p class="text-xs text-white/70 mb-3 text-center">
                   You must be logged in to place a bid
                 </p>
-              {/if}
+          {/if}
             {/if}
-
+            
             <!-- Share button -->
             <div class="flex justify-between items-center">
               <div class="text-sm text-white/80">
@@ -904,8 +904,8 @@
                 </svg>
                 Share
               </button>
-            </div>
-          </div>
+              </div>
+              </div>
 
           <!-- Bid History - Now at the top of the right column -->
           {#if item.bids?.length > 0}
@@ -933,19 +933,19 @@
                             <span class="rounded bg-green-900/30 border border-green-500/30 px-2 py-0.5 text-xs text-green-400">
                               Highest
                             </span>
-                          {/if}
-                          
+            {/if}
+            
                           {#if isRepeatBidder}
                             <span class="rounded bg-indigo-900/30 border border-indigo-500/30 px-2 py-0.5 text-xs text-indigo-400">
                               Returning
                             </span>
-                          {/if}
+            {/if}
                         </div>
                         <p class="text-xs text-white/50">
                           {new Date(bid.created_at).toLocaleString()}
                         </p>
-                      </div>
-                      
+          </div>
+          
                       <div class="text-right">
                         <span class="text-lg font-bold text-white">
                           {formatPrice(bid.amount)}
@@ -953,14 +953,14 @@
                         {#if i < item.bids.length - 1}
                           <div class="text-xs text-green-400">
                             +${(bid.amount - item.bids[i + 1].amount).toFixed(2)}
-                          </div>
-                        {/if}
-                      </div>
+            </div>
+          {/if}
+        </div>
                     </div>
                   {/each}
+                  </div>
+                  </div>
                 </div>
-              </div>
-            </div>
           {:else}
             <div class="rounded-lg backdrop-blur-md bg-white/5 p-5 border border-indigo-500/20 shadow-lg">
               <h3 class="text-xl font-bold text-white mb-3">Bid History</h3>
@@ -973,11 +973,11 @@
             <div class="rounded-lg backdrop-blur-md bg-white/5 p-5 border border-indigo-500/20 shadow-lg">
               <h3 class="text-xl font-bold text-white mb-3">Watch Video</h3>
               <YouTubeEmbed youtubeUrl={item.youtube_url} />
-            </div>
-          {/if}
         </div>
+          {/if}
       </div>
-    {/if}
+    </div>
+  {/if}
   </div>
 </div>
 
@@ -1001,23 +1001,23 @@
       <!-- Close button -->
       <button 
         class="absolute top-4 right-4 z-[1020] text-white bg-black/50 hover:bg-black/80 rounded-full p-2 transition-colors shadow-lg hover:scale-105 pointer-events-auto"
-        on:click={closeImagePopup}
-      >
+    on:click={closeImagePopup}
+  >
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
         </svg>
       </button>
 
       <!-- Navigation buttons -->
-      <button 
+    <button 
         class="absolute left-4 top-1/2 -translate-y-1/2 z-[1020] text-white bg-black/50 hover:bg-black/70 rounded-full p-3 transition-all shadow-lg hover:scale-110 hover:bg-indigo-900/70 pointer-events-auto"
         on:click={e => {e.stopPropagation(); navigatePopupImage('prev');}}
-      >
+    >
         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-        </svg>
-      </button>
-      
+      </svg>
+    </button>
+    
       <button 
         class="absolute right-4 top-1/2 -translate-y-1/2 z-[1020] text-white bg-black/50 hover:bg-black/70 rounded-full p-3 transition-all shadow-lg hover:scale-110 hover:bg-indigo-900/70 pointer-events-auto"
         on:click={e => {e.stopPropagation(); navigatePopupImage('next');}}

@@ -4,6 +4,52 @@
 The project is a SvelteKit application for "Betting on Alaska Auctions" - a youtuber bidding platform. The application provides an interface for users to participate in auctions related to various categories including general auctions, knives, art, and miscellaneous items.
 
 ### Recent Changes
+- Standardized the site background to use BeamsBackground across all pages:
+  - Modified the main layout to use BeamsBackground consistently throughout the site
+  - Removed route-specific Three.js backgrounds to create a more unified visual experience
+  - Maintained the Three.js showcase page's unique background handling for demonstration purposes
+  - Simplified background logic in the main layout file
+- Enhanced Three.js backgrounds showcase with improved effects:
+  - Improved the wave background with more complex animations, realistic effects, and better gradient colors
+  - Enhanced the landscape background with more detailed terrain, realistic mountain shapes, fog, and a starfield
+  - Added a new smoke background effect with interactive particles that respond to mouse movement
+  - Created a more advanced showcase control panel with additional parameters for each background
+  - Added mobile-specific optimizations to automatically reduce complexity on smaller devices
+  - Implemented detailed color control panels for all background types
+  - Added a smoke texture image to enhance particle effects
+  - Updated code snippets generator to display the current configuration for all background types
+- Added Three.js backgrounds showcase and integration:
+  - Created an interactive showcase page at `/x/threejs` to demonstrate and configure Three.js backgrounds
+  - Added URL parameter support for sharing specific background configurations
+  - Implemented live controls for customizing particle count, colors, speeds, and other parameters
+  - Added code snippets generator that displays the configuration code for current settings
+  - Created a cleaner URL redirect at `/x/three` that points to the showcase
+  - Added detailed documentation on how to use the Three.js backgrounds in other components 
+  - Implemented responsive design with mobile-specific optimizations
+- Added multiple Three.js background effects that can be used throughout the site:
+  - Created `ThreeJSBackground.svelte` component with animated particles that respond to mouse movement
+  - Added `ThreeJSWaveBackground.svelte` component with smooth gradient wave animation using GLSL shaders
+  - Implemented `ThreeJSLandscape.svelte` component featuring a low-poly terrain with 3D lighting effects
+  - Created `ThreeJSBackgroundController.svelte` to manage different background types with a unified interface
+  - Integrated Three.js backgrounds with route-specific settings in the main layout
+  - Implemented performance optimizations for mobile devices (reduced particle count, segment count)
+  - Added proper cleanup functions to prevent memory leaks with requestAnimationFrame
+  - Used WebGL for GPU-accelerated animations that won't impact main thread performance
+- Added a comprehensive Enhanced3DCard showcase at `/x/9`:
+  - Created a sleek marketing-focused showcase with multiple card examples
+  - Demonstrated different styles and color themes with the same component
+  - Included detailed feature explanations and customization options
+  - Added extensive documentation of component props and their default values
+  - Showcased interactive animations based on hover state with sine/cosine wave functions
+  - Added elegant call-to-action section for potential component buyers
+- Added a new, improved 3D Card showcase with robust Z-transforms:
+  - Created a dedicated Z-depth demonstration page at `/x/6` with proper 3D transforms
+  - Added interactive controls to adjust Z-position of each element in real-time
+  - Implemented visual feedback tools including debug grid and Z-position indicators
+  - Fixed issues with previous implementations to ensure proper 3D depth perception
+  - Enhanced user experience with smooth transitions and clear visual hierarchy
+  - Added ability to toggle visibility of individual elements to focus on specific aspects
+  - Created an educational tool for understanding how Z-transforms work in CSS
 - Fixed routing issues in AuctionCard component:
   - Modified AuctionCard.svelte to dynamically determine category URL paths instead of hardcoding to knife/[id]
   - Added category information to the items in all three category pages (knives, paint, misc)
@@ -236,6 +282,8 @@ The project follows a typical SvelteKit structure:
   - `showcase2/+page.svelte` - A page featuring an interactive "HOLD TO INTERACT" button effect inspired by Utsubo's website
   - `showcase2/+layout.svelte` - A clean layout for the showcase2 page that isolates its styles from the rest of the application
   - `showcase4/+page.svelte` - A page featuring the exact implementation of Utsubo's contact button with letter hover animations
+  - `x/9/+page.svelte` - Marketing showcase for the Enhanced3DCard component with multiple examples and documentation
+  - `x/threejs/+page.svelte` - Interactive showcase for Three.js background effects with live configuration controls
   - Various route folders containing page components and logic
   - `enhanced-3d-showcase5/` - Demo page for the 3D card component
   - `knives/+page.svelte` - Knives page using the AuctionCard component for current auctions and PastAuctionCard for past auctions with teal accents and enhanced staggered animations
@@ -255,6 +303,12 @@ The project follows a typical SvelteKit structure:
       - `Glowing-Effect/GlowingEffect.svelte` - Interactive glowing border effect
       - `Focus/FocusCard.svelte` and `Focus/Card.svelte` - Interactive cards with focus effects
       - `3d-card/hybridcards/Enhanced3DCard.svelte` - Advanced 3D card transformation component
+      - `3JS/` - Three.js background components
+        - `ThreeJSBackgroundController.svelte` - Main controller component for managing different Three.js backgrounds
+        - `ThreeJSParticleBackground.svelte` - Interactive particle effect with customizable settings
+        - `ThreeJSWaveBackground.svelte` - Animated wave effect with gradient colors and interactive water movement
+        - `ThreeJSLandscape.svelte` - Low-poly terrain with detailed mountain generation, fog, and starfield
+        - `ThreeJSSmokeBackground.svelte` - Smoke/fog particle effect with turbulence and interactive mouse influence
       - `AuctionCard.svelte` - Reusable auction card component with 3D effects and auction-specific UI
       - `PastAuctionCard.svelte` - Specialized card component with dual badges, text truncation, and optimized layout to prevent content cropping
       - `HoverTextButton.svelte` - Reusable button component that implements the Utsubo-style letter hover animation effect with customizable properties
@@ -269,6 +323,8 @@ The project follows a typical SvelteKit structure:
   - `images/` - Image assets for the application
     - Former background images and pattern SVGs
     - Profile card images for the FocusCard component
+  - `textures/` - Texture assets for Three.js components
+    - `smoke.png` - Particle texture used in the smoke background effect
 
 ## Features
 - Authentication system with user login/registration
@@ -300,6 +356,11 @@ The project follows a typical SvelteKit structure:
 - `Navbar.svelte` - Redesigned navigation component with glass-morphic effects, scroll animations, and improved mobile experience
 - `NicknameCheckWrapper.svelte` - A wrapper component that checks for user nicknames
 - `Enhanced3DCard.svelte` - A component for creating interactive 3D card effects with layering capabilities
+- `ThreeJSBackgroundController.svelte` - A controller component for managing different Three.js background effects
+  - `ThreeJSParticleBackground.svelte` - Interactive 3D particle effect with customizable colors and movement
+  - `ThreeJSWaveBackground.svelte` - Animated wave simulation with gradient colors and interactive water movement
+  - `ThreeJSLandscape.svelte` - Low-poly terrain generator with mountains, fog effects, and animated starfield
+  - `ThreeJSSmokeBackground.svelte` - Volumetric smoke/fog effect with turbulence patterns and mouse interactivity
 - `Contact Button Effect` - A component that demonstrates the Utsubo-style contact button with letter animations on hover
 - `Interactive Button Effect` - A showcase component featuring a "HOLD TO INTERACT" button with progress indication, expanding animations, and particle effects
 - `AuctionCard.svelte` - A reusable auction-specific card component with advanced 3D effects, time-based animations, and realistic depth perception using sine/cosine wave functions and floating particles
@@ -308,3 +369,75 @@ The project follows a typical SvelteKit structure:
 - `GlowingEffect.svelte` - A component that adds an interactive glowing border to elements
 - `FocusCard.svelte` - A component that creates a gallery of cards where the focused card stands out while others blur
 - `Showcase Water Effect`
+
+# 3D Card Component Project State
+
+## Project Overview
+This project implements advanced 3D card components with staggered animation effects, designed to create premium interactive UI experiences.
+
+## Component Structure
+
+### Base Components
+- `Enhanced3DCard.svelte` - The core 3D card component with extensive customization options
+  - Location: `src/lib/components/test-components/Enhanced3DCard.svelte`
+  - Features: Customizable z-depths, hover amplification, perspective, rotation, etc.
+
+### Specialized Components
+- `StaggeredCard.svelte` - Basic implementation with true staggered animation effects
+  - Location: `src/lib/components/test-components/StaggeredCard.svelte`
+  - Features: Different stagger directions, z-behaviors, custom delay timing
+
+- `StaggeredProductCard.svelte` - Advanced product card with staggered animations
+  - Location: `src/lib/components/test-components/StaggeredProductCard.svelte`
+  - Features: Product display with interactive elements, color selectors, detailed product info
+
+## Showcase Routes
+- `/x/9` - Marketing showcase for the Enhanced3DCard component
+  - Location: `src/routes/x/9/+page.svelte`
+  - Features: Multiple themed examples, component documentation, customization options overview
+
+- `/x/7` - Showcase for the basic StaggeredCard with adjustable parameters
+  - Location: `src/routes/x/7/+page.svelte`
+  - Features: Interactive controls for stagger timing, direction, z-behavior
+
+- `/x/8` - Advanced product card showcase with multiple product examples
+  - Location: `src/routes/x/8/+page.svelte`
+  - Features: Product selector, animation controls, detailed technical explanation
+
+## Key Innovations
+
+1. **True Staggered Animations**
+   - Elements animate with precisely timed, sequential delays
+   - Animation direction is configurable (forward, reverse, from-center)
+
+2. **Z-Behavior Modes**
+   - `flat` - Elements have no Z depth until hover (Aceternity UI style)
+   - `hybrid` - Background elements have depth, foreground elements flat until hover
+   - `subtle` - All elements have some depth, enhanced on hover
+
+3. **Coordinated Animation System**
+   - X, Y, and Z transformations synchronized with the same staggered timing
+   - Opacity and scaling integrated into the animation system
+
+4. **Interactive Elements**
+   - Functional controls within the 3D space
+   - Working with proper pointer events despite the 3D transformations
+
+## Future Development
+
+1. **Additional Card Variants**
+   - Gallery card with multiple images and navigation
+   - Comparison card for showing before/after or product alternatives
+   - Timeline/process card with step-by-step animations
+
+2. **Optimization Opportunities**
+   - Mobile-specific versions with reduced effects for better performance
+   - Lazy animation initialization for pages with many cards
+
+3. **Accessibility Improvements**
+   - Keyboard navigation support
+   - Reduced motion options for users with motion sensitivity
+
+4. **Documentation**
+   - Create comprehensive API documentation
+   - Add examples for common use cases
