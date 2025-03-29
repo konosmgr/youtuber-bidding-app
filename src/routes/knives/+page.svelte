@@ -261,115 +261,6 @@
     }).format(price);
   }
 
-  function updateAllTimers() {
-    items = items.map(item => ({
-      ...item,
-      timeRemaining: getTimeRemaining(item.end_date),
-    }));
-  }
-
-  // Add the missing updateTimeRemaining function
-  function updateTimeRemaining(itemsToUpdate) {
-    return itemsToUpdate.map(item => ({
-      ...item,
-      timeRemaining: getTimeRemaining(item.end_date)
-    }));
-  }
-
-  $: sortedItems = items ? sortItems(items, sortOption) : [];
-  $: filteredItems = sortedItems.filter(
-    item =>
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Handle bid events
-  function handleBid(event) {
-    // Find the item and navigate to its page
-    const item = filteredItems.find(i => 
-      i.id === event.detail.itemId || 
-      (i.id && i.id.toString() === event.detail.itemId)
-    );
-    
-    if (item) {
-      const categoryPath = getCategoryPath(item);
-      window.location.href = `${categoryPath}/${item.id}`;
-    }
-  }
-  
-  // Handle watchlist events
-  function handleWatchlist(event) {
-    // Here you would add the item to the user's watchlist
-  }
-
-  // Handle image click events - navigates to the specific auction
-  function handleImageClick(event) {
-    console.log('Page: Image Click Event', event.detail.itemId);
-    // Find the item and navigate to its page
-    const item = filteredItems.find(i => 
-      i.id === event.detail.itemId || 
-      (i.id && i.id.toString() === event.detail.itemId)
-    );
-    
-    if (item) {
-      const categoryPath = getCategoryPath(item);
-      window.location.href = `${categoryPath}/${item.id}`;
-    } else {
-      console.error('Item not found for ID:', event.detail.itemId);
-    }
-  }
-
-  // Handle card click events - same behavior as image click
-  function handleCardClick(event) {
-    // Find the item and navigate to its page
-    const item = filteredItems.find(i => 
-      i.id === event.detail.itemId || 
-      (i.id && i.id.toString() === event.detail.itemId)
-    );
-    
-    if (item) {
-      const categoryPath = getCategoryPath(item);
-      window.location.href = `${categoryPath}/${item.id}`;
-    }
-  }
-
-  // Handle image click events for past auctions
-  function handlePastImageClick(event) {
-    // Find the item in pastItems and navigate to its page
-    const item = pastItems.find(i => 
-      i.id === event.detail.itemId || 
-      (i.id && i.id.toString() === event.detail.itemId)
-    );
-    
-    if (item) {
-      const categoryPath = getCategoryPath(item);
-      window.location.href = `${categoryPath}/${item.id}`;
-    }
-  }
-
-  // Determine the correct category path based on the item
-  function getCategoryPath(item) {
-    if (item.category === 'MISC' || 
-       (item.category && typeof item.category === 'object' && item.category.code === 'MISC')) {
-      return '/misc';
-    } else if (item.category === 'PAINT' || 
-              (item.category && typeof item.category === 'object' && item.category.code === 'PAINT')) {
-      return '/paint';
-    } else {
-      // Default to knife category
-      return '/knife';
-    }
-  }
-
-  // Handle hover state changes for 3D cards
-  function handleHoverChange(itemId, event) {
-    if (event.detail.isHovering) {
-      currentHoverCard = itemId;
-    } else if (currentHoverCard === itemId) {
-      currentHoverCard = null;
-    }
-  }
-  
   // Extract relevant specs from item description
   function extractSpecs(item) {
     let specs = [];
@@ -401,21 +292,6 @@
     return specs.length > 0 ? specs : ['Knife auction', 'Final sale', 'No returns'];
   }
   
-  // Get main image from item
-  function getMainImage(item) {
-    if (item.images && item.images.length > 0) {
-      const mainImage = item.images.find(img => 
-        img.image && img.is_primary
-      ) || item.images[0];
-      
-      if (mainImage?.image) {
-        return mainImage.image;
-      }
-    }
-    
-    return item.thumbnail || '/placeholder.jpg';
-  }
-  
   // Create color assignment for consistent colors
   function getItemColor(item) {
     const colors = [
@@ -431,26 +307,24 @@
     const colorIndex = Math.abs(idNum % colors.length);
     return colors[colorIndex];
   }
-  
-  // Handle image error
-  function handleImageError(e) {
-    e.currentTarget.src = '/placeholder.jpg';
+
+  // Setup timer to update time remaining
+  function setupTimer() {
+    updateTimeRemaining();
+    timerInterval = setInterval(updateTimeRemaining, 1000);
   }
 
-  onMount(async () => {
-    try {
-      await loadItems();
-      await loadPastItems(); // Load past items with improved image handling
-      
-      timerInterval = setInterval(() => {
-        // Update timers
-        if (items.length > 0) {
-          items = updateTimeRemaining(items);
-        }
-      }, 60000); // Update every minute
-    } catch (error) {
-      console.error("Error during initialization:", error);
-    }
+  function updateTimeRemaining() {
+    items = items.map(item => ({
+      ...item,
+      timeRemaining: getTimeRemaining(item.end_date),
+    }));
+  }
+
+  onMount(() => {
+    loadItems();
+    loadPastItems();
+    setupTimer();
   });
 
   onDestroy(() => {
@@ -458,169 +332,135 @@
   });
 </script>
 
-<div class="container mx-auto py-8">
-  <!-- Simple minimal header -->
-  <div class="cool-header mb-16 px-4 py-8 flex items-center">
-    <h1 class="text-4xl font-bold text-white">Knives</h1>
-    <div class="ml-4 px-3 py-1 bg-blue-500 rounded text-sm font-medium text-white inline-flex items-center">
-      <span class="mr-1">●</span> Auction
-    </div>
+<svelte:head>
+  <title>Knives | Alaska Auctions</title>
+  <meta name="description" content="Bid on exclusive Alaska youtuber knives" />
+</svelte:head>
+
+<div class="container mx-auto px-4 py-8">
+  <div class="flex flex-col space-y-4 mb-12">
+    <h1 class="text-4xl font-bold text-amber-500">Knives</h1>
+    <p class="text-gray-300 max-w-3xl">
+      Bid on unique knives from your favorite Alaska youtubers. Each piece has been used on authentic Alaskan adventures
+      and comes with a story from the Last Frontier.
+    </p>
   </div>
-
-  {#if loading}
-    <div class="text-center text-xl text-white/80">Loading auctions...</div>
-  {:else if error}
-    <div class="text-center text-xl text-red-600">{error}</div>
-  {:else if filteredItems.length === 0}
-    <div class="text-center text-xl text-white/80">No knives available at the moment. Check back soon!</div>
-  {:else}
-    <div class="mb-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
-      <div class="relative w-full sm:w-96">
-        <input
-          type="text"
-          bind:value={searchTerm}
-          placeholder="Search..."
-          class="w-full rounded-lg bg-white/90 px-4 py-2.5 pl-10 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <svg
-          class="absolute left-3 top-3 h-5 w-5 text-gray-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
-      </div>
-
+  
+  <!-- Controls -->
+  <div class="flex flex-col md:flex-row justify-between mb-8 gap-4">
+    <div class="w-full md:w-64">
+      <input
+        type="text"
+        bind:value={searchTerm}
+        placeholder="Search knives..."
+        class="w-full rounded-lg bg-gray-900/80 border border-gray-700 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+    
+    <div class="flex space-x-4 items-center">
+      <label for="sort" class="text-gray-300 whitespace-nowrap">Sort by:</label>
       <select
+        id="sort"
         bind:value={sortOption}
-        class="rounded-lg border bg-white/90 px-4 py-2.5 text-gray-700 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="rounded-lg bg-gray-900/80 border border-gray-700 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         <option value="ending-soon">Ending Soon</option>
-        <option value="price-high">Price: High to Low</option>
-        <option value="price-low">Price: Low to High</option>
-        <option value="newest">Newest First</option>
+        <option value="price-high">Highest Price</option>
+        <option value="price-low">Lowest Price</option>
+        <option value="newest">Newest</option>
       </select>
     </div>
-
-    <!-- Real auctions grid with AuctionCard - Premium Layout -->
-    <div class="grid grid-cols-1 gap-12 md:grid-cols-3">
-      <!-- Style-specific card sections -->
-      {#if filteredItems.length > 0}
-        {#each filteredItems.slice(0, 3) as item, i}
-          <div class="card-wrapper perspective-container">
-            <AuctionCard 
-              item={mapItemToAuctionCard(item)}
-              cardHeight="h-[500px]"
-              hoverScale={1.1}
-              on:bid={handleBid}
-              on:watchlist={handleWatchlist}
-              on:imageClick={handleImageClick}
-              on:cardClick={handleCardClick}
+  </div>
+  
+  <!-- Current Auctions -->
+  <h2 class="text-2xl font-semibold text-amber-500 mb-6">Current Auctions</h2>
+  
+  {#if loading}
+    <div class="flex justify-center py-20">
+      <div class="loader">Loading...</div>
+    </div>
+  {:else if error}
+    <div class="bg-red-900/30 border border-red-800 text-red-200 p-4 rounded-lg">
+      {error}
+    </div>
+  {:else if items.length === 0}
+    <div class="bg-gray-900/50 border border-gray-800 text-gray-300 p-8 rounded-lg text-center">
+      <p class="text-xl mb-2">No active knife auctions currently</p>
+      <p>Check back soon for new items or browse our past auctions below!</p>
+    </div>
+  {:else}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-16">
+      {#each items.filter(item => item.title.toLowerCase().includes(searchTerm.toLowerCase()) || item.description.toLowerCase().includes(searchTerm.toLowerCase())) as item (item.id)}
+        <div transition:fade={{ duration: 300 }} class="card-wrapper perspective-container">
+          <AuctionCard
+            item={mapItemToAuctionCard(item)}
+            cardHeight="h-[500px]"
+            hoverScale={1.1}
+            href={`/knives/${item.id}`}
+          />
+        </div>
+      {/each}
+    </div>
+  {/if}
+  
+  <!-- Past Auctions Toggle -->
+  <div class="flex items-center mb-6 gap-4">
+    <h2 class="text-2xl font-semibold text-amber-500">Past Auctions</h2>
+    <button 
+      on:click={() => showPastAuctions = !showPastAuctions}
+      class="text-sm text-gray-300 bg-gray-800/80 hover:bg-gray-700/80 px-3 py-1 rounded-full transition"
+    >
+      {showPastAuctions ? 'Hide' : 'Show'}
+    </button>
+  </div>
+  
+  <!-- Past Auctions -->
+  {#if showPastAuctions}
+    {#if loadingPast}
+      <div class="flex justify-center py-20">
+        <div class="loader">Loading...</div>
+      </div>
+    {:else if pastError}
+      <div class="bg-red-900/30 border border-red-800 text-red-200 p-4 rounded-lg mb-16">
+        {pastError}
+      </div>
+    {:else if pastItems.length === 0}
+      <div class="bg-gray-900/50 border border-gray-800 text-gray-300 p-8 rounded-lg text-center mb-16">
+        <p>No past knife auctions found.</p>
+      </div>
+    {:else}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-16">
+        {#each pastItems.filter(item => item.title.toLowerCase().includes(searchTerm.toLowerCase()) || item.description.toLowerCase().includes(searchTerm.toLowerCase())) as item (item.id)}
+          <div transition:fade={{ duration: 300 }} class="auction-card-wrapper">
+            <PastAuctionCard 
+              item={item}
+              cardHeight="h-[450px]"
+              hoverScale={1.08}
+              containerClass="z-10"
             />
           </div>
         {/each}
-      {/if}
-    </div>
-    
-    <!-- Additional items in standard grid if more than 3 -->
-    {#if filteredItems.length > 3}
-      <div class="mt-16">
-        <h2 class="text-3xl font-bold text-white mb-8">More Auctions</h2>
-        <div class="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-3">
-          {#each filteredItems.slice(3) as item}
-            <div class="card-wrapper perspective-container">
-              <AuctionCard 
-                item={mapItemToAuctionCard(item)}
-                cardHeight="h-[500px]"
-                hoverScale={1.1}
-                on:bid={handleBid}
-                on:watchlist={handleWatchlist}
-                on:imageClick={handleImageClick}
-                on:cardClick={handleCardClick}
-              />
-            </div>
-          {/each}
-        </div>
       </div>
     {/if}
   {/if}
-  
-  <!-- Past Auctions Section -->
-  <div class="mt-24 mb-20">
-    <div class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div class="flex items-center mb-8">
-        <h2 class="text-3xl font-bold text-white tracking-tight">Past Auctions</h2>
-        <div class="ml-4 h-0.5 flex-1 bg-indigo-900/50 rounded-full"></div>
-      </div>
-
-      <p class="text-gray-400 mb-10">Check out previously sold items.</p>
-      
-      <!-- Subtle background for past auctions section -->
-      <div class="bg-black/30 backdrop-blur-lg rounded-xl p-6 sm:p-8 border border-indigo-900/20 shadow-xl relative overflow-hidden">
-        <!-- Decorative teal accent elements -->
-        <div class="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-2xl"></div>
-        <div class="absolute -bottom-20 -left-20 w-60 h-60 bg-indigo-500/5 rounded-full blur-3xl"></div>
-        
-        {#if loadingPast}
-          <div class="text-center py-10">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-400"></div>
-            <p class="mt-2 text-gray-400">Loading past auctions...</p>
-          </div>
-        {:else if pastError}
-          <div class="bg-red-500/10 backdrop-blur-sm rounded-lg p-4 text-center">
-            <p class="text-red-400">{pastError}</p>
-          </div>
-        {:else if pastItems.length === 0}
-          <div class="bg-gray-800/30 backdrop-blur-sm rounded-lg p-8 text-center">
-            <p class="text-gray-400">No past auctions available.</p>
-          </div>
-        {:else}
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 px-2 py-4" transition:fade={{ duration: 800 }}>
-            {#each pastItems as item, i (item.id)}
-              <div 
-                class="auction-card-wrapper transform transition-all"
-                style="--index: {i}; 
-                       animation: staggerFadeIn 800ms calc(150ms * var(--index)) both;
-                       transform-origin: center;"
-              >
-                <PastAuctionCard {item} cardHeight="h-[450px]" hoverScale={1.08} containerClass="z-10" on:imageClick={handlePastImageClick} />
-              </div>
-            {/each}
-          </div>
-        {/if}
-      </div>
-    </div>
-  </div>
 </div>
 
 <style>
-  /* Add animation for the gradient background */
-  @keyframes gradient-x {
-    0%, 100% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
+  .loader {
+    border: 5px solid rgba(59, 130, 246, 0.1);
+    border-radius: 50%;
+    border-top: 5px solid rgba(59, 130, 246, 0.8);
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
   }
   
-  .animate-gradient-x {
-    animation: gradient-x 15s ease infinite;
-    background-size: 200% 100%;
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
   
-  .premium-header {
-    box-shadow: 0 10px 30px -5px rgba(2, 8, 23, 0.6);
-    border: 1px solid rgba(99, 102, 241, 0.1);
-  }
-  
-  /* Update card styling to ensure proper 3D rendering */
+  /* Add card styling to ensure proper 3D rendering */
   .perspective-container {
     perspective: 2000px;
     margin: 2rem 0;
@@ -638,105 +478,8 @@
     position: relative;
     z-index: 10;
   }
-
-  /* Make sure this also applies to child elements */
-  :global(.card-wrapper > *) {
-    overflow: visible !important;
-  }
-  
-  /* Ensure grid has enough space for 3D effects */
-  .grid {
-    overflow: visible !important;
-    padding: 2rem 1rem;
-    margin-bottom: 2rem;
-    position: relative;
-    z-index: 1;
-  }
   
   /* Card styling for past auctions */
-  .card-container {
-    perspective: 1500px;
-    transform-style: preserve-3d; 
-    transition: opacity 0.5s ease;
-    /* Critical: Ensure 3D effects aren't clipped */
-    overflow: visible !important;
-    /* Add margin to create space between cards */
-    margin: 1rem;
-    /* Ensure z-index works properly */
-    isolation: isolate;
-    position: relative;
-    z-index: 10;
-  }
-  
-  /* Target child elements to ensure they don't clip */
-  .card-container > * {
-    overflow: visible !important;
-  }
-  
-  /* Card layer styles with proper border radius but no overflow hidden */
-  .card-base, .card-pattern, .card-image, .card-glow {
-    border-radius: 1rem;
-  }
-  
-  /* Text shadow for better readability */
-  .text-shadow-sharp {
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-    font-weight: 700;
-    letter-spacing: -0.01em;
-  }
-  
-  /* Button hover effects */
-  .details-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(107, 114, 128, 0.5);
-  }
-  
-  /* Dot pattern background */
-  .pattern-dots {
-    background-image: radial-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px);
-    background-size: 20px 20px;
-  }
-  
-  /* Fix 3D transforms */
-  :global(.past-auction-card),
-  :global(.enhanced-card) {
-    border-radius: 1rem;
-    overflow: visible !important;
-    position: relative;
-    z-index: 5;
-  }
-  
-  :global(.past-auction-card *),
-  :global(.enhanced-card *) {
-    transform-style: preserve-3d !important;
-  }
-  
-  /* Critical fix: Ensure the Enhanced3DCard component wrapper is properly styled */
-  :global(.enhanced-card-wrapper) {
-    border-radius: 1rem !important;
-    overflow: visible !important;
-  }
-  
-  /* Enhanced staggered animation for past auction cards */
-  @keyframes staggerFadeIn {
-    0% {
-      opacity: 0;
-      transform: translateY(30px) scale(0.9);
-      filter: blur(5px);
-    }
-    60% {
-      opacity: 0.8;
-      transform: translateY(-10px) scale(1.01);
-      filter: blur(0);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      filter: blur(0);
-    }
-  }
-  
-  /* Adjust wrapper for better animation display */
   .auction-card-wrapper {
     /* Create space for 3D effects */
     transform-style: preserve-3d;
@@ -745,85 +488,7 @@
     margin: 0.5rem;
     /* Prevent cards from being clipped */
     overflow: visible !important;
-  }
-  
-  /* Make sure this also applies to child elements */
-  :global(.auction-card-wrapper > *) {
-    overflow: visible !important;
-  }
-  
-  /* Page background */
-  :global(body) {
-    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-    background-attachment: fixed;
     position: relative;
-  }
-  
-  :global(body::before) {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-    background-size: 20px 20px;
-    opacity: 0.03;
-    pointer-events: none;
-    z-index: -1;
-  }
-  
-  /* Add premium glow effects */
-  .premium-glow {
-    position: fixed;
-    width: 40vw;
-    height: 40vw;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: -1;
-    opacity: 0.1;
-  }
-  
-  .premium-glow-1 {
-    top: -20vw;
-    right: -10vw;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0) 70%);
-  }
-  
-  .premium-glow-2 {
-    bottom: -20vw;
-    left: -10vw;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0) 70%);
-  }
-  
-  /* Style category highlights */
-  .style-highlight {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .style-highlight::after {
-    content: "";
-    position: absolute;
-    bottom: -4px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 2px;
-    background-color: currentColor;
-    transition: width 0.3s ease;
-  }
-  
-  .style-highlight:hover::after {
-    width: 80%;
-  }
-
-  /* Remove the fancy header styles */
-  .cool-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 10;
   }
 </style>
-
-<!-- Premium background effects -->
-<div class="premium-glow premium-glow-1"></div>
-<div class="premium-glow premium-glow-2"></div>

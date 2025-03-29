@@ -125,10 +125,8 @@
     try {
       loading = true;
       const id = $page.params.id;
-      console.log('Fetching knife details for ID:', id);
       
       if (!id) {
-        console.error('No item ID found in URL parameters');
         error = 'No item ID found';
         item = null;
         return;
@@ -143,7 +141,7 @@
       
       const data = await response.json();
       
-      // Process the images before assigning to the item - ensure images are fully validated
+      // Process the images before assigning to the item
       if (data) {
         // Make sure images array exists and is initialized properly
         if (!data.images || !Array.isArray(data.images)) {
@@ -175,7 +173,6 @@
       
       error = null;
     } catch (e) {
-      console.error('Failed to refresh item:', e);
       error = `Failed to load item: ${e.message}`;
       item = null;
     } finally {
@@ -197,9 +194,7 @@
 
   function selectImage(index) {
     if (index >= 0 && index < (item.images?.length || 0)) {
-    currentImageIndex = index;
-    } else {
-      console.warn(`Invalid image index: ${index}`);
+      currentImageIndex = index;
     }
   }
 
@@ -311,8 +306,7 @@
       try {
         await refreshItem();
       } catch (e) {
-        console.error('Failed to load knife details:', e);
-        error = 'Failed to load knife details';
+        error = 'Failed to load item details';
       }
     }
     
@@ -364,8 +358,7 @@
     }
     
     try {
-    isSubmittingBid = true;
-      console.log('Submitting bid for item:', item.id, 'amount:', bidAmount);
+      isSubmittingBid = true;
       
       // Get CSRF token from cookies
       const csrfToken = document.cookie
@@ -393,7 +386,6 @@
       showSuccessToast('Bid placed successfully!');
       
     } catch (e) {
-      console.error('Error placing bid:', e);
       showSuccessToast(e.message || 'Failed to place bid. Please try again.');
     } finally {
       isSubmittingBid = false;
@@ -409,6 +401,21 @@
   function prepareItemImages(item) {
     let images = [];
     
+    // Helper function to ensure valid image URL
+    function getValidImageUrl(url) {
+      if (!url || url === 'null' || url === 'undefined') {
+        return '/placeholder.jpg';
+      }
+      
+      // Check if URL starts with http/https or a slash (for local paths)
+      if (!url.startsWith('http') && !url.startsWith('/')) {
+        // Add leading slash for local paths if missing
+        return `/${url}`;
+      }
+      
+      return url;
+    }
+    
     if (item.images && Array.isArray(item.images) && item.images.length > 0) {
       images = item.images.map(img => {
         // Simple null check for the image object
@@ -418,29 +425,27 @@
         
         // Handle string image
         if (typeof img === 'string') {
-          // Check if the string itself is 'null' or 'undefined'
-          const imageUrl = (img === 'null' || img === 'undefined') ? '/placeholder.jpg' : img;
-          return { image: imageUrl, width: 800, height: 600 };
+          return { 
+            image: getValidImageUrl(img), 
+            width: 800, 
+            height: 600 
+          };
         }
         
         // Handle object with image property
-        let imageUrl = img.image || img.url || '';
-        // Check if the URL string is 'null' or 'undefined'
-        if (!imageUrl || imageUrl === 'null' || imageUrl === 'undefined') {
-          imageUrl = '/placeholder.jpg';
-        }
+        const imageUrl = getValidImageUrl(img.image || img.url || '');
         
         return {
           image: imageUrl,
-          webp_url: img.webp_url || '',
+          webp_url: img.webp_url ? getValidImageUrl(img.webp_url) : '',
           width: img.width || 800,
           height: img.height || 600
-    };
-  });
-    } else if (item.image && item.image !== 'null' && item.image !== 'undefined') {
-      images = [{ image: item.image, width: 800, height: 600 }];
-    } else if (item.thumbnail && item.thumbnail !== 'null' && item.thumbnail !== 'undefined') {
-      images = [{ image: item.thumbnail, width: 800, height: 600 }];
+        };
+      });
+    } else if (item.image) {
+      images = [{ image: getValidImageUrl(item.image), width: 800, height: 600 }];
+    } else if (item.thumbnail) {
+      images = [{ image: getValidImageUrl(item.thumbnail), width: 800, height: 600 }];
     } else {
       images = [{ image: '/placeholder.jpg', width: 800, height: 600 }];
     }
@@ -463,7 +468,6 @@
 
   // Ensure currentImageIndex stays within valid range when images array changes
   $: if (item?.images?.length && currentImageIndex >= item.images.length) {
-    console.log('Adjusting currentImageIndex to be within bounds:', { currentImageIndex, imagesLength: item.images.length });
     currentImageIndex = 0;
   }
 
@@ -471,11 +475,6 @@
   $: currentImage = item?.images?.length > 0 && currentImageIndex < item.images.length
     ? item.images[currentImageIndex]
     : null;
-
-  // Log current image for debugging
-  $: if (currentImage) {
-    // No need to log the current image on every change
-  }
 </script>
 
 <div class="min-h-screen bg-gradient-to-br from-slate-900 to-slate-950 p-4 md:p-8">
@@ -1035,29 +1034,28 @@
               class="transition-all duration-300 ease-in-out pointer-events-none {i === popupImageIndex ? 'opacity-100 scale-100 z-50' : 'opacity-0 scale-95 absolute inset-0'}"
             >
               {#if i === popupImageIndex}
-                <div class="relative w-full h-[70vh] overflow-hidden rounded-lg mx-auto bg-black/20 backdrop-blur-sm pointer-events-auto">
-                  <div class="absolute inset-0 flex items-center justify-center">
-                    <div class="w-full h-full max-w-full max-h-full relative">
-                      {#if typeof image === 'object' && image.image && image.image !== 'null' && image.image !== 'undefined'}
-                        <ResponsiveImage
-                          src={image.image}
-                          webpSrc={image.webp_url ? image.webp_url : ''}
-                          width={image.width || 800}
-                          height={image.height || 600}
-                          alt={`${item.title} - Image ${i + 1}`}
-                          className="w-full h-full object-contain rounded-lg"
-                          objectFit="contain"
-                          fallbackSrc="/placeholder.jpg"
-                        />
-                      {:else}
-                        <img
-                          src="/placeholder.jpg"
-                          alt={`${item.title} - Image ${i + 1}`}
-                          class="w-full h-full object-contain rounded-lg"
-                        />
-                      {/if}
-                    </div>
-                  </div>
+                <div class="relative w-full max-h-[80vh] flex items-center justify-center mx-auto pointer-events-auto">
+                  {#if typeof image === 'object' && image.image && image.image !== 'null' && image.image !== 'undefined'}
+                    <!-- Use ResponsiveImage with proper settings for full-size display -->
+                    <ResponsiveImage
+                      src={image.image}
+                      webpSrc={image.webp_url || ''}
+                      width={image.width || 800}
+                      height={image.height || 600}
+                      alt={`${item.title} - Image ${i + 1}`}
+                      className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl carousel-image"
+                      objectFit="contain"
+                      fallbackSrc="/placeholder.jpg"
+                      priority={true}
+                      quality="high"
+                    />
+                  {:else}
+                    <img
+                      src="/placeholder.jpg"
+                      alt={`${item.title} - Image ${i + 1}`}
+                      class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                    />
+                  {/if}
                 </div>
               {/if}
             </div>
@@ -1065,7 +1063,7 @@
         </div>
         
         <!-- Thumbnails -->
-        <div class="mt-4 flex justify-center space-x-3 overflow-x-auto py-2 pointer-events-auto">
+        <div class="mt-6 flex justify-center space-x-3 overflow-x-auto py-2 pointer-events-auto">
           {#each item.images as image, i}
             <button 
               class="h-16 w-16 flex-shrink-0 rounded-md overflow-hidden transition-all duration-200 
@@ -1075,20 +1073,20 @@
               {#if typeof image === 'object' && image.image && image.image !== 'null' && image.image !== 'undefined'}
                 <ResponsiveImage
                   src={image.image}
-                  webpSrc={image.webp_url ? image.webp_url : ''}
+                  webpSrc={image.webp_url || ''}
+                  alt={`Thumbnail ${i + 1}`}
+                  className="h-full w-full object-cover"
+                  objectFit="cover"
                   width={100}
                   height={100}
-                  alt={`Thumbnail ${i + 1}`}
-                  className="w-full h-full object-cover"
-                  objectFit="cover"
                   fallbackSrc="/placeholder.jpg"
+                  priority={i === popupImageIndex}
                 />
               {:else}
                 <img
                   src="/placeholder.jpg"
                   alt={`Thumbnail ${i + 1}`}
                   class="w-full h-full object-cover"
-                  on:error={handleImageError}
                 />
               {/if}
             </button>

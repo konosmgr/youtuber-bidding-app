@@ -371,11 +371,13 @@
       <p>Check back soon for new items or browse our past auctions below!</p>
     </div>
   {:else}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-16">
       {#each sortItems(items, sortOption).filter(item => item.title.toLowerCase().includes(searchTerm.toLowerCase())) as item (item.id)}
-        <div transition:fade={{ duration: 300 }}>
+        <div transition:fade={{ duration: 300 }} class="card-wrapper perspective-container">
           <AuctionCard
             item={mapItemToAuctionCard(item)}
+            cardHeight="h-[500px]"
+            hoverScale={1.1}
             href={`/misc/${item.id}`}
           />
         </div>
@@ -409,9 +411,9 @@
         <p>No past miscellaneous auctions found.</p>
       </div>
     {:else}
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-16">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-16">
         {#each pastItems.filter(item => item.title.toLowerCase().includes(searchTerm.toLowerCase())) as item (item.id)}
-          <div transition:fade={{ duration: 300 }}>
+          <div transition:fade={{ duration: 300 }} class="auction-card-wrapper">
             <PastAuctionCard 
               item={{
                 id: item.id,
@@ -425,6 +427,9 @@
                 description: item.description,
                 category: item.category
               }}
+              cardHeight="h-[450px]"
+              hoverScale={1.08}
+              containerClass="z-10"
             />
           </div>
         {/each}
@@ -446,5 +451,37 @@
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+  }
+  
+  /* Add card styling to ensure proper 3D rendering */
+  .perspective-container {
+    perspective: 2000px;
+    margin: 2rem 0;
+    transform-style: preserve-3d;
+    overflow: visible !important;
+  }
+  
+  .card-wrapper {
+    transform-style: preserve-3d;
+    overflow: visible !important; 
+    margin: 0 1rem;
+    /* Add vertical margin to give room for expansion on hover */
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 10;
+  }
+  
+  /* Card styling for past auctions */
+  .auction-card-wrapper {
+    /* Create space for 3D effects */
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    /* Ensure there's enough space around cards */
+    margin: 0.5rem;
+    /* Prevent cards from being clipped */
+    overflow: visible !important;
+    position: relative;
+    z-index: 10;
   }
 </style>
