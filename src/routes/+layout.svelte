@@ -2,7 +2,6 @@
   import Navbar from '$lib/components/Navbar.svelte';
   import NicknameCheckWrapper from '$lib/components/NicknameCheckWrapper.svelte';
   import BeamsBackground from '$lib/components/ui/Background/BeamsBackground(Animated).svelte';
-  import ThreeJSBackgroundController from '$lib/components/ui/3JS/ThreeJSBackgroundController.svelte';
   import { isAuthenticated } from '$lib/stores/auth';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
@@ -14,13 +13,8 @@
 
   // Allow routes to override background
   $: {
-    // Special case for the Three.js showcase page - always use three.js backgrounds
-    if ($page.url.pathname.startsWith('/x/threejs') || $page.url.pathname.startsWith('/x/three')) {
-      backgroundType = 'none'; // Special value for the showcase page
-    } 
-    else {
-      backgroundType = 'beams'; // Use beams background for all other pages
-    }
+    // No special case handling needed - use beams background for all pages
+    backgroundType = 'beams';
   }
 
   onMount(async () => {
@@ -43,24 +37,7 @@
 </svelte:head>
 
 <NicknameCheckWrapper currentPath={$page.url.pathname}>
-  {#if backgroundType === 'beams'}
-    <BeamsBackground intensity="medium">
-      <div class="flex flex-col min-h-screen w-full">
-        {#if browser}
-          <Navbar />
-        {:else}
-          <!-- Static placeholder for SSR -->
-          <div class="h-16 w-full bg-gradient-to-b from-gray-900/90 to-black/70">
-            <!-- Placeholder for navbar -->
-          </div>
-        {/if}
-        <main class="flex-grow w-full">
-          <slot />
-        </main>
-      </div>
-    </BeamsBackground>
-  {:else if backgroundType === 'none'}
-    <!-- No background for showcase pages - they handle their own backgrounds -->
+  <BeamsBackground intensity="medium">
     <div class="flex flex-col min-h-screen w-full">
       {#if browser}
         <Navbar />
@@ -74,7 +51,7 @@
         <slot />
       </main>
     </div>
-  {/if}
+  </BeamsBackground>
 </NicknameCheckWrapper>
 
 <style>

@@ -4,6 +4,11 @@
 The project is a SvelteKit application for "Betting on Alaska Auctions" - a youtuber bidding platform. The application provides an interface for users to participate in auctions related to various categories including general auctions, knives, art, and miscellaneous items.
 
 ### Recent Changes
+- Removed unused Three.js dependencies and components:
+  - Removed Three.js dependency from package.json
+  - Removed Three.js background controller import from main layout
+  - Simplified the background logic to use BeamsBackground consistently
+  - Removed special case handling for Three.js showcase routes
 - Standardized the site background to use BeamsBackground across all pages:
   - Modified the main layout to use BeamsBackground consistently throughout the site
   - Removed route-specific Three.js backgrounds to create a more unified visual experience
@@ -441,3 +446,36 @@ This project implements advanced 3D card components with staggered animation eff
 4. **Documentation**
    - Create comprehensive API documentation
    - Add examples for common use cases
+
+### Recent Updates
+
+- Added a showcase page for the Enhanced3DCard component at route `/x/11`
+- Demonstrated staggered animation effects using the component's capabilities
+
+### Project Structure
+
+The project follows a standard SvelteKit structure with the following notable directories:
+
+- `/src/routes`: Contains all the application routes
+- `/src/lib`: Contains reusable components and utility functions
+- `/src/lib/components/ui`: UI components, including the 3D card components
+
+### Components
+
+#### Enhanced3DCard Component
+
+Located at `/src/lib/components/ui/3d-card/hybridcards/Enhanced3DCard.svelte`, this component provides:
+
+- 3D hover effects with customizable parameters
+- Staggered animation capabilities through:
+  - The `getItemStyle` function that allows setting different z-index values and delays
+  - Access to the `isHovering` state for conditional animations
+  - Custom easing and duration parameters
+  - Z-depth transformations constrained between `minZ` and `maxZ` props
+
+### Showcase Pages
+
+- `/x/11`: Demonstrates the staggered animation capabilities of the Enhanced3DCard component with three example cards:
+  1. Basic Staggered Card - Shows elements appearing with different delays and z-depths
+  2. Floating Elements Card - Shows floating elements with different z-depths and staggered timing
+  3. Layered Content Card - Shows layered content with geometric shapes that rotate and scale
