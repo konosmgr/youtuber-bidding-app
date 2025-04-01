@@ -1,4 +1,6 @@
 <script>
+  import { onMount } from 'svelte';
+  import ResponsiveImage from '$lib/components/ResponsiveImage.svelte';
   // No background import needed as BeamsBackground is provided by the layout
 </script>
 
@@ -48,6 +50,58 @@
         Every item is carefully verified, and our bidding process is designed to be fair and
         transparent.
       </p>
+      
+      <h2 class="mb-4 mt-8 text-2xl font-semibold text-gray-200">Historical Maps of Alaska</h2>
+      <p class="mb-4 text-gray-300">
+        Discover the rich cartographic history of Alaska through this historical topographic map from 1927.
+        Click the image to explore detailed interactive maps at orthoslogos.fr.
+      </p>
+      
+      <div class="map-thumbnail-container">
+        <a 
+          href="https://orthoslogos.fr/cartographie/alaska-topographic-maps/#figure-1" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="block"
+        >
+          <div class="map-thumbnail-wrapper">
+            <!-- Temporarily comment out ResponsiveImage component -->
+            <!-- <ResponsiveImage
+              src="/images/maps/alaska-map-1927.jpg"
+              alt="Alaska Topographic Map Index, 1927"
+              className="w-full rounded-lg transition-all duration-300"
+              width={1200}
+              height={900}
+              priority={true}
+            /> -->
+            
+            <!-- Test with regular img tag -->
+            <img 
+              src="/images/maps/alaska-map-1927.jpg" 
+              alt="Alaska Topographic Map Index, 1927"
+              class="w-full rounded-lg transition-all duration-300"
+              width="1200"
+              height="900"
+            />
+            <div class="map-overlay">
+              <span>View Interactive Map</span>
+            </div>
+          </div>
+          <p class="mt-2 text-center text-sm text-blue-300">
+            Alaska Topographic Map Index, 1927 - USGS
+          </p>
+        </a>
+        <p class="mt-2 text-xs text-gray-400 text-center">
+          Source: <a 
+            href="https://orthoslogos.fr/cartographie/alaska-topographic-maps/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="text-blue-400 hover:underline"
+          >
+            orthoslogos.fr
+          </a>
+        </p>
+      </div>
     </div>
     <div class="mt-8">
       <h2 class="mb-4 text-2xl font-semibold text-gray-200">Our YouTube Channel</h2>
@@ -83,4 +137,45 @@
 
 <style>
   /* Remove alaska-bg class as it's not needed anymore */
+  
+  .map-thumbnail-container {
+    margin: 1.5rem auto;
+    max-width: 600px;
+  }
+  
+  .map-thumbnail-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .map-thumbnail-wrapper:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .map-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .map-overlay span {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 500;
+  }
+  
+  .map-thumbnail-wrapper:hover .map-overlay {
+    opacity: 1;
+  }
 </style>
