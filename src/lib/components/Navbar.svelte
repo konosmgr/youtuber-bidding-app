@@ -127,9 +127,11 @@
       <!-- Logo -->
       <a href="/" class="flex items-center space-x-3 group">
         <div class="relative">
-          <span class="h-9 w-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-700 flex items-center justify-center text-white text-lg font-bold shadow-lg transition-all duration-300 group-hover:shadow-amber-500/20 group-hover:shadow-xl">
-            A
-          </span>
+          <img 
+            src="/images/ui/wolf-logo.png" 
+            alt="Alaska Auctions Wolf Logo" 
+            class="h-9 w-9 rounded-full transition-all duration-300 group-hover:shadow-amber-500/20 group-hover:shadow-xl"
+          />
           <span class="absolute -inset-1 rounded-full bg-amber-400/20 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
         </div>
         <span class="text-lg font-semibold tracking-tight text-white group-hover:text-amber-300 transition-colors duration-300">Betting on Alaska Auctions</span>

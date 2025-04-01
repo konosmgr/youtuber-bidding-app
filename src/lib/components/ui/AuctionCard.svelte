@@ -278,8 +278,8 @@
         {/if}
         
         <!-- Gradient overlay with subtle animation -->
-        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent rounded-xl"
-             style:opacity={isHovering ? 0.7 : 0.8}
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent rounded-xl"
+             style:opacity={isHovering ? 0.65 : 0.75}
              style:transform={getItemStyle(zValues.overlay, {
                yOffset: isHovering ? 5 : 0,
                customDuration: 0.6
@@ -409,12 +409,13 @@
                    style:transition={getItemStyle(zValues.specs).transition}>
                 <ul class="space-y-0.5">
                   {#each item.specs as spec, i}
-                    <li class="text-white/90 text-sm flex items-start gap-1.5" 
+                    <li class="text-white text-sm flex items-start gap-1.5 " 
                         style="transition-delay: {0.15 + (i * 0.07)}s; 
-                               opacity: {isHovering ? '0.9' : '1'}; 
+                               opacity: {isHovering ? '1' : '1'}; 
                                transform: translateX({isHovering ? sineWave(currentTime + i * 0.5, 5, 1) : -5}px) 
-                                          translateY({isHovering ? cosineWave(currentTime + i * 0.3, 3, 0.7) : 0}px); 
-                               transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                              translateY({isHovering ? cosineWave(currentTime + i * 0.3, 3, 0.7) : 0}px); 
+                               transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+                               text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);">
                       <svg xmlns="http://www.w3.org/2000/svg" 
                            class="h-3.5 w-3.5 text-indigo-400 mt-1 flex-shrink-0" 
                            style="transform: scale({isHovering ? 1 + Math.sin(currentTime * 5 + i) * 0.2 : 1});"

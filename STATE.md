@@ -4,6 +4,42 @@
 The project is a SvelteKit application for "Betting on Alaska Auctions" - a youtuber bidding platform. The application provides an interface for users to participate in auctions related to various categories including general auctions, knives, art, and miscellaneous items.
 
 ### Recent Changes
+- Fixed the Z-depth demonstration page at `/x/6`:
+  - Refactored to use the Enhanced3DCard component for better consistency and reliability
+  - Fixed elements not showing properly due to z-index and positioning issues
+  - Improved image handling with better error handling and fallback images
+  - Adopted the component's getItemStyle function for positioning elements in 3D space
+  - Maintained all interactive controls for Z-position adjustment and content configuration
+  - Added proper event handling for hover state changes
+  - Fixed visibility issues with text shadows and improved element positioning
+  - Properly integrated with the site's component library for better maintainability
+- Enhanced the Z-depth demonstration page at `/x/6`:
+  - Converted hardcoded content to configurable props for better reusability
+  - Added support for images with proper z-index handling
+  - Implemented product data specific to the Alaska Knife Auction theme
+  - Added theme switching between light and dark modes
+  - Created a comprehensive content configuration panel
+  - Added interactive controls for all content elements
+  - Enhanced visual appearance with better styling and animations
+  - Improved the button hover effect with transform and shadow changes
+  - Made all elements dynamically update when props change
+  - Added realistic product details with hand-crafted knife specifications
+- Added comprehensive staggered animation showcases for Enhanced3DCard component:
+  - Created `StaggeredEffectsShowcase.svelte` component demonstrating basic staggered floating elements
+  - Implemented multiple animation patterns including cascade, wave, spiral, and random
+  - Added `ContentStaggerShowcase.svelte` for practical product card applications with staggered content
+  - Created `TextStaggerShowcase.svelte` for character-by-character text animation effects
+  - Built a comprehensive showcase index page demonstrating all staggered animation techniques
+  - Used getItemStyle function with configurable delays for consistent animation handling
+  - Added customizable animation properties including staggerDelay, baseDelay, and pattern options
+  - Implemented proper z-index handling and 3D transforms for realistic depth effects
+  - Ensured all animations use proper CSS transitions with cubic-bezier timing functions
+  - Fixed linter errors in TextStaggerShowcase by properly nesting @const tags in control blocks
+- Fixed component import paths in showcase routes:
+  - Fixed x/10 route by replacing the non-existent Three3DCard.svelte import with Enhanced3DCard.svelte
+  - Standardized the import path in x/11 to use the Enhanced3DCard from test-components directory
+  - Updated image references to use existing images instead of placeholder images
+  - Adjusted component props to match available properties of the Enhanced3DCard component
 - Removed unused Three.js dependencies and components:
   - Removed Three.js dependency from package.json
   - Removed Three.js background controller import from main layout
@@ -276,6 +312,13 @@ The project is a SvelteKit application for "Betting on Alaska Auctions" - a yout
   - Misc: Teal/emerald accent colors
 - Used client-side rendering (CSR) for all item detail pages to ensure proper API interaction and animations
 - Implemented robust error handling and loading states for all category and detail pages
+- Replaced the "A" text logo in the navbar with a custom wolf logo:
+  - Updated the Navbar component to use an image instead of the text letter
+  - Created a dedicated UI images directory for interface assets
+  - Added a Wolf logo implementation with proper sizing and styling
+  - Maintained the existing hover effects and animations
+  - Provided multiple methods for adding the processed logo (manual, shell script, Node.js)
+  - Added comprehensive documentation for logo implementation
 
 ## Project Structure
 The project follows a typical SvelteKit structure:
