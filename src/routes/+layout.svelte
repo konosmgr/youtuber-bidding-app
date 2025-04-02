@@ -3,6 +3,7 @@
   import NicknameCheckWrapper from '$lib/components/NicknameCheckWrapper.svelte';
   import BeamsBackground from '$lib/components/ui/Background/BeamsBackground(Animated).svelte';
   import { isAuthenticated } from '$lib/stores/auth';
+  import { API_BASE } from '$lib/config/api';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { browser } from '$app/environment';
@@ -10,6 +11,18 @@
 
   let mounted = false;
   let backgroundType = 'beams'; // Options: 'beams', 'particles', 'waves', 'landscape'
+  // Extract the host from API_BASE for preconnect if it's a full URL
+  let apiHost = '';
+  
+  if (browser && typeof import.meta.env.VITE_PUBLIC_API_URL === 'string') {
+    try {
+      const url = new URL(import.meta.env.VITE_PUBLIC_API_URL);
+      apiHost = url.origin;
+    } catch (e) {
+      // If it's not a valid URL, don't use preconnect
+      console.log('API_BASE is not a full URL, skipping preconnect');
+    }
+  }
 
   // Allow routes to override background
   $: {
@@ -27,7 +40,9 @@
 <svelte:head>
   <!-- Preload critical resources -->
   <link rel="preload" href="/favicon.png" as="image" />
-  <link rel="preconnect" href="http://api:8000" />
+  {#if apiHost}
+    <link rel="preconnect" href={apiHost} />
+  {/if}
   
   <!-- Improve paint performance -->
   <meta name="theme-color" content="#000000" />
