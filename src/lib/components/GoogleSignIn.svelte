@@ -76,7 +76,7 @@
             theme: 'outline',
             size: 'large',
             text: buttonText,
-            width: '100%'
+            width: 300
           }
         );
       } else {
@@ -92,14 +92,14 @@
   });
 </script>
 
-<div class="w-full">
+<div class="w-full flex justify-center">
 {#if isLoading}
-  <div class="w-full py-2 text-center">
+  <div class="py-2 text-center">
     <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></span>
     <span class="ml-2">Authenticating...</span>
   </div>
 {:else}
-  <div id="googleSignInButton" class="w-full"></div>
+  <div id="googleSignInButton"></div>
 {/if}
 
 {#if error}

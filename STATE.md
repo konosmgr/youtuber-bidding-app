@@ -522,3 +522,110 @@ Located at `/src/lib/components/ui/3d-card/hybridcards/Enhanced3DCard.svelte`, t
   1. Basic Staggered Card - Shows elements appearing with different delays and z-depths
   2. Floating Elements Card - Shows floating elements with different z-depths and staggered timing
   3. Layered Content Card - Shows layered content with geometric shapes that rotate and scale
+
+# Youtuber Bidding Frontend - Project State
+
+## Project Structure
+The Youtuber Bidding frontend is a SvelteKit application that provides the user interface for an auction platform specifically designed for YouTuber merchandise and memorabilia.
+
+### Main Components:
+- **src/routes**: Application routes and pages
+- **src/lib**: Reusable components, utilities, and stores
+- **static**: Static assets like images and fonts
+
+## Recent Changes
+
+### 2025-04-03: Fixed API Routing Architecture
+- Identified and resolved major API routing issue between development and production environments
+- Updated API client to handle path-based routing consistently
+- Resolved conflicts between frontend routes and backend API endpoints
+- Simplified environment configuration
+
+## API Integration Changes
+
+### Route Conflict Resolution
+- Identified conflict between SvelteKit routes (`src/routes/api/*`) and backend API endpoints
+- Renamed frontend routes to prevent request interception
+- Ensured all API requests properly reach the backend service
+
+### API Client Improvements
+- Updated API client code to handle relative URLs properly
+- Simplified URL construction logic
+- Fixed CSRF token fetching mechanism
+- Improved error handling and reporting
+
+## Architecture Explanation: API Routing Problem
+
+### Original Problem
+The project experienced a significant architectural inconsistency between development and production environments:
+
+1. **Development Environment:**
+   - Frontend and backend both running on the same domain
+   - API accessed through path-based routing (`/api/*` endpoints)
+   - SvelteKit dev server proxied requests to the Django backend
+
+2. **Production Environment:**
+   - Initially configured with subdomain-based API routing (`api.konosmgr.com`)
+   - Frontend code still constructed URLs assuming path-based routing
+   - Created URL mismatches like `api.konosmgr.com/api/*` (double `/api` prefix)
+   - Frontend requests failed with 404 errors
+
+### Complicating Factors
+1. **Frontend Route Conflicts:**
+   - SvelteKit frontend had its own `/api` routes under `src/routes/api/*`
+   - These frontend routes intercepted some API requests before they reached the backend
+   - Created confusion between frontend and backend API endpoints
+
+2. **Cross-Domain Issues:**
+   - Subdomain architecture required complex CORS configuration
+   - Cookie handling across domains complicated authentication
+   - CSRF protection more difficult to implement correctly
+
+### Implemented Solution
+1. **Unified Domain Architecture:**
+   - Configured Traefik to route `/api/*` paths on main domain to backend service
+   - Maintained backwards compatibility with existing subdomain
+   - Simplified frontend environment variables to use relative paths
+
+2. **Frontend Adjustments:**
+   - Updated API client code to handle relative URLs properly
+   - Ensured consistent path construction throughout the application
+   - Renamed conflicting frontend routes to avoid interception
+
+3. **Infrastructure Updates:**
+   - Added new routing rules in Traefik configuration
+   - Maintained subdomain for gradual migration
+
+### Benefits of the Solution
+1. **Consistency:** Development and production now use the same API URL structure
+2. **Simplicity:** Removed cross-domain complexities
+3. **Reliability:** Eliminated URL construction issues
+4. **Maintainability:** Simplified architecture is easier to debug and extend
+
+This architectural change aligns with modern web application best practices, where APIs are typically served from the same domain as the frontend using path-based routing.
+
+## Recent Fixes - API Routing and Google Authentication
+
+### Issues Fixed
+1. **API URL Configuration Conflicts:**
+   - Removed hardcoded references to `api.konosmgr.com` in the Dockerfile.prod
+   - Updated Content Security Policy in app.html to remove explicit API subdomain references
+   - Ensured environment variables are correctly set for path-based API access
+
+2. **Google Sign-In Button Issues:**
+   - Fixed invalid width parameter (changed from '100%' to numeric value 300)
+   - Adjusted button container styling for better display
+   - Will need to update Google Cloud Console settings to add `konosmgr.com` as an allowed origin
+
+3. **Traefik Configuration Improvements:**
+   - Maintained backward compatibility with the API subdomain
+   - Properly defined and named services to avoid ambiguous routing
+   - Updated CORS settings to allow credentials and proper headers
+
+### Benefits of the Fixes
+1. **Compatibility:** Works consistently across environments
+2. **Security:** Proper CORS and CSP settings for modern security standards
+3. **User Experience:** Fixed Google Sign-In for seamless authentication
+4. **Maintainability:** Cleaner configuration with explicit naming
+
+These changes resolve the key issues that were causing 403 Forbidden errors when accessing the API and the Google Sign-In button display problems.

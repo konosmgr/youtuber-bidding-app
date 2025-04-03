@@ -1,8 +1,11 @@
+import { API_BASE, API_PATH } from '../config/api';
+
 export const fetchApi = async (endpoint, options = {}) => {
   console.log('fetchApi called with:', { endpoint, options });
 
-  const baseUrl = '/api';
-  const url = endpoint.startsWith('/') ? `${baseUrl}${endpoint}` : `${baseUrl}/${endpoint}`;
+  const url = endpoint.startsWith('/') 
+    ? `${API_BASE}${API_PATH}${endpoint}` 
+    : `${API_BASE}${API_PATH}/${endpoint}`;
 
   // Set default headers
   const headers = {
@@ -88,7 +91,8 @@ export const getCsrfToken = async () => {
     
     // If not in cookies, fetch it from the API
     console.log('No CSRF token in cookies, fetching from API');
-    const response = await fetch('/api/csrf/', {
+    const csrfUrl = `${API_BASE}${API_PATH}/csrf/`;
+    const response = await fetch(csrfUrl, {
       credentials: 'include',
       headers: {
         Accept: 'application/json',
