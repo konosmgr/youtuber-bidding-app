@@ -77,7 +77,7 @@
             
             <!-- Test with regular img tag -->
             <img 
-              src="/images/maps/alaska-map-1927.jpg" 
+              src="/images/maps/alaska-map-1927-thumb.jpg" 
               alt="Alaska Topographic Map Index, 1927"
               class="w-full rounded-lg transition-all duration-300"
               width="1200"

@@ -35,6 +35,11 @@
     isOpen = !isOpen;
   }
 
+  // Add this function to close the mobile menu
+  function closeMenu() {
+    isOpen = false;
+  }
+
   // Animate background effects
   function animate() {
     currentTime += 0.01;
@@ -341,7 +346,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
                 <HoverTextButton 
-                  text="SUPPORT CHATS" 
+                  text="SUPPORT CHAT" 
                   href="/support" 
                   preserveStyle={true}
                   highlightColor="#f9b639"
@@ -464,7 +469,10 @@
                 {/if}
                 
                 <button 
-                  on:click={handleLogout}
+                  on:click={() => {
+                    closeMenu();
+                    handleLogout();
+                  }}
                   class="w-full flex items-center px-4 py-3 hover:bg-red-500/10 transition-colors duration-200"
                 >
                   <div class="bg-gradient-to-br from-red-500/20 to-red-600/20 p-2 rounded-full mr-3">
@@ -537,6 +545,7 @@
           ] as item}
             <a
               href={item.href}
+              on:click={closeMenu}
               class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 {activeRoute === item.href ? 'bg-gradient-to-r from-amber-900/20 to-black border-l-2 border-amber-500 text-amber-400' : 'text-gray-200 hover:bg-gray-800/30'}"
             >
               <div class="w-8 h-8 flex items-center justify-center mr-3 {activeRoute === item.href ? 'text-amber-400' : 'text-gray-400'}">
@@ -560,7 +569,9 @@
           
           <div class="border-t border-gray-800 my-3"></div>
           
-          <a href="/about" class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 {activeRoute === '/about' ? 'bg-gradient-to-r from-amber-900/20 to-black border-l-2 border-amber-500 text-amber-400' : 'text-gray-200 hover:bg-gray-800/30'}">
+          <a href="/about" 
+             on:click={closeMenu}
+             class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 {activeRoute === '/about' ? 'bg-gradient-to-r from-amber-900/20 to-black border-l-2 border-amber-500 text-amber-400' : 'text-gray-200 hover:bg-gray-800/30'}">
             <div class="w-8 h-8 flex items-center justify-center mr-3 {activeRoute === '/about' ? 'text-amber-400' : 'text-gray-400'}">
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
@@ -579,7 +590,9 @@
             </span>
           </a>
           
-          <a href="/contact" class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 {activeRoute === '/contact' ? 'bg-gradient-to-r from-amber-900/20 to-black border-l-2 border-amber-500 text-amber-400' : 'text-gray-200 hover:bg-gray-800/30'}">
+          <a href="/contact" 
+             on:click={closeMenu}
+             class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 {activeRoute === '/contact' ? 'bg-gradient-to-r from-amber-900/20 to-black border-l-2 border-amber-500 text-amber-400' : 'text-gray-200 hover:bg-gray-800/30'}">
             <div class="w-8 h-8 flex items-center justify-center mr-3 {activeRoute === '/contact' ? 'text-amber-400' : 'text-gray-400'}">
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
@@ -600,7 +613,9 @@
           
           <!-- Support Chat Link (Mobile) -->
           {#if $isAuthenticated && !isAdmin}
-            <a href="/support" class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 {activeRoute === '/support' ? 'bg-gradient-to-r from-amber-900/20 to-black border-l-2 border-amber-500 text-amber-400' : 'text-gray-200 hover:bg-gray-800/30'}">
+            <a href="/support" 
+               on:click={closeMenu}
+               class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 {activeRoute === '/support' ? 'bg-gradient-to-r from-amber-900/20 to-black border-l-2 border-amber-500 text-amber-400' : 'text-gray-200 hover:bg-gray-800/30'}">
               <div class="w-8 h-8 flex items-center justify-center mr-3 {activeRoute === '/support' ? 'text-amber-400' : 'text-gray-400'} relative">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -624,7 +639,9 @@
               </span>
             </a>
           {:else if $isAuthenticated && isAdmin}
-            <a href="/admin/chats" class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 {activeRoute === '/admin/chats' ? 'bg-gradient-to-r from-amber-900/20 to-black border-l-2 border-amber-500 text-amber-400' : 'text-gray-200 hover:bg-gray-800/30'}">
+            <a href="/admin/chats" 
+               on:click={closeMenu}
+               class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 {activeRoute === '/admin/chats' ? 'bg-gradient-to-r from-amber-900/20 to-black border-l-2 border-amber-500 text-amber-400' : 'text-gray-200 hover:bg-gray-800/30'}">
               <div class="w-8 h-8 flex items-center justify-center mr-3 {activeRoute === '/admin/chats' ? 'text-amber-400' : 'text-gray-400'} relative">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -666,6 +683,7 @@
             <!-- Profile link in mobile menu -->
             <a 
               href="/profile"
+              on:click={closeMenu}
               class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 text-gray-200 hover:bg-gray-800/30 mb-2"
             >
               <div class="w-8 h-8 flex items-center justify-center mr-3 text-amber-400">
@@ -689,6 +707,7 @@
             {#if isAdmin}
               <a 
                 href="/admin" 
+                on:click={closeMenu}
                 class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 text-gray-200 hover:bg-gray-800/30 mb-2"
               >
                 <div class="w-8 h-8 flex items-center justify-center mr-3 text-indigo-400">
@@ -712,7 +731,10 @@
             {/if}
             
             <button 
-              on:click={handleLogout}
+              on:click={() => {
+                closeMenu();
+                handleLogout();
+              }}
               class="w-full flex items-center px-4 py-3 rounded-xl transition-all duration-300 text-gray-200 hover:bg-red-900/10 hover:text-red-400"
             >
               <div class="w-8 h-8 flex items-center justify-center mr-3 text-red-400">
@@ -734,7 +756,9 @@
             </button>
           {:else}
             <div class="space-y-3 px-4">
-              <a href="/login" class="block w-full py-3 text-center text-sm font-medium text-white/90 hover:text-white bg-black/20 hover:bg-black/30 backdrop-blur-sm rounded-xl border border-white/5 hover:border-white/10 transition-all duration-300">
+              <a href="/login" 
+                 on:click={closeMenu}
+                 class="block w-full py-3 text-center text-sm font-medium text-white/90 hover:text-white bg-black/20 hover:bg-black/30 backdrop-blur-sm rounded-xl border border-white/5 hover:border-white/10 transition-all duration-300">
                 <HoverTextButton 
                   text="SIGN IN" 
                   href="/login" 
@@ -745,7 +769,9 @@
                   letterSpacing="1px"
                 />
               </a>
-              <a href="/register" class="block w-full py-3 text-center text-sm font-medium text-white bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-700 rounded-xl shadow-lg shadow-amber-800/20 hover:shadow-amber-800/30 transition-all duration-300 border border-amber-500/50">
+              <a href="/register" 
+                 on:click={closeMenu}
+                 class="block w-full py-3 text-center text-sm font-medium text-white bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-700 rounded-xl shadow-lg shadow-amber-800/20 hover:shadow-amber-800/30 transition-all duration-300 border border-amber-500/50">
                 <HoverTextButton 
                   text="REGISTER" 
                   href="/register" 

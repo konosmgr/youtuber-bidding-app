@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { isAuthenticated } from '$lib/stores/auth';
   import GoogleSignIn from '$lib/components/GoogleSignIn.svelte';
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   
   let email = '';
   let password = '';
@@ -16,8 +16,78 @@
   let verificationEmail = '';
   let verificationSent = false;
 
+  // reCAPTCHA state
+  let captchaRequired = false;
+  let captchaToken = '';
+  let captchaContainer = null; // Element reference for captcha widget
+  let captchaWidgetId = null; // ID returned by grecaptcha.render
+  let captchaScriptLoaded = false;
+
+  const RECAPTCHA_SITE_KEY = '6LcghQkrAAAAANF060YhRpUbd5gPDt9sQxuN1EiV';
+
+  // --- reCAPTCHA Functions ---
+  function loadRecaptchaScript() {
+    if (document.getElementById('recaptcha-script')) return; // Already loaded or loading
+    
+    window.onRecaptchaLoadCallback = () => {
+      console.log('reCAPTCHA script loaded.');
+      captchaScriptLoaded = true;
+      // If captcha was required before script loaded, render it now
+      if (captchaRequired && captchaContainer) {
+        renderCaptcha();
+      }
+    };
+
+    const script = document.createElement('script');
+    script.id = 'recaptcha-script';
+    script.src = 'https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoadCallback&render=explicit';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+  
+  function handleCaptchaSolved(token) {
+    console.log('CAPTCHA solved:', token ? 'Token received' : 'Token null');
+    captchaToken = token;
+    // Potentially trigger form submission automatically here if desired,
+    // or just enable the submit button.
+  }
+  
+  function handleCaptchaExpired() {
+    console.log('CAPTCHA expired');
+    captchaToken = '';
+    if (window.grecaptcha && captchaWidgetId !== null) {
+        window.grecaptcha.reset(captchaWidgetId);
+    }
+  }
+
+  function renderCaptcha() {
+    if (!captchaScriptLoaded) {
+      console.log('reCAPTCHA script not loaded yet, rendering deferred.');
+      return; 
+    }
+    if (captchaContainer && window.grecaptcha && captchaWidgetId === null) {
+      console.log('Rendering CAPTCHA widget in container');
+      try {
+          captchaWidgetId = window.grecaptcha.render(captchaContainer, {
+          sitekey: RECAPTCHA_SITE_KEY,
+          callback: handleCaptchaSolved, // Called when solved
+          'expired-callback': handleCaptchaExpired // Called when expired
+        });
+        console.log('CAPTCHA widget rendered with ID:', captchaWidgetId);
+      } catch (renderError) {
+          console.error('Error rendering reCAPTCHA:', renderError);
+          error = 'Failed to load CAPTCHA. Please refresh the page.';
+      }
+    } else if (captchaWidgetId !== null) {
+        console.log('CAPTCHA already rendered or container not ready.');
+    }
+  }
+  // --- End reCAPTCHA Functions ---
+
   onMount(() => {
     console.log("Login page mounted");
+    loadRecaptchaScript(); // Load the script when component mounts
     
     // Get redirect URL from query params
     if (typeof window !== 'undefined') {
@@ -33,28 +103,56 @@
       }
     }
   });
+  
+  onDestroy(() => {
+    // Optional: Clean up global callback function
+    if (window.onRecaptchaLoadCallback) {
+        delete window.onRecaptchaLoadCallback;
+    }
+  });
 
   async function handleLogin() {
+    // Reset captcha state on new attempt unless it was just required
+    if (!captchaRequired) {
+      captchaToken = ''; 
+    }
+    
+    // Basic validation
     if (!email || !password) {
       error = 'Please enter both email and password';
+      return;
+    }
+    if (captchaRequired && !captchaToken) {
+      error = 'Please complete the CAPTCHA verification.';
+      // Ensure widget is rendered if token is missing but required
+      if (captchaContainer && captchaWidgetId === null) {
+          renderCaptcha();
+      }
       return;
     }
 
     error = '';
     isLoading = true;
-    needsVerification = false;
+    needsVerification = false; // Reset verification state on new attempt
     console.log("Attempting login for:", email);
+    
+    const requestBody = {
+      email: email.trim(),
+      password: password.trim(),
+    };
+    
+    if (captchaRequired && captchaToken) {
+      requestBody.captcha_response = captchaToken;
+    }
 
     try {
       const response = await fetchApi('login/', {
         method: 'POST',
-        body: JSON.stringify({
-          email: email.trim(),
-          password: password.trim(),
-        }),
+        body: JSON.stringify(requestBody),
       });
 
-      // Successfully logged in
+      // Login successful
+      captchaRequired = false; // Reset captcha requirement on success
       $isAuthenticated = true;
       console.log("Login successful, user data:", response.user);
       
@@ -69,17 +167,38 @@
         window.location.href = redirectUrl;
       }
     } catch (e) {
-      console.error("Login error:", e);
+      console.error("Login error response:", e);
       
-      // Handle verification error specially
-      if (e.message && e.message.includes('verify your email')) {
+      // Reset CAPTCHA token as it's single-use or expired
+      captchaToken = '';
+      if (window.grecaptcha && captchaWidgetId !== null) {
+          window.grecaptcha.reset(captchaWidgetId);
+      }
+      
+      // Check if CAPTCHA is now required
+      if (e.data && e.data.captcha_required === true) {
+        console.log('CAPTCHA is required by backend.');
+        error = e.message || 'Too many failed attempts. Please complete the CAPTCHA.';
+        captchaRequired = true;
+        // Ensure script is loaded and trigger rendering
+        loadRecaptchaScript(); 
+        // Use timeout to ensure container is available in the DOM if conditional
+        setTimeout(renderCaptcha, 0); 
+      } else if (e.message && e.message.includes('verify your email')) {
         needsVerification = true;
         verificationEmail = email;
         error = 'Please verify your email before logging in.';
+        captchaRequired = false; // Ensure captcha doesn't show on verification error
       } else {
         error = e.message || 'Login failed';
+        captchaRequired = false; // Ensure captcha doesn't show on other errors
       }
-      isLoading = false;
+    } finally {
+        // Only set isLoading false if not navigating away
+        // Navigation might happen on success, so check if error exists
+        if (error || needsVerification) {
+          isLoading = false;
+        }
     }
   }
   
@@ -174,6 +293,7 @@
           placeholder="Enter your email"
           class="w-full rounded-md border border-gray-300 px-3 py-2"
           required
+          autocomplete="username"
         />
       </div>
 
@@ -187,8 +307,16 @@
           placeholder="Enter your password"
           class="w-full rounded-md border border-gray-300 px-3 py-2"
           required
+          autocomplete="current-password"
         />
       </div>
+
+      <!-- CAPTCHA Widget Placeholder -->
+      {#if captchaRequired}
+        <div class="my-4 flex justify-center">
+          <div bind:this={captchaContainer}></div>
+        </div>
+      {/if}
 
       <!-- Error message -->
       {#if error && !needsVerification}
@@ -200,9 +328,12 @@
       <!-- Submit button -->
       <button
         type="submit"
-        class="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        class="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
         disabled={isLoading}
       >
+        {#if isLoading}
+            <span class="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+        {/if}
         {isLoading ? 'Logging in...' : 'Login'}
       </button>
     </form>
